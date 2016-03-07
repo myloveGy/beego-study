@@ -1,0 +1,45 @@
+{{template "./Layout/header.html" }}
+<div class="container-fluid-full">
+	<div class="row-fluid">
+		<div class="login-box">
+			<h2>用户登录:</h2>
+			<form class="form-horizontal login" name="login" action="/Login" method="post">
+				<fieldset>
+					<input class="input-large span12" name="username" id="username" type="text" placeholder="用户名" required="true" rangelength="[2,20]" />
+					<input class="input-large span12" name="password" id="password" type="password" placeholder="密码" required="true" rangelength="[6,15]" />
+					<div class="clearfix"></div>
+					<button type="submit" class="btn btn-primary span12">登录</button>
+					<label  class="m_error" style="display:none">服务器繁忙,请稍候再试...</label>
+				</fieldset>	
+			</form>	
+		</div>
+	</div>	
+</div>
+{{template "./Layout/footer.html"}}
+<script type="text/javascript">
+	$(function(){
+		// 登录验证
+		$('.login').submit(function(){
+			// 验证通过
+			if ($(this).validate().form())
+			{
+				// ajax请求登录
+				$.ajax({
+					"url": "/index/login",
+					"type": "POST",
+					"data": $(this).serialize(),
+					"dataType": "json", 
+					"success": function(json) {
+						$('.m_error').html(json.Message).show();
+						if (json.Status == 1) window.location.href = "/Admin";
+					},
+					"error": function() {
+						$('.m_error').html("服务器繁忙，请稍候再试...").show();
+					}
+				})
+			}
+
+			return false;
+		});
+	});
+</script>>

@@ -1,0 +1,32 @@
+{{template "./Layout/header.tpl" .}}	
+<div class="row-fluid">
+    <div class="box span12">
+        <!--前面导航信息-->
+        <div class="box-header" data-original-title="">
+            <h2>
+                <i class="icon-desktop"></i>
+                <span class="break"></span>
+            </h2>
+            <div class="box-icon">
+
+            </div>
+        </div>
+        <div class="box-content">
+            <!--表格数据-->
+            <table class="table table-striped table-bordered table-hover" id="showTable">
+            </table>
+        </div>
+    </div>
+</div>
+{{template "./Layout/footer.tpl"}}
+<script type="text/javascript">
+	// 加载完成
+	$(function(){
+		// 定义标题
+		var title = $("li.active a").text(),icons = $("li.active a i").attr("class");
+		$("div.box-header h2").append(title).find("i").attr("class", icons);
+		
+		// 初始化表格
+		alert(timeToString(1457328601))
+	})
+</script>
