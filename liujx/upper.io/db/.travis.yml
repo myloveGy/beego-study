@@ -1,0 +1,47 @@
+language: go
+
+go:
+#  - 1.1 // QL fails to compile on lower then go1.2.
+#  - 1.2 // "go get" SSL problems with go1.2.
+#  - 1.2.1
+#  - 1.2.2
+  - 1.3
+  - 1.3.1
+  - 1.3.2
+  - 1.3.3
+  - 1.4
+
+env:
+  - GOARCH=amd64
+
+install:
+  - sudo apt-get install bzr
+  # - go get github.com/cznic/ql/ql # ql command line util.
+  # - go install github.com/cznic/ql/ql # ql command line util.
+  - go get -t -d
+  # - go get upper.io/db/mongo
+  # - go get upper.io/db/mysql
+  # - go get upper.io/db/postgresql
+  # - go get upper.io/db/sqlite
+  # - go get upper.io/db/ql
+
+services:
+  - mongodb
+
+before_script:
+  - rm -rf $HOME/gopath/src/upper.io/db
+  - mkdir -p $HOME/gopath/src/upper.io
+  - mv $HOME/gopath/src/github.com/upper/db $HOME/gopath/src/upper.io
+  - cd $HOME/gopath/src/upper.io/db
+  - export TRAVIS_BUILD_DIR=$HOME/gopath/src/upper.io/db
+  - cat mysql/_dumps/setup.sql | mysql -uroot
+  - cat mysql/_dumps/structs.sql | mysql -uupperio -pupperio upperio_tests
+  - cat postgresql/_dumps/setup.sql | psql -U postgres
+  - cat postgresql/_dumps/structs.sql | PGPASSWORD="upperio" psql -U upperio upperio_tests
+  - mongo upperio_tests --eval 'db.addUser("upperio", "upperio")'
+  # - cat ql/_dumps/structs.sql | $GOPATH/bin/ql -db ql/_dumps/test.db
+
+script:
+  - cd $HOME/gopath/src/upper.io/db
+  - go version
+  - go test -host 127.0.0.1
