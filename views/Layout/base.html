@@ -20,6 +20,26 @@
 </div>
 {{template "./Layout/footer.tpl"}}
 <script type="text/javascript">
+    var myTable = new MeTable({
+        tableId:"showTable",
+        baseUrl:"/menus/post",
+    },{
+        "autoWidth": false,
+        // "sAjaxSource" : 'AjaxIndex',
+        "aoColumns":[
+            {"data":"Id", "title":"ID"},
+            {"data":"Pid", "title":"父类ID"},
+            {"data":"MenuName", "title":"栏目名称"},
+            {"data":"Icons", "title":"使用的icons"},
+            {"data":"Url", "title":"访问URL"}, 
+            {"data":"Status", "title":"状态", "createdCell":statusToString},
+            {"data":"Sort", "title":"排序"},
+            {"data":"CreateTime", "title":"创建时间", "createdCell":dateTimeString},
+            {"data":"UpdateTime", "title":"修改时间", "createdCell":dateTimeString},
+            {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate}
+        ]
+    });
+
 	// 加载完成
 	$(function(){
 		// 定义标题
@@ -27,6 +47,11 @@
 		$("div.box-header h2").append(title).find("i").attr("class", icons);
 		
 		// 初始化表格
-		alert(timeToString(1457328601))
+		myTable.Request();
+
+        // 分页样式
+        $('#showTable_paginate').addClass('pagination pagination-centered');
+        // 去掉搜索placeholder属性(不去掉白色看不见)
+        $('input[type=search]').removeAttr('placeholder');
 	})
 </script>

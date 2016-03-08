@@ -27,3 +27,19 @@ func (this *BaseController) Prepare() {
 	admin := models.Admin{Username: "admin"}
 	this.Data["admin"] = admin
 }
+
+// ajax返回数据
+func (this *BaseController) AjaxReturn(status int, message string, data interface{}) {
+	returnData := struct {
+		Status  int
+		Message string
+		Data    interface{}
+	}{
+		Status:  status,
+		Message: message,
+		Data:    data,
+	}
+
+	this.Data["json"] = returnData
+	this.ServeJson()
+}
