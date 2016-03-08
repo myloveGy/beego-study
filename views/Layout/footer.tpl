@@ -12,8 +12,8 @@
 			<p>Here settings can be configured...</p>
 		</div>
 		<div class="modal-footer">
-			<a href="#" class="btn" data-dismiss="modal">Close</a>
-			<a href="#" class="btn btn-primary">Save changes</a>
+			<a href="#" class="btn" data-dismiss="modal">取消</a>
+			<a href="#" onclick="return myTable.saveData()" class="btn btn-primary">确定</a>
 		</div>
 	</div>
 	

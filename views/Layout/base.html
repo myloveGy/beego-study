@@ -22,18 +22,18 @@
 <script type="text/javascript">
     var myTable = new MeTable({
         tableId:"showTable",
-        baseUrl:"/menus/post",
+        baseUrl:"/menus/save",
     },{
         "autoWidth": false,
         // "sAjaxSource" : 'AjaxIndex',
         "aoColumns":[
             {"data":"Id", "title":"ID"},
-            {"data":"Pid", "title":"父类ID"},
-            {"data":"MenuName", "title":"栏目名称"},
-            {"data":"Icons", "title":"使用的icons"},
-            {"data":"Url", "title":"访问URL"}, 
-            {"data":"Status", "title":"状态", "createdCell":statusToString},
-            {"data":"Sort", "title":"排序"},
+            {"data":"Pid", "title":"父类ID", "edit":{"type": "select", "options":{"required":1, "number":1}}},
+            {"data":"MenuName", "title":"栏目名称", "edit":{"type":"text","options":{"required":1,"rangelength":"[2, 50]"}}},
+            {"data":"Icons", "title":"使用的icons", "edit":{"type":"text", "options":{"required":1, "rangelength":"[2,20]"}}},
+            {"data":"Url", "title":"访问URL", "edit":{"type":"text", "options":{"required":1, "rangelength":"[2,20]"}}}, 
+            {"data":"Status", "title":"状态", "createdCell":statusToString, "edit":{"type":"radio", "value":{"1":"启用", "0":"停用"}, "default": 1, "options":{"required":1, "number":1}}},
+            {"data":"Sort", "title":"排序", "edit":{"options":{"required":1, "number":1, "value":100}}},
             {"data":"CreateTime", "title":"创建时间", "createdCell":dateTimeString},
             {"data":"UpdateTime", "title":"修改时间", "createdCell":dateTimeString},
             {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate}

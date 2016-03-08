@@ -36,6 +36,6 @@ func (this *MenusController) AjaxIndex() {
 }
 
 // 响应其他操作
-func (this *MenusController) Update() {
+func (this *MenusController) Save() {
 	this.AjaxReturn(0, "提交参数错误", nil)
 }

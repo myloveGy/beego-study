@@ -87,13 +87,14 @@ function dateTimeString(td, cellData, rowData, row, col)
 function setOperate(td, data, rowdata, row, col)
 {
 	var str = '<a class="btn btn-success" href="javascript:myTable.info('+row+');"><i class="icon-zoom-in "></i></a> ';
-	str += '<a class="btn btn-info" href="javascript:myTable.info('+row+');"><i class="icon-edit "></i></a> ';
+	str += '<a class="btn btn-info" href="javascript:myTable.update('+row+');"><i class="icon-edit "></i></a> ';
 	str += '<a class="btn btn-danger" href="javascript:myTable.delete('+row+');"><i class="icon-trash "></i></a>';
 	$(td).html(str);
 }
 
 var MeTable = (function($) {
 	var fnServerData = function(sSource, aoData, fnCallback) {
+		var first = layer.load();
 		// ajax请求
 		$.ajax({
 			url: sSource,
@@ -101,9 +102,10 @@ var MeTable = (function($) {
 			type: 'post',
 			dataType: 'json',
 			success: function(data) {
+				layer.close(first)
 				// 判断返回数据
 				if (data.Status != 1) {
-					layer.msg('出现错误:' + data.Message, {time:3000, icon:6});
+					layer.msg('出现错误:' + data.Message, {time:1000, icon:6});
 					return false;
 				}
 
@@ -111,8 +113,8 @@ var MeTable = (function($) {
 				fnCallback(data.Data);
 			},
 			error: function(msg) {
-				console.log(msg);
-				alert(msg);
+				layer.close(first);
+				layer.msg("服务器繁忙,请稍候再试...", {time:1000});
 			}
 		});
 	};
@@ -123,7 +125,7 @@ var MeTable = (function($) {
 		this.tableOptions = {
 			'bStateSave': true,
 			"fnServerData": fnServerData,						// 获取数据的处理函数
-			"sAjaxSource": "AjaxIndex",							// 获取数据地址
+			"sAjaxSource": "ajaxindex",							// 获取数据地址
 			"bLengthChange": true, 								// 是否可以调整分页
 			"bAutoWidth": true,
 	        "bPaginate": true,
@@ -154,8 +156,9 @@ var MeTable = (function($) {
 
 		// 自定义信息配置
 		this.options = {
-			dialogId: "editDataDialog",
+			dialogId: "myModal",
 			tableId: "TableDataList",
+			formId: "updateForm",
 		};
 
 		this.tableOptions = $.extend(this.tableOptions, tableOptions);
@@ -163,38 +166,82 @@ var MeTable = (function($) {
 		this.actionType = "";
 	}
 
+	// 处理表单信息
+	MeTable.prototype.CreateForm = function() {
+		var attributes = this.tableOptions.aoColumns, self = this, form = "";
+		form += '<form class="form-horizontal" id="'+this.options.formId+'" name="'+this.options.formId+'" action="'+this.options.baseUrl +'" method="post"></fieldset>';
+
+		// 处理生成表单
+		attributes.forEach(function(k, v) {
+			if (k.edit != undefined) 
+			{
+				form += '<div class="control-group">';
+				form += '	<label class="control-label">' + k.title + '</label>';
+				form += '	<div class="controls">';
+
+				// 处理其他参数
+				var other = ' name="'+ k.data +'" ';
+				if (k.edit.options != undefined)
+				{
+					for (var i in k.edit.options) other += i + '="' + k.edit.options[i] + '" '
+				}
+
+				// 判断类型
+				switch (k.edit.type)
+				{
+					case "text":
+						form += '<input class="input-xlarge focused" type="text" ' + other +' />';
+						break;
+					case "radio":
+						if (k.edit.value != undefined)
+						{
+							for (var x in k.edit.value)
+							{
+								form += "<label>";
+								form += '<div class="radio"><span class="checked">';
+								form += '<input class="input-xlarge focused" type="radio" '+ other +' value="' + x + '" />';
+								form += '<span></div>'
+								form += k.edit.value[x];
+								form += "<label>";
+							}
+						}
+						break;
+					case "select":
+						form += '<select name="' + other +'">';
+						form += '</select>';
+						break;	
+					default:	
+						form += '<input class="input-xlarge focused" type="text" '+ other +' />';
+				}
+				
+				form += '	</div>';
+				form += '</div>';
+			}
+		});
+
+		form += '</fieldset></form>';
+		$('#' + this.options.dialogId).find('div.modal-body').html(form);
+	};
+
 	// 生成表格对象
 	MeTable.prototype.Request = function() {
+		this.CreateForm();
 		this.table = $("#" + this.options.tableId).DataTable(this.tableOptions);
 	};
 
 	// 修改数据信息
-	MeTable.prototype.edit = function(row) {
-		var data = this.table.data()[row];
-		var self = this;
-		self.actionType = "update";
-		this.tableOpt.aoColumns.forEach(function(v, k) {
-			if (v.data == null || v.isUpdate === false) {
-				return;
-			}
-			var obj = $('#' + self.opt.dialogId + ' *[name="' + v.data + '"].edit');
-			self.setValue(obj, data[v.data]);
-		});
+	MeTable.prototype.update = function(row) {
+		// 定义赋值
+		var data = this.table.data()[row], self = this;
+		this.actionType = "update";
 
-		if (typeof self.opt.editBefore === "function") {
-			if (self.opt.editBefore(data) === false) {
-				return;
-			}
-		}
-
-		$('#' + self.opt.dialogId).modal({
+		// 初始化表单
+		
+		
+		// 弹出信息
+		$('#' + self.options.dialogId).modal({
 			backdrop: "static"
 		});
-	};
-
-	// 关闭弹框
-	MeTable.prototype.closeDialog = function() {
-		$('#' + this.opt.dialogId).modal('hide');
 	};
 
 	// 表格搜索
@@ -219,7 +266,7 @@ var MeTable = (function($) {
 	// 删除数据
 	MeTable.prototype.delete = function(row) {
 		var data = this.table.data()[row], self = this;
-		data.operateType = "delete";
+		this.actionType = "delete";
 		// 询问框
 		layer.confirm('您确定需要删除这条数据吗?', {
 			title:'确认操作',
@@ -227,20 +274,7 @@ var MeTable = (function($) {
 			shift:4
 			// 确认删除
 		}, function(){
-			$.ajax({
-				url: self.options.baseUrl,
-				type: "post",
-				data:data,
-				success: function(data) {
-					if (data.success === true) {
-						self.table.draw(false);
-						alert(data.data);
-					} else {
-						alert(data.err);
-					}
-				}
-			});
-
+			self.saveData(data);
 			// 取消删除
 		}, function(){
 			layer.msg('您取消了删除操作！', {time:1000});
@@ -248,31 +282,48 @@ var MeTable = (function($) {
 	};
 
 	// 数据新增和修改的执行
-	MeTable.prototype.saveData = function() {
-		var data = {};
-		var self = this;
-		if (self.actionType == "") return;
-		var url = self.options.baseUrl;
+	MeTable.prototype.saveData = function(data) {
+		layer.closeAll();
+		// 判断类型
+		if (this.actionType == "") return;
+
+		// 验证数据
+		if (this.actionType !== "delete")
+		{
+			if ( ! $("#" + this.options.formId).validate().form()) return false;
+		}
+
+		var self = this, intLoad = layer.load();
+
+		// ajax提交数据
+		data.actionType = this.actionType;
 		$.ajax({
-			url: url,
-			data: JSON.stringify(data),
-			type: "post",
-			dataType: 'json',
-			success: function(data) {
-				if (data.success === true) {
-					if (typeof self.options.saveAfter === "function") {
-						if (self.options.saveAfter(data) === false) return;
-					}
-					self.closeDialog();
-					if (self.table) self.table.draw(false);
-					alert(data.data);
-				} else {
-					alert(data.err);
+			url:self.options.baseUrl,
+			type:'POST',
+			data:data,
+			dataType:'json',
+			success:function(json)
+			{
+				layer.close(intLoad);
+
+				// 判断操作成功
+				if (json.Status == 1)
+				{
+					self.table.draw(false);
+					return;
 				}
+
+				layer.msg(json.Message, {time:1000, icon:5})
+			},
+			error:function(){
+				layer.close(intLoad);
+				layer.msg("服务器繁忙,请稍候再试...", {time:1000, icon:2})
 			}
 		});
 
+		// 清除类型
 		self.actionType = "";
+		return false;
 	};
 
 	return MeTable;
