@@ -2,20 +2,22 @@ package models
 
 import (
 	"github.com/astaxie/beego/orm"
+	"strings"
+	"time"
 )
 
 type Menus struct {
-	Id         int    `orm:"column(id);auto;pk"`
-	Pid        int    `orm:"column(pid);"`
+	Id         int64  `orm:"column(id);auto;pk"`
+	Pid        int64  `orm:"column(pid);"`
 	MenuName   string `orm:"column(menu_name);"`
 	Icons      string `orm:"column(icons);"`
 	Url        string `orm:"column(url)"`
 	Status     int    `orm:"column(status)"`
 	Sort       int    `orm:"column(sort)"`
 	CreateTime int64  `orm:"column(create_time)"`
-	CreateId   int    `orm:"column(create_id)"`
+	CreateId   int64  `orm:"column(create_id)"`
 	UpdateTime int64  `orm:"column(update_time)"`
-	UpdateId   int    `orm:"column(update_id)"`
+	UpdateId   int64  `orm:"column(update_id)"`
 }
 
 // 初始化注册
@@ -29,12 +31,60 @@ func (menus *Menus) TableName() string {
 }
 
 // 获取全部数据
-func MenusGetAll() (total int64, data interface{}, err error) {
+func MenusGetAll(query map[string]string, offset int64, limit int64) (total int64, data interface{}, err error) {
 	var menus []*Menus
 	o := orm.NewOrm()
-	total, err = o.QueryTable(new(Menus)).All(&menus)
+	qu := o.QueryTable(new(Menus))
+
+	for k, v := range query {
+		if k != "search" {
+			k = strings.Replace(k, ".", "__", -1)
+			qu = qu.Filter(k, v)
+		}
+	}
+
+	total, _ = qu.Count()
+	_, err = qu.Limit(limit, offset).All(&menus)
 	if err == nil {
 		data = menus
+	}
+	return
+}
+
+// 新增数据
+func MenusInsert(menus *Menus) (InsertId int64, err error) {
+	o := orm.NewOrm()
+	time := time.Now().Unix()
+	menus.CreateTime = time
+	menus.UpdateTime = time
+	menus.CreateId = menus.UpdateId
+	InsertId, err = o.Insert(menus)
+	return
+}
+
+// 修改数据
+func MenusSave(menus *Menus) (isHave bool, RowCount int64, err error) {
+	o := orm.NewOrm()
+	update := Menus{Id: menus.Id}
+	isHave = false
+	if o.Read(&update) == nil {
+		isHave = true
+		menus.UpdateTime = time.Now().Unix()
+		RowCount, err = o.Update(menus)
+	}
+
+	return
+}
+
+// 删除数据
+func MenusDelete(Id int64) (isHave bool, RowCount int64, err error) {
+	o := orm.NewOrm()
+	menus := Menus{Id: Id}
+	err = o.Read(&menus)
+	isHave = false
+	if err == nil {
+		isHave = true
+		RowCount, err = o.Delete(&menus)
 	}
 
 	return

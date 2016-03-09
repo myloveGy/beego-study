@@ -94,17 +94,42 @@ function setOperate(td, data, rowdata, row, col)
 
 var MeTable = (function($) {
 	var fnServerData = function(sSource, aoData, fnCallback) {
-		var first = layer.load();
+
+		var intLayer = layer.load();
+
+		// 请求前5个参数(1, 2)有用 1记录有多少个列 每个列有5个字段 后5个字段有用()
+		var attributes = aoData[2].value.split(","), obj = [],len = attributes.length + 1, mSkey = len * 5;
+		for (var i in attributes)
+		{
+			var key = 6 + i * 5,tmpData = aoData[key];
+			if (tmpData.value != undefined && tmpData.value != "" && tmpData.value != "全部")
+			{
+				var mKey = attributes[i]
+				obj.push({"name":mKey, "value": tmpData.value});
+			}
+		}
+
+		// 添加快速查询
+		if (aoData[mSkey].value != undefined && aoData[mSkey].value != "") 
+		{
+			obj.push({"name":"search", "value": aoData[mSkey].value});
+		}
+
+		// 查询数据使用json格式传输
+		aoData.push({"name":"msearch", "value":JSON.stringify(obj)})
+		
 		// ajax请求
 		$.ajax({
 			url: sSource,
 			data: aoData,
 			type: 'post',
 			dataType: 'json',
+			cache:false,
 			success: function(data) {
-				layer.close(first)
+				layer.close(intLayer)
 				// 判断返回数据
-				if (data.Status != 1) {
+				if (data.Status != 1) 
+				{
 					layer.msg('出现错误:' + data.Message, {time:1000, icon:6});
 					return false;
 				}
@@ -113,7 +138,7 @@ var MeTable = (function($) {
 				fnCallback(data.Data);
 			},
 			error: function(msg) {
-				layer.close(first);
+				layer.close(intLayer);
 				layer.msg("服务器繁忙,请稍候再试...", {time:1000});
 			}
 		});
@@ -168,17 +193,37 @@ var MeTable = (function($) {
 
 	// 处理表单信息
 	MeTable.prototype.CreateForm = function() {
-		var attributes = this.tableOptions.aoColumns, self = this, form = "";
+		var attributes = this.tableOptions.aoColumns, self = this, form = "", search = "";
 		form += '<form class="form-horizontal" id="'+this.options.formId+'" name="'+this.options.formId+'" action="'+this.options.baseUrl +'" method="post"></fieldset>';
-
 		// 处理生成表单
 		attributes.forEach(function(k, v) {
+			// 处理搜索
+			if (k.search != undefined)
+			{
+				switch (k.search.type)
+				{
+					case "select":
+						search += '<label> ' + k.title + ' : <select name="' + k.data +'" class="msearch" vid="' + v + '">';
+						search += '<option> 全部 </option>'
+						if (k.edit.value != undefined)
+						{
+							for (var x in k.edit.value)
+							{
+								search += '<option value="' + x + '">' + k.edit.value[x] + '</option>';
+							}
+						}
+
+						search += '</select></label> ';
+					break;
+					default:
+						search += '<label> '+ k.title +': <input type="text" name="' + k.data + '" vid="' + v + '" class="msearch" value="" /></label> ';
+				}
+				
+			}
+
+			// 处理编辑
 			if (k.edit != undefined) 
 			{
-				form += '<div class="control-group">';
-				form += '	<label class="control-label">' + k.title + '</label>';
-				form += '	<div class="controls">';
-
 				// 处理其他参数
 				var other = ' name="'+ k.data +'" ';
 				if (k.edit.options != undefined)
@@ -186,33 +231,55 @@ var MeTable = (function($) {
 					for (var i in k.edit.options) other += i + '="' + k.edit.options[i] + '" '
 				}
 
-				// 判断类型
-				switch (k.edit.type)
+				if ( k.edit.type == "hidden" ) 
 				{
-					case "text":
-						form += '<input class="input-xlarge focused" type="text" ' + other +' />';
-						break;
-					case "radio":
-						if (k.edit.value != undefined)
-						{
-							for (var x in k.edit.value)
-							{
-								form += "<label>";
-								form += '<div class="radio"><span class="checked">';
-								form += '<input class="input-xlarge focused" type="radio" '+ other +' value="' + x + '" />';
-								form += '<span></div>'
-								form += k.edit.value[x];
-								form += "<label>";
-							}
-						}
-						break;
-					case "select":
-						form += '<select name="' + other +'">';
-						form += '</select>';
-						break;	
-					default:	
-						form += '<input class="input-xlarge focused" type="text" '+ other +' />';
+					form += '<input type="hidden" ' + other + '/>';
 				}
+				else 
+				{
+					form += '<div class="control-group">';
+					form += '	<label class="control-label">' + k.title + '</label>';
+					form += '	<div class="controls">';
+
+					// 判断类型
+					switch (k.edit.type)
+					{
+						case "text":
+							form += '<input class="input-xlarge focused" type="text" ' + other +' />';
+							break;
+						case "radio":
+							if (k.edit.value != undefined)
+							{
+								for (var x in k.edit.value)
+								{
+									other += x == k.edit.default ? ' checked="checked" ' : '';
+									form += "<label>";
+									form += '<input class="input-xlarge focused" type="radio" '+ other +' value="' + x + '" />';
+									form += '<span> ' + k.edit.value[x] + ' </span>';
+									form += "<label>";
+								}
+							}
+							break;
+						case "select":
+							form += '<select ' + other +'>';
+							form += '<option> -- 请选择 -- </option>'
+							if (k.edit.value != undefined)
+							{
+								for (var x in k.edit.value)
+								{
+									var selected = x == k.edit.default ? ' selected="selected" ' : '';
+									form += '<option value="' + x + '" ' + selected + '>' + k.edit.value[x] + '</option>';
+								}
+							}
+
+							form += '</select>';
+							break;	
+						default:	
+							form += '<input class="input-xlarge focused" type="text" '+ other +' />';
+					}
+				}
+
+				
 				
 				form += '	</div>';
 				form += '</div>';
@@ -220,28 +287,30 @@ var MeTable = (function($) {
 		});
 
 		form += '</fieldset></form>';
+		this.SearchHtml = search;
 		$('#' + this.options.dialogId).find('div.modal-body').html(form);
 	};
 
 	// 生成表格对象
-	MeTable.prototype.Request = function() {
+	MeTable.prototype.init = function() {
 		this.CreateForm();
+		this.options.title = $('h2').text();
 		this.table = $("#" + this.options.tableId).DataTable(this.tableOptions);
-	};
+		var self = this;
 
-	// 修改数据信息
-	MeTable.prototype.update = function(row) {
-		// 定义赋值
-		var data = this.table.data()[row], self = this;
-		this.actionType = "update";
-
-		// 初始化表单
-		
-		
-		// 弹出信息
-		$('#' + self.options.dialogId).modal({
-			backdrop: "static"
-		});
+		// 分页样式
+        $('#showTable_paginate').addClass('pagination pagination-centered');
+        // 去掉搜索placeholder属性(不去掉白色看不见)
+        $('input[type=search]').removeAttr('placeholder');
+        // 添加搜索信息
+        $('#showTable_filter').append(self.SearchHtml);
+        // 表格添加搜索事件
+        $('input.msearch').live('keyup', function () {
+            self.table.column(parseInt($(this).attr('vid'))).search($(this).val()).draw();
+        });
+        $('select.msearch').live('change', function () {
+            self.table.column(parseInt($(this).attr('vid'))).search($(this).val()).draw();
+        });
 	};
 
 	// 表格搜索
@@ -249,18 +318,47 @@ var MeTable = (function($) {
 		this.table.draw(true);
 	};
 
-	// 表格数据的添加
-	MeTable.prototype.insert = function() {
-		this.clearData();
-		this.actionType = "add";
-		if (typeof this.opt.addBefore === "function") {
-			if (this.opt.addBefore() === false) {
-				return;
+	// 初始化表单对象
+	MeTable.prototype.initForm = function(data)
+	{
+		// 弹出标题显示
+		var title = this.options.title + (this.actionType == "insert" ? "新增" : "编辑");
+		$("#" + this.options.dialogId).find('h3').html(title);
+
+		// 表单处理
+		objForm = document.updateForm
+		if (objForm != undefined)
+		{
+			objForm.reset();
+			if (data != undefined)
+			{
+				for (var i in data)
+				{
+					if (objForm[i] != undefined) objForm[i].value = data[i];
+				}
 			}
 		}
-		$('#' + this.opt.dialogId).modal({
+
+		// 弹出表单信息
+		$('#' + this.options.dialogId).modal({
 			backdrop: "static"
 		});
+	}
+
+	// 初始化
+
+	// 表格数据的添加
+	MeTable.prototype.insert = function() {
+		this.actionType = "insert";
+		this.initForm();
+	};
+
+	// 修改数据信息
+	MeTable.prototype.update = function(row) {
+		this.actionType = "update";
+
+		// 初始化表单
+		this.initForm(this.table.data()[row])
 	};
 
 	// 删除数据
@@ -269,15 +367,16 @@ var MeTable = (function($) {
 		this.actionType = "delete";
 		// 询问框
 		layer.confirm('您确定需要删除这条数据吗?', {
-			title:'确认操作',
-			btn:['确定','取消'],
-			shift:4
+			title: '确认操作',
+			btn: ['确定','取消'],
+			shift: 4,
+			icon: 0
 			// 确认删除
 		}, function(){
 			self.saveData(data);
 			// 取消删除
 		}, function(){
-			layer.msg('您取消了删除操作！', {time:1000});
+			layer.msg('您取消了删除操作！', {time:800});
 		});
 	};
 
@@ -287,16 +386,21 @@ var MeTable = (function($) {
 		// 判断类型
 		if (this.actionType == "") return;
 
-		// 验证数据
+		// 新增和修改验证数据
 		if (this.actionType !== "delete")
 		{
 			if ( ! $("#" + this.options.formId).validate().form()) return false;
+			// 提交数据
+			data = $('#' + this.options.formId).serialize();
+			data += "&actionType=" + this.actionType;
+		}
+		else
+		{
+			data.actionType = this.actionType;
 		}
 
 		var self = this, intLoad = layer.load();
-
 		// ajax提交数据
-		data.actionType = this.actionType;
 		$.ajax({
 			url:self.options.baseUrl,
 			type:'POST',
@@ -306,14 +410,18 @@ var MeTable = (function($) {
 			{
 				layer.close(intLoad);
 
+				// 提示信息
+				var intIcon = json.Status == 1 ? 6 : 5;
+				layer.msg(json.Message, {time:1000, icon:intIcon})
+
 				// 判断操作成功
 				if (json.Status == 1)
 				{
 					self.table.draw(false);
-					return;
+					if (self.table.actionType !== "delete") $("#" + self.options.dialogId).modal('hide');
+					self.table.actionType = "";
+					return false;
 				}
-
-				layer.msg(json.Message, {time:1000, icon:5})
 			},
 			error:function(){
 				layer.close(intLoad);
@@ -321,8 +429,6 @@ var MeTable = (function($) {
 			}
 		});
 
-		// 清除类型
-		self.actionType = "";
 		return false;
 	};
 

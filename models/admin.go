@@ -8,7 +8,7 @@ import (
 )
 
 type Admin struct {
-	Id          int    `orm:"column(id);auto;pk"`
+	Id          int64  `orm:"column(id);auto;pk"`
 	Username    string `orm:"column(username);"`
 	Password    string `orm:"column(password);"`
 	Email       string `orm:"column(email);"`
@@ -57,7 +57,7 @@ func AdminGetOne(username, password string) (IsTrue bool, admin Admin) {
  * @param {[type]} ip   string [description] IP
  * @param {[type]} time int64  [description] 最后登录的时间
  */
-func AdminLogout(id int, ip string, time int64) (err error) {
+func AdminLogout(id int64, ip string, time int64) (err error) {
 	o := orm.NewOrm()
 	admin := Admin{Id: id}
 	if err = o.Read(&admin); err == nil {

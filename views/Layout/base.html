@@ -8,7 +8,21 @@
                 <span class="break"></span>
             </h2>
             <div class="box-icon">
-
+                <a title="添加" href="javascript:myTable.insert()"> 
+                    <i class="icon-plus"></i>
+                </a>
+                <a id="table-refresh" title="刷新" href="#" onclick="return myTable.search();"> 
+                    <i class="icon-refresh"></i>
+                </a>
+                <a id="toggle-fullscreen" class="hidden-phone hidden-tablet" title="全屏" href="#"> 
+                    <i class="icon-fullscreen"></i>
+                </a>
+                <a class="btn-minimize" title="隐藏" href="#"> 
+                    <i class="icon-chevron-up"></i>
+                </a>
+                <a class="btn-close" title="删除" href="#"> 
+                    <i class="icon-remove"></i>
+                </a>
             </div>
         </div>
         <div class="box-content">
@@ -27,15 +41,15 @@
         "autoWidth": false,
         // "sAjaxSource" : 'AjaxIndex',
         "aoColumns":[
-            {"data":"Id", "title":"ID"},
-            {"data":"Pid", "title":"父类ID", "edit":{"type": "select", "options":{"required":1, "number":1}}},
-            {"data":"MenuName", "title":"栏目名称", "edit":{"type":"text","options":{"required":1,"rangelength":"[2, 50]"}}},
-            {"data":"Icons", "title":"使用的icons", "edit":{"type":"text", "options":{"required":1, "rangelength":"[2,20]"}}},
-            {"data":"Url", "title":"访问URL", "edit":{"type":"text", "options":{"required":1, "rangelength":"[2,20]"}}}, 
-            {"data":"Status", "title":"状态", "createdCell":statusToString, "edit":{"type":"radio", "value":{"1":"启用", "0":"停用"}, "default": 1, "options":{"required":1, "number":1}}},
-            {"data":"Sort", "title":"排序", "edit":{"options":{"required":1, "number":1, "value":100}}},
-            {"data":"CreateTime", "title":"创建时间", "createdCell":dateTimeString},
-            {"data":"UpdateTime", "title":"修改时间", "createdCell":dateTimeString},
+            {"data":"Id", "title":"ID", "sName":"Id", "edit":{"type":"hidden"}, "search":{"type":"text"}},
+            {"data":"Pid", "sName":"Pid","title":"父类ID", "edit":{"type": "select", "default":0, "value": {"0":"父级导航", "1":"后台管理"},"options":{"required":1, "number":1}}},
+            {"data":"MenuName", "sName":"MenuName", "title":"栏目名称", "edit":{"type":"text","options":{"required":1,"rangelength":"[2, 50]"}}},
+            {"data":"Icons", "sName":"Icons","title":"使用的icons", "edit":{"type":"text", "options":{"required":1, "rangelength":"[2,50]"}}},
+            {"data":"Url", "sName":"Url", "title":"访问URL", "edit":{"type":"text", "options":{"rangelength":"[2,50]"}}, "search":{"type":"text"}}, 
+            {"data":"Status", "sName":"Status","title":"状态", "createdCell":statusToString, "edit":{"type":"radio", "value":{"1":"启用", "0":"停用"}, "default": 1, "options":{"required":1, "number":1}}, "search":{"type":"select", "value":{"1":"启用", "0":"停用"}}},
+            {"data":"Sort","sName":"Sort", "title":"排序", "edit":{"options":{"required":1, "number":1, "value":100}}},
+            {"data":"CreateTime", "sName":"CreateTime","title":"创建时间", "createdCell":dateTimeString},
+            {"data":"UpdateTime", "sName":"UpdateTime", "title":"修改时间", "createdCell":dateTimeString},
             {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate}
         ]
     });
@@ -47,11 +61,6 @@
 		$("div.box-header h2").append(title).find("i").attr("class", icons);
 		
 		// 初始化表格
-		myTable.Request();
-
-        // 分页样式
-        $('#showTable_paginate').addClass('pagination pagination-centered');
-        // 去掉搜索placeholder属性(不去掉白色看不见)
-        $('input[type=search]').removeAttr('placeholder');
+		myTable.init();
 	})
 </script>

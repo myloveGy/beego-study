@@ -3,13 +3,12 @@
 	<div class="row-fluid">
 		<div class="login-box">
 			<h2>用户登录:</h2>
-			<form class="form-horizontal login" name="login" action="/Login" method="post">
+			<form class="form-horizontal login" name="login" action="#" method="post">
 				<fieldset>
 					<input class="input-large span12" name="username" id="username" type="text" placeholder="用户名" required="true" rangelength="[2,20]" />
 					<input class="input-large span12" name="password" id="password" type="password" placeholder="密码" required="true" rangelength="[6,15]" />
 					<div class="clearfix"></div>
 					<button type="submit" class="btn btn-primary span12">登录</button>
-					<label  class="m_error" style="display:none">服务器繁忙,请稍候再试...</label>
 				</fieldset>	
 			</form>	
 		</div>
@@ -23,6 +22,7 @@
 			// 验证通过
 			if ($(this).validate().form())
 			{
+				var intLoad = layer.load();
 				// ajax请求登录
 				$.ajax({
 					"url": "/index/login",
@@ -30,11 +30,14 @@
 					"data": $(this).serialize(),
 					"dataType": "json", 
 					"success": function(json) {
-						$('.m_error').html(json.Message).show();
+						layer.close(intLoad);
+						var color = json.Status == 1 ? "#78BA32" : "";
+						layer.tips(json.Message, ".btn-primary", {tips: [3, color], time:1000})
 						if (json.Status == 1) window.location.href = "/Admin";
 					},
 					"error": function() {
-						$('.m_error').html("服务器繁忙，请稍候再试...").show();
+						layer.close(intLoad);
+						layer.msg("服务器繁忙，请稍候再试...", {time:800})
 					}
 				})
 			}
@@ -42,4 +45,4 @@
 			return false;
 		});
 	});
-</script>>
+</script>
