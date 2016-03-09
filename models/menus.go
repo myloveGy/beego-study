@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/astaxie/beego/orm"
-	"strings"
+	// "strings"
 	"time"
 )
 
@@ -31,21 +31,19 @@ func (menus *Menus) TableName() string {
 }
 
 // 获取全部数据
-func MenusGetAll(query map[string]string, offset int64, limit int64) (total int64, data interface{}, err error) {
+func MenusGetAll(query map[string]interface{}, offset int64, limit int64, order string) (total int64, num int, data interface{}, err error) {
 	var menus []*Menus
 	o := orm.NewOrm()
 	qu := o.QueryTable(new(Menus))
 
 	for k, v := range query {
-		if k != "search" {
-			k = strings.Replace(k, ".", "__", -1)
-			qu = qu.Filter(k, v)
-		}
+		qu = qu.Filter(k, v)
 	}
 
 	total, _ = qu.Count()
-	_, err = qu.Limit(limit, offset).All(&menus)
+	_, err = qu.OrderBy(order).Limit(limit, offset).All(&menus)
 	if err == nil {
+		num = len(menus)
 		data = menus
 	}
 	return

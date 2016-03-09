@@ -18,26 +18,27 @@ func (this *MenusController) AjaxIndex() {
 	source := make(map[string]interface{})
 	// 默认返回
 	status := 0
-	sEcho, _ := this.GetInt64("sEcho", 1)
+	source["sEcho"], _ = this.GetInt64("sEcho", 1)
+	mMap := map[string]string{
+		"Url":    "url__contains",
+		"Status": "status",
+		"search": "menuname__contains",
+		"Id":     "id",
+	}
 
 	// 查询字符串
-	query := this.GetQueryString()
-
-	// 开始位置和结束位置
-	start, _ := this.GetInt64("iDisplayStart", 0)
-	length, _ := this.GetInt64("iDisplayLength", 10)
+	tmpMap, offset, limit, order := this.GetQueryString(mMap, "id")
 
 	var message string
 	message = "提交参数问题"
 	if this.IsAjax() {
 		message = "获取数据为空"
 		var err error
-		source["iTotalDisplayRecords"], source["aaData"], err = models.MenusGetAll(query, start, length)
-		source["iTotalRecords"] = 0
-		source["sEcho"] = sEcho
-		source["query"] = query
+		source["iTotalDisplayRecords"], source["iTotalRecords"], source["aaData"], err = models.MenusGetAll(tmpMap, offset, limit, order)
+
 		if err == nil {
 			status = 1
+			message = "查询数据成功"
 		}
 
 	}

@@ -98,7 +98,7 @@ var MeTable = (function($) {
 		var intLayer = layer.load();
 
 		// 请求前5个参数(1, 2)有用 1记录有多少个列 每个列有5个字段 后5个字段有用()
-		var attributes = aoData[2].value.split(","), obj = [],len = attributes.length + 1, mSkey = len * 5;
+		var attributes = aoData[2].value.split(","), obj = [],len = attributes.length + 1, mSkey = len * 5, mSort = mSkey + 2;
 		for (var i in attributes)
 		{
 			var key = 6 + i * 5,tmpData = aoData[key];
@@ -113,6 +113,13 @@ var MeTable = (function($) {
 		if (aoData[mSkey].value != undefined && aoData[mSkey].value != "") 
 		{
 			obj.push({"name":"search", "value": aoData[mSkey].value});
+		}
+
+		// 添加排序字段信息
+		if (aoData[mSort].value != undefined && aoData[mSort].value != "") 
+		{
+			var tmpkey = parseInt(aoData[mSort].value)
+			obj.push({"name":"orderBy", "value": attributes[tmpkey]});
 		}
 
 		// 查询数据使用json格式传输
@@ -152,7 +159,7 @@ var MeTable = (function($) {
 			"fnServerData": fnServerData,						// 获取数据的处理函数
 			"sAjaxSource": "ajaxindex",							// 获取数据地址
 			"bLengthChange": true, 								// 是否可以调整分页
-			"bAutoWidth": true,
+			"bAutoWidth": false,
 	        "bPaginate": true,
 	        "iDisplayStart": 0,
 	        "iDisplayLength": 10,
