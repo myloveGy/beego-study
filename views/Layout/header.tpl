@@ -59,6 +59,7 @@
 								<li><a class="submenu" href="/other/index"><i class="icon-star"></i><span class="hidden-tablet">Icons预览</span></a></li>
 							</ul>	
 						</li>
+						<li><a href="/category/index"><i class="icon-edit"></i><span class="hidden-tablet">分类管理</span></a></li>
 					</ul>
 				</div>
 			</div>

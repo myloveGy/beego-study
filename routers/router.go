@@ -15,5 +15,6 @@ func init() {
 	beego.AutoRouter(&controllers.IndexController{})
 	beego.AutoRouter(&controllers.AdminController{})
 	beego.AutoRouter(&controllers.MenusController{})
+	beego.AutoRouter(&controllers.CategoryController{})
 	beego.AutoRouter(&controllers.OtherController{})
 }

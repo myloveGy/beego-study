@@ -1,0 +1,68 @@
+{{template "./Layout/header.tpl" .}}	
+<div class="row-fluid">
+    <div class="box span12">
+        <!--前面导航信息-->
+        <div class="box-header" data-original-title="">
+            <h2>
+                <i class="icon-desktop"></i>
+                <span class="break"></span>
+            </h2>
+            <div class="box-icon">
+                <a title="添加" href="javascript:myTable.insert()"> 
+                    <i class="icon-plus"></i>
+                </a>
+                <a id="table-refresh" title="刷新" href="#" onclick="return myTable.search();"> 
+                    <i class="icon-refresh"></i>
+                </a>
+                <a id="toggle-fullscreen" class="hidden-phone hidden-tablet" title="全屏" href="#"> 
+                    <i class="icon-fullscreen"></i>
+                </a>
+                <a class="btn-minimize" title="隐藏" href="#"> 
+                    <i class="icon-chevron-up"></i>
+                </a>
+                <a class="btn-close" title="删除" href="#"> 
+                    <i class="icon-remove"></i>
+                </a>
+            </div>
+        </div>
+        <div class="box-content">
+            <!--表格数据-->
+            <table class="table table-striped table-bordered table-hover" id="showTable">
+            </table>
+        </div>
+    </div>
+</div>
+<div class="isHide" id="data-info"></div>
+<!-- 显示详情 -->
+{{template "./Layout/footer.tpl"}}
+<script type="text/javascript">
+    var myTable = new MeTable({
+        tableId:"showTable",
+        baseUrl:"/category/save",
+    },{
+        "sAjaxSource": "ajaxindex",                          
+        "aoColumns":[
+            {"data":"Id", "title":"ID", "sName":"Id", "edit":{"type":"hidden"}, "search":{"type":"text"}},
+            {"data":"Pid", "title":"父级分类", "sName":"Pid", "edit":{"type":"select"}, "search":{"type":"select"}, "value":{"0":"父级分类"}},
+            {"data":"CateName", "sName":"CateName","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 15]"}}},
+            {"data":"Sort", "sName":"Sort","title":"排序", "edit":{"type":"text", "options":{"required":1, "number":1}}, "value":100},
+            {"data":"Recommend", "sName":"Recommend","title":"推荐","value":{"1":"推荐", "0":"不推荐"}, "createdCell":function(td, data, rowdatas, row, col) {
+                    var str = '<span class="label label-' + (data == 1 ? 'success">推荐' : '">不推荐') + '</span>';
+                    $(td).html(str);
+            }, "edit":{"type":"radio","default": 1, "options":{"required":1, "number":1}}, "search":{"type":"select"}},
+            {"data":"Status", "sName":"Status","title":"状态","value":{"1":"启用", "0":"停用"}, "createdCell":statusToString, "edit":{"type":"radio","default": 1, "options":{"required":1, "number":1}}, "search":{"type":"select"}},
+            {"data":"CreateId", "sName":"CreateId", "title":"创建者", "defaultContent":"", "edit":{"type":"hidden"}},
+            {"data":"CreateTime", "sName":"CreateTime","title":"创建时间", "createdCell":dateTimeString, "edit":{"type":"hidden"}},
+            {"data":"CreateId", "sName":"UpdateId", "title":"修改者", "defaultContent":"", "edit":{"type":"hidden"}},
+            {"data":"UpdateTime", "sName":"UpdateTime", "title":"修改时间", "createdCell":dateTimeString, "edit":{"type":"hidden"}},
+            {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate, "width":"120px"}
+        ],
+         "columnDefs":[{"targets":[6,8], "visible":false}],
+    });
+
+	// 加载完成
+	$(function(){
+		// 初始化表格
+		myTable.init(); 
+	})
+</script>

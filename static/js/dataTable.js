@@ -256,7 +256,8 @@ var MeTable = (function($) {
 						case "select":
 							form += createSelect(k.value, k.edit.default, k.edit.options);
 							break;	
-						default:	
+						default:
+							if (!empty(k.value)) k.edit.options["value"] = k.value	
 							form += createInput(k.edit.type, k.edit.options);
 					}
 				}
