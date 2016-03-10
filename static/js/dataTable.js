@@ -5,26 +5,26 @@
  * @return mixed    返回处理值
  */
 function stringTo(type, value) {
-	switch (type) 
-	{
-		case "int":
-		case "int8":
-		case "int16":
-		case "int32":
-		case "int64":
-		case "uint":
-		case "uint8":
-		case "uint16":
-		case "uint32":
-		case "uint64":
-			return parseInt(value);
-		case "bool":
-			return value === "true" || value === true || value === 1 || value == "1";
-		case "float32":
-		case "float64":
-	}
+    switch (type) 
+    {
+        case "int":
+        case "int8":
+        case "int16":
+        case "int32":
+        case "int64":
+        case "uint":
+        case "uint8":
+        case "uint16":
+        case "uint32":
+        case "uint64":
+            return parseInt(value);
+        case "bool":
+            return value === "true" || value === true || value === 1 || value == "1";
+        case "float32":
+        case "float64":
+    }
 
-	return value;
+    return value;
 };
 
 /**
@@ -32,49 +32,49 @@ function stringTo(type, value) {
  * @param string fmt 处理的格式
  */
 Date.prototype.Format = function(fmt) {
-	// 定义处理格式
-	var o = {
-		"M+": this.getMonth() + 1, 					 // 月份
-		"d+": this.getDate(), 						 // 日
-		"h+": this.getHours(), 						 // 小时
-		"m+": this.getMinutes(), 					 // 分
-		"s+": this.getSeconds(), 					 // 秒
-		"q+": Math.floor((this.getMonth() + 3) / 3), // 季度
-		"S": this.getMilliseconds() 				 // 毫秒
-	};
+    // 定义处理格式
+    var o = {
+        "M+": this.getMonth() + 1,                   // 月份
+        "d+": this.getDate(),                        // 日
+        "h+": this.getHours(),                       // 小时
+        "m+": this.getMinutes(),                     // 分
+        "s+": this.getSeconds(),                     // 秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), // 季度
+        "S": this.getMilliseconds()                  // 毫秒
+    };
 
-	// 处理年份
-	if (/(y+)/.test(fmt))
-	{
-		fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-	}
+    // 处理年份
+    if (/(y+)/.test(fmt))
+    {
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    }
 
-	// 处理其他信息
-	for (var k in o)
-	{
-		if (new RegExp("(" + k + ")").test(fmt))
-		{
-			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-		}
-	}
+    // 处理其他信息
+    for (var k in o)
+    {
+        if (new RegExp("(" + k + ")").test(fmt))
+        {
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        }
+    }
     
-  	return fmt;
+    return fmt;
 };
 
 /**
  * timeToString 时间戳转换为字符串
- * @param  int 		time 	时间格式
+ * @param  int      time    时间格式
  * @return string   返回格式化字符串时间信息
  */
 function timeToString(time) {
-	var date = new Date(time * 1000);
-	return date.Format("yyyy-MM-dd hh:mm:ss");
+    var date = new Date(time * 1000);
+    return date.Format("yyyy-MM-dd hh:mm:ss");
 };
 
 // 状态信息
 function statusToString(td, data, rowdatas, row, col) {
 	var str = '<span class="label label-' + (data == 1 ? 'success">启用' : 'important">停用') + '</span>';
-	$(td).html(str);	
+	$(td).html(str);
 }
 
 // 时间戳列，值转换
@@ -86,23 +86,22 @@ function dateTimeString(td, cellData, rowData, row, col)
 // 设置表单信息
 function setOperate(td, data, rowdata, row, col)
 {
-	var str = '<a class="btn btn-success" href="javascript:myTable.info('+row+');"><i class="icon-zoom-in "></i></a> ';
+	var str = '<a class="btn btn-success" href="javascript:myTable.views('+row+');"><i class="icon-zoom-in "></i></a> ';
 	str += '<a class="btn btn-info" href="javascript:myTable.update('+row+');"><i class="icon-edit "></i></a> ';
 	str += '<a class="btn btn-danger" href="javascript:myTable.delete('+row+');"><i class="icon-trash "></i></a>';
 	$(td).html(str);
 }
 
+
 var MeTable = (function($) {
 	var fnServerData = function(sSource, aoData, fnCallback) {
-
 		var intLayer = layer.load();
-
 		// 请求前5个参数(1, 2)有用 1记录有多少个列 每个列有5个字段 后5个字段有用()
 		var attributes = aoData[2].value.split(","), obj = [],len = attributes.length + 1, mSkey = len * 5, mSort = mSkey + 2;
 		for (var i in attributes)
 		{
 			var key = 6 + i * 5,tmpData = aoData[key];
-			if (tmpData.value != undefined && tmpData.value != "" && tmpData.value != "全部")
+			if (tmpData.value != undefined && tmpData.value != "" && tmpData.value != "All")
 			{
 				var mKey = attributes[i]
 				obj.push({"name":mKey, "value": tmpData.value});
@@ -191,40 +190,43 @@ var MeTable = (function($) {
 			dialogId: "myModal",
 			tableId: "TableDataList",
 			formId: "updateForm",
+			isHaveError:false,
 		};
 
 		this.tableOptions = $.extend(this.tableOptions, tableOptions);
-		this.options = $.extend(this.options, options);
-		this.actionType = "";
+		this.options 	  = $.extend(this.options, options);
+		this.actionType   = "";
 	}
 
 	// 处理表单信息
 	MeTable.prototype.CreateForm = function() {
-		var attributes = this.tableOptions.aoColumns, self = this, form = "", search = "";
+		var attributes = this.tableOptions.aoColumns, self = this, form = "", search = "", views = "";
 		form += '<form class="form-horizontal" id="'+this.options.formId+'" name="'+this.options.formId+'" action="'+this.options.baseUrl +'" method="post"></fieldset>';
+		views += '<table class="table table-bordered table-striped table-detail">';
 		// 处理生成表单
 		attributes.forEach(function(k, v) {
+
+			// 初始化详情信息
+			views += '<tr>';
+			views += '<td width="25%">' + k.title + '</td><td class="views-info data-info-' + k.data + '"></td>';
+			views += '</tr>';
+			
 			// 处理搜索
 			if (k.search != undefined)
 			{
+				var tmpOptions = {"name":k.data, "vid":v, "class":"msearch"},html = '';
 				switch (k.search.type)
 				{
 					case "select":
-						search += '<label> ' + k.title + ' : <select name="' + k.data +'" class="msearch" vid="' + v + '">';
-						search += '<option> 全部 </option>'
-						if (k.edit.value != undefined)
-						{
-							for (var x in k.edit.value)
-							{
-								search += '<option value="' + x + '">' + k.edit.value[x] + '</option>';
-							}
-						}
-
-						search += '</select></label> ';
+						k.value["All"] = "全部"; 
+						html += createSelect(k.value, "All", tmpOptions)
+						delete k.value['All']
 					break;
 					default:
-						search += '<label> '+ k.title +': <input type="text" name="' + k.data + '" vid="' + v + '" class="msearch" value="" /></label> ';
+						html += createInput('text', tmpOptions);
 				}
+
+				search += Label(k.title + " : " + html) + ' ';
 				
 			}
 
@@ -232,70 +234,43 @@ var MeTable = (function($) {
 			if (k.edit != undefined) 
 			{
 				// 处理其他参数
-				var other = ' name="'+ k.data +'" ';
-				if (k.edit.options != undefined)
-				{
-					for (var i in k.edit.options) other += i + '="' + k.edit.options[i] + '" '
-				}
+				if (k.edit.options == undefined) k.edit.options = {};
+				k.edit.options["name"]  = k.data;
+				k.edit.options["class"] = "input-xlarge focused";
+				if (k.edit.type == undefined) k.edit.type = "text"
 
 				if ( k.edit.type == "hidden" ) 
 				{
-					form += '<input type="hidden" ' + other + '/>';
+					form += createInput('hidden', k.edit.options)
 				}
 				else 
 				{
-					form += '<div class="control-group">';
-					form += '	<label class="control-label">' + k.title + '</label>';
-					form += '	<div class="controls">';
 
+					form += '<div class="control-group">' + Label(k.title, {"class":"control-label"}) + '<div class="controls">';
 					// 判断类型
 					switch (k.edit.type)
 					{
-						case "text":
-							form += '<input class="input-xlarge focused" type="text" ' + other +' />';
-							break;
 						case "radio":
-							if (k.edit.value != undefined)
-							{
-								for (var x in k.edit.value)
-								{
-									other += x == k.edit.default ? ' checked="checked" ' : '';
-									form += "<label>";
-									form += '<input class="input-xlarge focused" type="radio" '+ other +' value="' + x + '" />';
-									form += '<span> ' + k.edit.value[x] + ' </span>';
-									form += "<label>";
-								}
-							}
+							form += createRadio(k.value, k.edit.default, k.edit.options);
 							break;
 						case "select":
-							form += '<select ' + other +'>';
-							form += '<option> -- 请选择 -- </option>'
-							if (k.edit.value != undefined)
-							{
-								for (var x in k.edit.value)
-								{
-									var selected = x == k.edit.default ? ' selected="selected" ' : '';
-									form += '<option value="' + x + '" ' + selected + '>' + k.edit.value[x] + '</option>';
-								}
-							}
-
-							form += '</select>';
+							form += createSelect(k.value, k.edit.default, k.edit.options);
 							break;	
 						default:	
-							form += '<input class="input-xlarge focused" type="text" '+ other +' />';
+							form += createInput(k.edit.type, k.edit.options);
 					}
 				}
 
-				
-				
-				form += '	</div>';
-				form += '</div>';
+				form += '</div></div>';
 			}
 		});
 
 		form += '</fieldset></form>';
+		views += '</table>';
 		this.SearchHtml = search;
+
 		$('#' + this.options.dialogId).find('div.modal-body').html(form);
+		$("#data-info").html(views);
 	};
 
 	// 生成表格对象
@@ -328,6 +303,7 @@ var MeTable = (function($) {
 	// 初始化表单对象
 	MeTable.prototype.initForm = function(data)
 	{
+		layer.closeAll();
 		// 弹出标题显示
 		var title = this.options.title + (this.actionType == "insert" ? "新增" : "编辑");
 		$("#" + this.options.dialogId).find('h3').html(title);
@@ -341,7 +317,7 @@ var MeTable = (function($) {
 			{
 				for (var i in data)
 				{
-					if (objForm[i] != undefined) objForm[i].value = data[i];
+					if (objForm[i] != undefined && objForm[i].type != "password") objForm[i].value = data[i];
 				}
 			}
 		}
@@ -352,7 +328,38 @@ var MeTable = (function($) {
 		});
 	}
 
-	// 初始化
+	// 查询详情
+	MeTable.prototype.views = function(row) {
+		var self = this, data = this.table.data()[row];
+		// 处理的数据
+		if (data != undefined)
+		{
+			// 循环处理显示信息
+			this.tableOptions.aoColumns.forEach(function(k, v) {
+				var tmpKey   = k.data,tmpValue = data[tmpKey],dataInfo = $('.data-info-' + tmpKey)
+				if (k.edit != undefined && k.edit.type == 'password') tmpValue = "******";
+				// 赋值
+				if (k.createdCell != undefined && typeof k.createdCell == "function")
+					k.createdCell(dataInfo, tmpValue, undefined, row, undefined)
+				else 
+					dataInfo.html(tmpValue)
+			});
+
+			// 弹出显示
+			layer.open({
+			    type: 1,
+			    shade: false,
+			    title: self.options.title + '详情',
+			    content: $('#data-info'), 		// 捕获的元素
+			    area:['50%', 'auto'],
+			    cancel: function(index){
+			        layer.close(index);
+			        $('.views-info').html('')
+			    }
+			});
+		}
+
+	}
 
 	// 表格数据的添加
 	MeTable.prototype.insert = function() {
@@ -363,7 +370,6 @@ var MeTable = (function($) {
 	// 修改数据信息
 	MeTable.prototype.update = function(row) {
 		this.actionType = "update";
-
 		// 初始化表单
 		this.initForm(this.table.data()[row])
 	};
@@ -390,13 +396,22 @@ var MeTable = (function($) {
 	// 数据新增和修改的执行
 	MeTable.prototype.saveData = function(data) {
 		layer.closeAll();
+		var self = this;
 		// 判断类型
 		if (this.actionType == "") return;
 
 		// 新增和修改验证数据
 		if (this.actionType !== "delete")
 		{
-			if ( ! $("#" + this.options.formId).validate().form()) return false;
+			var isHave = false;
+			if ( ! $("#" + this.options.formId).validate({
+				errorPlacement:function(error, errorPlacement) {
+					if (isHave != false) return false;
+					isHave = layer.tips($(error).html(), errorPlacement, {tips: [3], time:1000, end:function(){
+						isHave = false;
+					}})
+				},
+			}).form()) return false;
 			// 提交数据
 			data = $('#' + this.options.formId).serialize();
 			data += "&actionType=" + this.actionType;
@@ -406,7 +421,7 @@ var MeTable = (function($) {
 			data.actionType = this.actionType;
 		}
 
-		var self = this, intLoad = layer.load();
+		var intLoad = layer.load();
 		// ajax提交数据
 		$.ajax({
 			url:self.options.baseUrl,

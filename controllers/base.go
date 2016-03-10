@@ -27,19 +27,25 @@ func (this *BaseController) Prepare() {
 	}
 }
 
-// ajax返回数据
-func (this *BaseController) AjaxReturn(status int, message string, data interface{}) {
-	returnData := struct {
-		Status  int
-		Message string
-		Data    interface{}
-	}{
-		Status:  status,
-		Message: message,
-		Data:    data,
-	}
+// 提示信息
+type MePoint struct {
+	Status  int
+	Message string
+	Data    interface{}
+}
 
-	this.Data["json"] = returnData
+// 初始化话定义返回数据
+func (this *BaseController) InitPoint() MePoint {
+	return MePoint{
+		Status:  0,
+		Message: "数据为空",
+		Data:    nil,
+	}
+}
+
+// ajax返回数据
+func (this *BaseController) AjaxReturn(Point MePoint) {
+	this.Data["json"] = Point
 	this.ServeJson()
 }
 
@@ -84,6 +90,20 @@ func (this *BaseController) GetQueryString(mMap map[string]string, sortBy string
 	// 开始位置和结束位置
 	offset, _ = this.GetInt64("iDisplayStart", 0)
 	limit, _ = this.GetInt64("iDisplayLength", 10)
+
+	return
+}
+
+// 返回数据给DataTable
+func (this *BaseController) DataTable(total int64, count int, data interface{}) (tmpMap map[string]interface{}) {
+	sEcho, _ := this.GetInt64("sEcho", 1)
+	// 初始化定义
+	tmpMap = map[string]interface{}{
+		"sEcho":                sEcho,
+		"iTotalDisplayRecords": total,
+		"iTotalRecords":        count,
+		"aaData":               data,
+	}
 
 	return
 }
