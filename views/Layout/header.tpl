@@ -26,9 +26,9 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li class="dropdown-menu-title"></li>
-								<!--<li><a href="#"><i class="icon-user"></i> Profile</a></li>
+								<li><a href="#"><i class="icon-user"></i> Profile</a></li>
 								<li><a href="#"><i class="icon-cog"></i> Settings</a></li>
-								<li><a href="#"><i class="icon-envelope"></i> Messages</a></li>-->
+								<li><a href="#"><i class="icon-envelope"></i> Messages</a></li>
 								<li><a href="/index/logout"><i class="icon-off"></i> 退出</a></li>
 							</ul>
 						</li>
@@ -51,15 +51,19 @@
 				
 				<div class="nav-collapse sidebar-nav">
 					<ul class="nav nav-tabs nav-stacked main-menu">
+						{{range $k, $v := $.Menus}}
 						<li>
-							<a class="dropmenu" href="#"><i class="icon-folder-close-alt"></i><span class="hidden-tablet"> 后台管理</span> <span class="label">3</span></a>
+							<a class="dropmenu" href="{{$v.Url}}"><i class="{{$v.Icons}}"></i><span class="hidden-tablet"> {{$v.MenuName}}</span> <span class="label">{{$v.Len}}</span></a>
+							
+							
 							<ul>
-								<li><a class="submenu" href="/admin/index"><i class="icon-user"></i><span class="hidden-tablet">管理员管理</span></a></li>
-								<li><a class="submenu" href="/menus/index"><i class="icon-reorder"></i><span class="hidden-tablet">后台栏目管理</span></a></li>
-								<li><a class="submenu" href="/other/index"><i class="icon-star"></i><span class="hidden-tablet">Icons预览</span></a></li>
-							</ul>	
+								{{range $mk, $mv := $v.Child}}
+								<li><a class="submenu" href="{{$mv.Url}}"><i class="{{$mv.Icons}}"></i><span class="hidden-tablet">{{$mv.MenusName}}</span></a></li>
+								{{end}}
+							</ul>
+
 						</li>
-						<li><a href="/category/index"><i class="icon-edit"></i><span class="hidden-tablet">分类管理</span></a></li>
+						{{end}}
 					</ul>
 				</div>
 			</div>

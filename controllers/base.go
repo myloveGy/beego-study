@@ -25,6 +25,41 @@ func (this *BaseController) Prepare() {
 		user := admin.(models.Admin)
 		this.Data["admin"] = user
 	}
+
+	// 查询导航信息
+	menusAll := map[int64]interface{}{}
+	menus, err := models.GetAllMenus()
+	if err == nil {
+		// 第一次获取一级目录
+		for _, value := range menus {
+			if value.Pid == 0 {
+				menusAll[value.Id] = map[string]interface{}{
+					"Id":       value.Id,
+					"MenuName": value.MenuName,
+					"Icons":    value.Icons,
+					"Url":      value.Url,
+					"Child":    map[int64]interface{}{},
+					"Len":      0,
+				}
+
+			}
+		}
+
+		// // 第二次将二级目录添加到一级目录中
+		// for _, value := range menus {
+		// 	if value.Pid != 0 {
+		// 		menusAll[value.Pid]["Child"][value.Id] = map[string]interface{}{
+		// 			"Id":       value.Id,
+		// 			"MenuName": value.MenuName,
+		// 			"Icons":    value.Icons,
+		// 			"Url":      value.Url,
+		// 		}
+		// 	}
+		// }
+	}
+
+	// 注入变量
+	this.Data["Menus"] = menusAll
 }
 
 // 提示信息

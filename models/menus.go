@@ -30,6 +30,13 @@ func (menus *Menus) TableName() string {
 	return "my_blog_menus"
 }
 
+// 查询全部
+func GetAllMenus() (menus []*Menus, err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable(new(Menus)).Filter("status", 1).OrderBy("id").All(&menus)
+	return
+}
+
 // 获取全部数据
 func MenusGetAll(query map[string]interface{}, offset int64, limit int64, order string) (total int64, num int, data interface{}, err error) {
 	var menus []*Menus
