@@ -2,8 +2,7 @@ package controllers
 
 import (
 	models "app/models"
-	// "fmt"
-	"github.com/astaxie/beego"
+	"strconv"
 )
 
 type MenusController struct {
@@ -11,6 +10,17 @@ type MenusController struct {
 }
 
 func (this *MenusController) Index() {
+	menus, err := models.GetAllParentMenus()
+	all := map[string]string{"0": "父级分类"}
+	if err == nil {
+		for _, v := range menus {
+			key := int(v.Id)
+			tmp := strconv.Itoa(key)
+			all[tmp] = v.MenuName
+		}
+	}
+
+	this.Data["all"] = all
 	this.TplNames = "Admin/menus.html"
 }
 
@@ -73,9 +83,6 @@ func (this *MenusController) Save() {
 			case "insert":
 				IsHave = true
 				Id, err = models.MenusInsert(&menus)
-				if err != nil {
-					beego.Error(err)
-				}
 			case "update":
 				IsHave, RowCount, err = models.MenusSave(&menus)
 			}

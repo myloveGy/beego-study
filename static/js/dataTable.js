@@ -195,13 +195,20 @@ var MeTable = (function($) {
 
 		this.tableOptions = $.extend(this.tableOptions, tableOptions);
 		this.options 	  = $.extend(this.options, options);
+		this.formOptions  = $.extend({
+			"method": 	"post", 
+			"id": 		this.options.formId, 
+			"class": 	"form-horizontal",
+			"name": 	this.options.formId,
+			"action":   this.options.baseUrl, 
+		}, this.options.formOptions);
 		this.actionType   = "";
 	}
 
 	// 处理表单信息
 	MeTable.prototype.CreateForm = function() {
-		var attributes = this.tableOptions.aoColumns, self = this, form = "", search = "", views = "";
-		form += '<form class="form-horizontal" id="'+this.options.formId+'" name="'+this.options.formId+'" action="'+this.options.baseUrl +'" method="post"></fieldset>';
+		var attributes = this.tableOptions.aoColumns, self = this, form = "", search = "", views = "", formParams = handleParams(this.formOptions);
+		form += '<form ' + formParams + '></fieldset>';
 		views += '<table class="table table-bordered table-striped table-detail">';
 		// 处理生成表单
 		attributes.forEach(function(k, v) {
@@ -247,6 +254,7 @@ var MeTable = (function($) {
 				{
 
 					form += '<div class="control-group">' + Label(k.title, {"class":"control-label"}) + '<div class="controls">';
+
 					// 判断类型
 					switch (k.edit.type)
 					{
@@ -255,6 +263,9 @@ var MeTable = (function($) {
 							break;
 						case "select":
 							form += createSelect(k.value, k.edit.default, k.edit.options);
+							break;	
+						case "file":
+							form += createFile(k.edit.options);
 							break;	
 						default:
 							if (!empty(k.value)) k.edit.options["value"] = k.value	

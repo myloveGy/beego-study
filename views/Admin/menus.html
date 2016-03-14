@@ -42,10 +42,10 @@
     },{
         "aoColumns":[
             {"data":"Id", "title":"ID", "sName":"Id", "edit":{"type":"hidden"}, "search":{"type":"text"}},
-            {"data":"Pid", "sName":"Pid","title":"父类ID", "value":{"0":"父级导航", "1":"后台管理"},"edit":{"type": "select", "default":0, "options":{"required":1, "number":1}}},
+            {"data":"Pid", "sName":"Pid","title":"父类ID", "value":{{.all}},"edit":{"type": "select", "default":0, "options":{"required":1, "number":1}}},
             {"data":"MenuName", "sName":"MenuName", "title":"栏目名称","edit":{"type":"text","options":{"required":1,"rangelength":"[2, 50]"}}},
             {"data":"Icons", "sName":"Icons","title":"使用的icons", "edit":{"type":"text", "options":{"required":1, "rangelength":"[2,50]"}}},
-            {"data":"Url", "sName":"Url", "title":"访问URL", "edit":{"type":"text", "options":{"rangelength":"[2,50]"}}, "search":{"type":"text"}},
+            {"data":"Url", "sName":"Url", "title":"访问URL", "edit":{"type":"text", "options":{"rangelength":"[1,50]"}}, "search":{"type":"text"}},
             {"data":"Status", "sName":"Status","title":"状态","value":{"1":"启用", "0":"停用"}, "createdCell":statusToString, "edit":{"type":"radio","default": 1, "options":{"required":1, "number":1}}, "search":{"type":"select", }},
             {"data":"Sort","sName":"Sort", "title":"排序", "edit":{"options":{"required":1, "number":1, "value":100}}},
             {"data":"CreateTime", "sName":"CreateTime","title":"创建时间", "createdCell":dateTimeString},

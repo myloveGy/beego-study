@@ -20,8 +20,13 @@
 	<script type="text/javascript" src="/static/js/jquery.noty.js"></script>	
 	<script type="text/javascript" src="/static/js/jquery.elfinder.min.js"></script>	
 	<script type="text/javascript" src="/static/js/jquery.raty.min.js"></script>	
-	<script type="text/javascript" src="/static/js/jquery.iphone.toggle.js"></script>	
+	<script type="text/javascript" src="/static/js/jquery.iphone.toggle.js"></script>
+	<!--文件上传-->
+    <script type="text/javascript" src="/static/js/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.fileupload.js"></script>	
 	<script type="text/javascript" src="/static/js/jquery.uploadify-3.1.min.js"></script>	
+
 	<script type="text/javascript" src="/static/js/jquery.gritter.min.js"></script>	
 	<script type="text/javascript" src="/static/js/jquery.imagesloaded.js"></script>	
 	<script type="text/javascript" src="/static/js/jquery.masonry.min.js"></script>	
@@ -49,6 +54,17 @@
 	    	// 定义标题
 			var title = $("li.active a").text(),icons = $("li.active a i").attr("class");
 			$("div.box-header h2").append(title).find("i").attr("class", icons);
+
+			// 栏目搜索
+			$('.menu-search').bind('blur keyup', function(){
+				val = $(this).val();
+				if (!empty(val)) {
+					$('.main-menu li:contains(' + val + ')').siblings().hide()
+					$('.main-menu li:contains(' + val + ')').show()
+				} else {
+					$('.main-menu li').show()
+				}
+			})
 
 	        // 隐藏内容
 	        $('.btn-close:first').click(function () {

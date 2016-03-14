@@ -72,6 +72,23 @@ function createSelect(data, selected, params)
     return html;
 }
 
+// 生成图片上传按钮
+function createFile(params)
+{
+    var html = "";
+    if (params == undefined) params = {};
+    html += '<div id="uniform-fileInput" class="uploader">';
+    html += createInput('hidden', params);
+    params["class"] = "input-file uniform_on fileUpload";
+    params["name"]  = "file" + params['name'];
+    html += createInput('file', params);
+    html += '<span class="filename" style="-moz-user-select: none;">请选择文件</span>';
+    html += '<span class="action" style="-moz-user-select: none;">上传文件</span>';
+    html += '</div>';
+
+    return html;
+}
+
 /**
  * JsFileUpload Ajax 上传文件使用验证函数( 验证上传文件大小和类型 )
  * 在使用JsFileUpload 上传时才能使用 需要接收一个上传对象

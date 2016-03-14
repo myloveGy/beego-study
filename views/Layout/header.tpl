@@ -46,24 +46,27 @@
 			<div id="sidebar-left" class="span2">
 				导航栏搜索
 				<div class="row-fluid actions">							
-					<input type="text" class="search span12" placeholder="搜索栏目" />
+					<input type="text" class="search span12 menu-search" placeholder="搜索栏目" />
 				</div>	
 				
 				<div class="nav-collapse sidebar-nav">
 					<ul class="nav nav-tabs nav-stacked main-menu">
-						{{range $k, $v := $.Menus}}
+					{{range $k, $v := $.Menus}}
 						<li>
-							<a class="dropmenu" href="{{$v.Url}}"><i class="{{$v.Icons}}"></i><span class="hidden-tablet"> {{$v.MenuName}}</span> <span class="label">{{$v.Len}}</span></a>
-							
-							
+							<a {{if gt $v.Len 0}}class="dropmenu"{{end}} href="{{$v.Url}}">
+								<i class="{{$v.Icons}}"></i>
+								<span class="hidden-tablet"> {{$v.MenuName}}</span> 
+								{{if gt $v.Len 0}}<span class="label">{{$v.Len}}</span>{{end}}
+							</a>
+							{{if gt $v.Len 0}}
 							<ul>
 								{{range $mk, $mv := $v.Child}}
-								<li><a class="submenu" href="{{$mv.Url}}"><i class="{{$mv.Icons}}"></i><span class="hidden-tablet">{{$mv.MenusName}}</span></a></li>
+								<li><a class="submenu" href="{{$mv.Url}}"><i class="{{$mv.Icons}}"></i><span class="hidden-tablet">{{$mv.MenuName}}</span></a></li>
 								{{end}}
 							</ul>
-
+							{{end}}
 						</li>
-						{{end}}
+					{{end}}
 					</ul>
 				</div>
 			</div>

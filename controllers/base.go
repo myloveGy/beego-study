@@ -12,6 +12,16 @@ type BaseController struct {
 	beego.Controller
 }
 
+// 导航栏信息
+type Menus struct {
+	Id       int64
+	MenuName string
+	Icons    string
+	Url      string
+	Child    []interface{}
+	Len      int
+}
+
 // 控制器的前置操作
 func (this *BaseController) Prepare() {
 	admin := this.GetSession("AdminUser")
@@ -27,35 +37,57 @@ func (this *BaseController) Prepare() {
 	}
 
 	// 查询导航信息
-	menusAll := map[int64]interface{}{}
+	menusAll := map[int64]Menus{}
 	menus, err := models.GetAllMenus()
 	if err == nil {
-		// 第一次获取一级目录
+
+		// 处理目录信息
 		for _, value := range menus {
-			if value.Pid == 0 {
-				menusAll[value.Id] = map[string]interface{}{
-					"Id":       value.Id,
-					"MenuName": value.MenuName,
-					"Icons":    value.Icons,
-					"Url":      value.Url,
-					"Child":    map[int64]interface{}{},
-					"Len":      0,
+			pid, id := value.Pid, value.Id
+			if pid == 0 {
+				// 一级目录
+				if _, ok := menusAll[id]; ok == true {
+					m := menusAll[id]
+					m.Id = value.Id
+					m.MenuName = value.MenuName
+					m.Icons = value.Icons
+					m.Url = value.Url
+					m.Len = len(m.Child)
+					menusAll[id] = m
+				} else {
+					menusAll[id] = Menus{
+						Id:       value.Id,
+						MenuName: value.MenuName,
+						Icons:    value.Icons,
+						Url:      value.Url,
+					}
 				}
 
+			} else {
+				// 二级目录
+				if _, ok := menusAll[pid]; ok == true {
+					m := menusAll[pid]
+					m.Child = append(m.Child, Menus{
+						Id:       value.Id,
+						MenuName: value.MenuName,
+						Icons:    value.Icons,
+						Url:      value.Url,
+					})
+
+					m.Len = len(m.Child)
+					menusAll[pid] = m
+				} else {
+					m := Menus{
+						Id:       value.Id,
+						MenuName: value.MenuName,
+						Icons:    value.Icons,
+						Url:      value.Url,
+					}
+
+					menusAll[pid] = Menus{Child: []interface{}{m}}
+				}
 			}
 		}
-
-		// // 第二次将二级目录添加到一级目录中
-		// for _, value := range menus {
-		// 	if value.Pid != 0 {
-		// 		menusAll[value.Pid]["Child"][value.Id] = map[string]interface{}{
-		// 			"Id":       value.Id,
-		// 			"MenuName": value.MenuName,
-		// 			"Icons":    value.Icons,
-		// 			"Url":      value.Url,
-		// 		}
-		// 	}
-		// }
 	}
 
 	// 注入变量

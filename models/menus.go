@@ -33,7 +33,14 @@ func (menus *Menus) TableName() string {
 // 查询全部
 func GetAllMenus() (menus []*Menus, err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable(new(Menus)).Filter("status", 1).OrderBy("id").All(&menus)
+	_, err = o.QueryTable(new(Menus)).Filter("status", 1).OrderBy("sort").All(&menus)
+	return
+}
+
+// 查询全部父类
+func GetAllParentMenus() (menus []*Menus, err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable(new(Menus)).Filter("status", 1).Filter("pid", 0).OrderBy("sort").All(&menus)
 	return
 }
 
@@ -75,6 +82,8 @@ func MenusSave(menus *Menus) (isHave bool, RowCount int64, err error) {
 	if o.Read(&update) == nil {
 		isHave = true
 		menus.UpdateTime = time.Now().Unix()
+		menus.CreateTime = update.CreateTime
+		menus.CreateId = update.CreateId
 		RowCount, err = o.Update(menus)
 	}
 

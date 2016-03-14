@@ -8,11 +8,11 @@
 	        </tr>
 	        <tr>
 	            <td>注册时间</td>
-	            <td>{{$.CreateTime}}</td>
+	            <td class="m-time">{{$.admin.CreateTime}}</td>
 	        </tr>
 	        <tr>
 	            <td>上次登录时间</td>
-	            <td>{{$.LastTime}}</td>
+	            <td class="m-time">{{$.admin.LastTime}}</td>
 	        </tr>
 	        <tr>
 	            <td>上次登录IP</td>
@@ -22,3 +22,6 @@
     </table>
 </div>
 {{template "./Layout/footer.tpl"}}
+<script type="text/javascript">
+	$('.m-time').each(function(){$(this).html(timeToString(parseInt($(this).html())))})
+</script>
