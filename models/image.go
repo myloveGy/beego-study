@@ -30,6 +30,19 @@ func (Image *Image) TableName() string {
 	return "my_blog_Image"
 }
 
+// 查询数据
+func GetAllImage(query map[string]interface{}) (images []*Image, err error) {
+	o := orm.NewOrm()
+	qu := o.QueryTable(new(Image))
+
+	for k, v := range query {
+		qu = qu.Filter(k, v)
+	}
+
+	_, err = qu.OrderBy("sort").All(&images)
+	return
+}
+
 // 获取全部数据
 func ImageGetAll(query map[string]interface{}, offset int64, limit int64, order string) (total int64, num int, data interface{}, err error) {
 	var image []*Image

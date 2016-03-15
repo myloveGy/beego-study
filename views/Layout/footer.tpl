@@ -1,3 +1,5 @@
+			<!-- 显示详情 -->
+			<div class="isHide" id="data-info"></div>
 		</div>
 		<!-- end: 主要内容 -->	
 	</div>

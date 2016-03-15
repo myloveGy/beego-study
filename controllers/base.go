@@ -25,10 +25,10 @@ type Menus struct {
 // 控制器的前置操作
 func (this *BaseController) Prepare() {
 	admin := this.GetSession("AdminUser")
-	// // 验证用户有没有登录
-	// if admin == nil {
-	// 	this.Redirect("/", 302)
-	// }
+	// 验证用户有没有登录
+	if admin == nil {
+		this.Redirect("/", 302)
+	}
 
 	// 默认注册
 	if admin != nil {

@@ -14,6 +14,11 @@ type ImageController struct {
 	BaseController
 }
 
+// 获取文件大小的接口
+type Sizer interface {
+	Size() int64
+}
+
 //  判断目录是否存在
 func isDirExists(path string) bool {
 	file, err := os.Stat(path)
@@ -27,8 +32,37 @@ func isDirExists(path string) bool {
 	panic("no reached")
 }
 
+// 判断文件是否存在
+func isFileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil || os.IsExist(err)
+}
+
+// 判断文件文件类型
+func AllowType(StrFile string, AllType []string) (isAllow bool) {
+	for _, v := range AllType {
+		if StrFile == v {
+			isAllow = true
+			return
+		}
+	}
+
+	return
+}
+
 func (this *ImageController) Index() {
 	this.TplNames = "Admin/image.html"
+}
+
+// 图片查看
+func (this *ImageController) View() {
+	// 查询图片信息
+	query := map[string]interface{}{"status": 1}
+	image, err := models.GetAllImage(query)
+	if err == nil {
+		this.Data["images"] = image
+	}
+	this.TplNames = "Admin/image_view.html"
 }
 
 // 响应ajax获取数据
@@ -112,50 +146,65 @@ func (this *ImageController) Save() {
 // 图片上传
 func (this *ImageController) FileUpload() {
 	// 定义错误
-	Point := this.InitPoint()
+	Point, oldFile := this.InitPoint(), this.GetString("Url")
 	f, h, err := this.GetFile("fileUrl")
 	defer f.Close()
 
+	// 判断错误
 	if err == nil {
-		// 判断上传文件类型
 
-		// 判断上传文件大小
+		// 获取上传文件的大小和文件类型
+		lastNum := strings.LastIndex(h.Filename, ".")
+		IntSize, StrFile := f.(Sizer).Size(), h.Filename[lastNum:]
 
-		// 处理上传目录
-		datePath := time.Now().Format("200601")
-		dirName := "./static/img/" + datePath
+		// 定义允许上传
+		Point.Message = "上传文件类型错误"
+		allType := []string{".jpeg", ".jpg", ".png", ".gif"}
+		if AllowType(StrFile, allType) {
 
-		// 目录不存在创建
-		if !isDirExists(dirName) {
-			err = os.MkdirAll(dirName, 0777)
-		}
+			// 判断上传文件大小
+			Point.Message = "上传文件大小超过2MB"
+			if IntSize < 1024*1024*2 {
 
-		Point.Message = "创建目录失败 :( " + dirName
+				// 处理上传目录
+				datePath := time.Now().Format("200601")
+				dirName := "./static/img/" + datePath
 
-		// 创建目录失败
-		if err == nil {
+				// 目录不存在创建
+				if !isDirExists(dirName) {
+					err = os.MkdirAll(dirName, 0777)
+				}
 
-			// 处理上传的文件名
-			RandName := rand.Int()
-			lastNum := strings.LastIndex(h.Filename, ".")
-			file := h.Filename[lastNum:]
+				Point.Message = "创建目录失败 :( " + dirName
 
-			// 文件最终保存的地址
-			fileName := dirName + "/" + strconv.Itoa(RandName) + file
-			err = this.SaveToFile("fileUrl", fileName)
+				// 创建目录失败
+				if err == nil {
 
-			if err == nil {
-				Point.Status = 1
-				Point.Message = "图片上传成功"
-				Point.Data = fileName
-			} else {
-				Point.Message = err.Error()
+					// 处理上传的文件名
+					RandName := rand.Int()
+
+					// 文件最终保存的地址
+					fileName := dirName + "/" + strconv.Itoa(RandName) + StrFile
+					err = this.SaveToFile("fileUrl", fileName)
+
+					if err == nil {
+						// 上传成功删除之前的图片
+						if oldFile != "" && isFileExists("./"+oldFile) {
+							os.Remove("./" + oldFile)
+						}
+
+						Point.Status = 1
+						Point.Message = "图片上传成功"
+						Point.Data = fileName[1:]
+					} else {
+						Point.Message = err.Error()
+					}
+				}
 			}
 		}
 
 	} else {
 		Point.Message = err.Error()
-		Point.Message = "123"
 	}
 
 	this.AjaxReturn(Point)

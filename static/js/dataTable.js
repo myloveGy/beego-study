@@ -324,6 +324,7 @@ var MeTable = (function($) {
 		objForm = document.updateForm
 		if (objForm != undefined)
 		{
+			$(objForm).find('input[type=hidden]').val('');
 			objForm.reset();
 			if (data != undefined)
 			{
