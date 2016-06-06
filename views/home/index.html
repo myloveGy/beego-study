@@ -1,0 +1,65 @@
+<div class="banner">
+    <div id="slide-header" class="carousel slide" data-ride="carousel">
+        <!-- 轮播（Carousel）指标 -->
+        <ol class="carousel-indicators">
+            {{range $k, $v := .images}}
+            <li data-target="#slide-header" data-slide-to="{{$k}}" {{if eq $k 0}}class="active"{{end}}></li>
+            {{end}}
+        </ol>
+
+        <!-- 轮播（Carousel）项目 -->
+        <div class="carousel-inner">
+            {{range $k, $v := .images}}
+            <div class="item {{if eq $k 0}}active{{end}}">
+                <img src="{{.Url}}" class="img-responsive" alt="First slide">
+                <div class="carousel-caption">
+                    <h3>{{.Title}}</h3>
+                    <p>{{.Desc}}</p>
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+        <!-- 轮播（Carousel）导航 -->
+        <a class="carousel-control left" href="#slide-header" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">上一张</span>
+        </a>
+        <a class="carousel-control right" href="#slide-header" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">下一张</span>
+        </a>
+    </div>
+</div>
+<div class="topnews layer-photos-demo" id="layer-photos-demo">
+    <h2>
+        <b>文章</b>
+        推荐
+    </h2>
+    <div id="m-content"></div>  
+    <div id="m-page"></div>
+</div>
+<script type="text/javascript" src="/static/js/page.js"></script>
+<script type="text/javascript">
+    var page = new MePage({ajaxUrl:"/ajax", divId:"#m-page", pageSize: 8, callback:function(data, size) {
+        var html = '';
+        for (var i = 0; i < size; i ++)
+        {
+            html += '<div class="blogs">\
+            <figure><img src="'+data[i].img+'"></figure>\
+            <ul>\
+                <h3><a href="/article/view/'+data[i].id+'">'+data[i].title+'</a></h3>\
+                <p>引导语：'+data[i].content.substr(0, 300)+'</p>\
+                <p class="autor">\
+                    <span class="lm f_l"><a href="/article/view/'+data[i].id+'">个人博客</a></span>\
+                    <span class="dtime time f_l">'+timeFormat(data[i].create_time)+'</span>\
+                    <span class="viewnum f_r">浏览(<a href="/article/view/'+data[i].id+'">'+data[i].see_num+'</a>)</span>\
+                    <span class="pingl f_r">评论(<a href="/article/view/'+data[i].id+'">'+data[i].comment_num+'</a>)</span>\
+                </p>\
+            </ul>\
+        </div>';
+        }
+
+        $('#m-content').html(html);
+    }});
+</script>

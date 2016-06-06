@@ -1,0 +1,20 @@
+<ol class="breadcrumb m-a">
+    <li><a href="/">首页</a></li>
+    <li><a href="/article">文章</a></li>
+    <li class="active">{{.article.Title}}</li>
+</ol>
+
+<ul>
+    <h3 class="text-primary p-15">{{.article.Title}}</h3>
+    <div>{{if ne .article.Img ""}}<img src="{{.article.Img}}" class="col-md-6"/>{{end}}{{.article.Content}}</div>
+    <p class="autor">
+        <span class="lm f_l">个人博客</span>
+        <span class="dtime time f_l">{{.article.CreateTime}}</span>
+        <span class="viewnum f_r">浏览({{.article.SeeNum}})</span>
+        <span class="pingl f_r">评论({{.article.CommentNum}})</span>
+    </p>
+</ul>
+<div class="bg-info m-top-5 p-15 center-block clearfix m-a">
+    {{if ne .prev.Title ""}}<span class="glyphicon glyphicon-arrow-left pull-left p-10" aria-hidden="true">上一篇：<a href="/article/view/{{.prev.Id}}">{{substr .prev.Title 0 30}}</a></span>{{end}}
+   {{if ne .next.Title ""}}<span class="glyphicon glyphicon-arrow-right pull-right p-10" aria-hidden="true">下一篇：<a href="/article/view/{{.next.Id}}">{{substr .next.Title 0 30}}</a></span>{{end}}
+</div>

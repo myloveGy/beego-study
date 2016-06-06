@@ -1,0 +1,12 @@
+<style type="text/css">
+	img {border: 0 none;height: auto;max-width: 100%;vertical-align: middle;}
+</style>
+<div class="layer-photos-demo" id="layer-photos-demo">
+    {{range .images}}
+    <div class="col-md-4 p-15">
+        <a style="background:url({{.url}})" title="{{.title}}" href="javascript:;">
+            <img layer-src="{{.url}}" src="{{.url}}" alt="{{.title}}" />
+        </a>
+    </div>
+    {{end}}
+</div>
