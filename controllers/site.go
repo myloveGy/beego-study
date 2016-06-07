@@ -15,6 +15,10 @@ type SiteController struct {
 
 // 显示登录页面
 func (this *SiteController) Index() {
+	// 用户已经登录
+	if this.isLogin("admin") {
+		this.Redirect("/admin/site", 302)
+	}
 	this.TplName = "layout/login.html"
 }
 

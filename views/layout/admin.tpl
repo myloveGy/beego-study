@@ -93,7 +93,7 @@
                 <!-- 用户信息显示 -->
                 <li class="light-blue">
                     <a data-toggle="dropdown" href="#" class="dropdown-toggle">
-                        <img class="nav-user-photo" src="/static/avatars/avatar.jpg" alt="Jason's Photo" />
+                        <img class="nav-user-photo" src="/static/assets/avatars/avatar.jpg" alt="Jason's Photo" />
                             <span class="user-info">
                                 <small>欢迎登录</small>{{$.admin.Username}}
                             </span>
