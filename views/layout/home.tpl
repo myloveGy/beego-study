@@ -11,14 +11,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!--引入公共CSS文件-->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/static/css/home/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/home/base.css" />
 
     <!--引入公共js文件-->
-    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/static/js/base.js"></script>
+    <script type="text/javascript" src="/static/assets/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/assets/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/static/js/base.js"></script>
     <script type="text/javascript" src="/static/js/jquery.validate.min.js"></script>
     <script type="text/javascript" src="/static/js/validate.message.js"></script>
     <script type="text/javascript" src="/static/js/layer/layer.js"></script>
@@ -85,7 +85,7 @@
             </div>
             <!--tit01 end-->
             <div class="ad300x100">
-                <img src="/static/images/ad300x100.jpg">
+                <img src="/static/home/images/ad300x100.jpg">
             </div>
 
             <div class="moreSelect" id="lp_right_select">
@@ -139,7 +139,7 @@
                     {{end}}
                 </ul>
             </div>
-            <div class="ad"> <img src="/static/images/03.jpg"> </div>
+            <div class="ad"> <img src="/static/home/images/03.jpg"> </div>
             <div class="links">
                 <h3><span>[<a href="/">申请友情链接</a>]</span>友情链接</h3>
                 <ul>
@@ -303,7 +303,7 @@
     // 验证函数
     function validate(error, errorPlacement){if (isHave != false) return false;isHave = layer.tips($(error).html(), errorPlacement, {tips: [3], time:1000, end:function(){isHave = false;}});}
     // 验证登录
-    function isLogin(){if ($.cookie('my_user') === null) {sLogin(); return false;} return true;}
+    function isLogin(){if ($.cookie('my_user') == null || empty($.cookie('my_user'))) {sLogin(); return false;} return true;}
     // 执行登录
     function userLogin(obj){if ($(obj).validate(Obj).form()) {l = layer.load();$.ajax({url: loginurl, data:$(obj).serialize(),type:'post',dataType:'json',error:requestError,success:function(json){layer.close(l);var i = json.status == 1 ? 6 : 5;if (json.status == 1) layer.close(lLayer);layer.msg(json.msg, {icon:i,time:1000, end:function(){if (json.status == 1) changUser(json.data);}})},})}return false;}
     // 用户登录和退出切换
