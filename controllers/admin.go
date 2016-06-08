@@ -16,9 +16,9 @@ type AdminController struct {
 // 前置操作
 func (this *AdminController) Prepare() {
 	// 判断用户是否已经登录, 没有登录返回到登录页面
-	if !this.isLogin("admin") {
-		this.Redirect("/admin", 302)
-	}
+	//	if !this.isLogin("admin") {
+	//		this.Redirect("/admin", 302)
+	//	}
 
 	// 使用的布局
 	this.Data["admin"] = this.U

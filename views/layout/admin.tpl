@@ -65,6 +65,8 @@
 
     <script src="/static/assets/js/ace-elements.min.js"></script>
     <script src="/static/assets/js/ace.min.js"></script>
+    <script src="/static/js/base.js"></script>
+    <script src="/static/js/dataTable.js"></script>
 </head>
 <body class="no-skin">
 <!-- #section:basics/navbar.layout -->
@@ -396,6 +398,7 @@
 <script src="/static/assets/js/x-editable/bootstrap-editable.min.js"></script>
 <script src="/static/assets/js/x-editable/ace-editable.min.js"></script>
 <script src="/static/assets/js/jquery.maskedinput.min.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
 <script src="/static/js/layer/layer.js"></script>
 </body>
 </html>

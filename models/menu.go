@@ -26,3 +26,15 @@ func (u *Menu) TableName() string {
 func init() {
 	orm.RegisterModel(new(Menu))
 }
+
+// 查询数据
+func SearchMenu(query map[string]interface{}, limit int64, offset int64, order string) (array []*Menu, err error) {
+	qs := orm.NewOrm().QueryTable(new(Menu))
+	for k, v := range query {
+		qs = qs.Filter(k, v)
+	}
+
+	qs = qs.OrderBy(order).Limit(limit, offset)
+	_, err = qs.All(&array)
+	return
+}
