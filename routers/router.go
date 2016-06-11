@@ -29,4 +29,8 @@ func init() {
 	beego.Router("/admin/upload", &controllers.AdminAdminController{}, "*:Upload")
 	beego.Router("/admin/menu/", &controllers.MenuAdminController{}, "*:Index")
 	beego.Router("/admin/menu/search", &controllers.MenuAdminController{}, "*:Search")
+	beego.Router("/admin/menu/update", &controllers.MenuAdminController{}, "*:Update")
+	beego.Router("/admin/category/", &controllers.CategoryAdminController{}, "*:Index")
+	beego.Router("/admin/category/search", &controllers.CategoryAdminController{}, "*:Search")
+	beego.Router("/admin/category/update", &controllers.CategoryAdminController{}, "*:Update")
 }

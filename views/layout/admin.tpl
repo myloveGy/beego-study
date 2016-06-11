@@ -152,11 +152,11 @@
                     <i class="ace-icon fa fa-pencil"></i>
                 </button>
 
-                <button class="btn btn-warning">
+                <button class="btn btn-warning me-user">
                     <i class="ace-icon glyphicon glyphicon-user"></i>
                 </button>
 
-                <button class="btn btn-danger">
+                <button class="btn btn-danger me-set">
                     <i class="ace-icon fa fa-cogs"></i>
                 </button>
             </div>
@@ -171,19 +171,19 @@
         <!--左侧导航栏信息-->
         <ul class="nav nav-list">
             <li class="admin-site">
-                <a  href="/admin/admin/index.html" >
+                <a  href="/admin/site" >
                     <i class="menu-icon glyphicon glyphicon-user"></i>
                     <span class="menu-text"> 管理员信息 </span>
                 </a>
             </li>
-            <li class="categoryindex">
-                <a  href="/admin/category/index.html" >
+            <li class="admin-category">
+                <a  href="/admin/category/" >
                     <i class="menu-icon glyphicon glyphicon-list"></i>
                     <span class="menu-text"> 文章分类信息 </span>
                 </a>
             </li>
-            <li class="menuindex">
-                <a href="/admin/menu/index.html" >
+            <li class="admin-menu">
+                <a href="/admin/menu/" >
                     <i class="menu-icon glyphicon glyphicon-th"></i>
                     <span class="menu-text"> 导航栏信息 </span>
                 </a>
@@ -273,7 +273,7 @@
             <div class="nav-search" id="nav-search">
                 <form class="form-search">
                     <span class="input-icon">
-                        <input type="text" placeholder="搜索/static." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+                        <input type="text" placeholder="搜索信息" class="nav-search-input" id="nav-search-input" autocomplete="off" />
                         <i class="ace-icon fa fa-search nav-search-icon"></i>
                     </span>
                 </form>
@@ -399,22 +399,34 @@
 <script src="/static/assets/js/x-editable/ace-editable.min.js"></script>
 <script src="/static/assets/js/jquery.maskedinput.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
+<script src="/static/assets/js/jquery.dataTables.bootstrap.js"></script>
+<script src="/static/js/jquery.validate.min.js"></script>
+<script src="/static/js/validate.message.js"></script>
 <script src="/static/js/layer/layer.js"></script>
 </body>
 </html>
 <script type="text/javascript">
+        
     $(function(){
-        var select = '.admin-site';
         // 导航栏样式装换
         $(select).addClass('active').parentsUntil('ul.nav-list').addClass('active open');
+
         // 隐藏和显示
-        $('a[data-action=close]:first').click(function(){
+        $('.me-hide').click(function(evt){
+            evt.preventDefault();
+            var sDataHide = $(this).attr('data-hide'),
+                $parent   = empty(sDataHide) ? $(this).parent().parent().fadeOut() : $(sDataHide).fadeOut();
             $(select).children('a').append('<span class="badge badge-primary tooltip-error" title="显示">显示</span>').bind('click', function (e) {
                 e.preventDefault();
-                $('div.widget-box:first').fadeIn();
+                $parent.fadeIn();
                 $(this).unbind('click').find('span:last').remove();
                 return false;
-            });;
+            });
+        })
+
+        // 用户页面
+        $('.me-user,.me-set').click(function(){
+            window.location.href = "/admin/site";
         })
     })
 </script>

@@ -21,6 +21,7 @@ function createRadio(data,checked,params){
     }
     return html
 }
+
 // 生成select
 function createSelect(data,selected,params){
     var html = "", params = handleParams(params);

@@ -309,7 +309,7 @@
     // 用户登录和退出切换
     function changUser(params){var sx = params !== null ? '.no-login' : '.is-login',sh = params !== null ? '.is-login' : '.no-login';$.cookie('my_user', params);$('.user').html(params);$(sx).fadeOut(1000, function(){$(sh).fadeIn(1000)});}
     // 显示登录页面
-    function sLogin(){var w = $(window).width() * 0.25 > 355 ? '25%': '100%',s = Math.floor(Math.random() * 7);lLayer =layer.open({title:'用户登录',type:1,shift:s,shadeClose:true,area:[w, 'auto'],content:$('#login').html()});}
+    function sLogin(){var w = $(window).width() > 355 ? '355px': '100%', s = Math.floor(Math.random() * 7);lLayer =layer.open({title:'用户登录',type:1,shift:s,shadeClose:true,area:[w, 'auto'],content:$('#login').html()});}
     // 添加文章数据
     function article(params){var html = '', len = params.length;for(var i = 0 ; i < len ; i ++) {var data = params[i];if (empty(data.img)) data.img = $('div.blogs figure img').attr('src');html += '<div class="blogs"><figure><img src="' + data.img + '"></figure><ul><h3><a href="/article/view/'+data.id+'">' + data.title +  '</a></h3><p>引导语：' + data.content + '</p>';html += '<p class="autor"><span class="lm f_l"><a href="/article/view/'+data.id+'">个人博客</a></span><span class="dtime f_l">' + timeFormat(data.create_time) + '</span><span class="viewnum f_r">浏览（<a href="/article/view/'+data.id+'">0</a>）</span><span class="pingl f_r">评论（<a href="/article/view/'+data.id+'">0</a>）</span></p>';html += '</ul></div>';}$('.topnews h2').after(html);}
 
