@@ -5,7 +5,7 @@ import (
 	"project/models"
 	"strconv"
 
-	"github.com/astaxie/beego"
+	//	"github.com/astaxie/beego"
 )
 
 type CategoryAdminController struct {
@@ -32,7 +32,6 @@ func (this *CategoryAdminController) Index() {
 		}
 		str, _ := json.Marshal(&data)
 		this.Data["categorys"] = string(str)
-		beego.Alert(string(str))
 	}
 	this.TplName = "admin/category.html"
 }

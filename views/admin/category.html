@@ -75,9 +75,7 @@
         Mstatus  = {"0":"停用", "1":"启用"},
         myTable  = new MeTable({"sTitle":"文章分类信息"},{
         "aoColumns":[
-            {"data":null, "class":"center", "title":'<label class="position-relative"><input type="checkbox" class="ace" /><span class="lbl"></span></label>', "bSortable":false, "render":function(data){
-                return '<label class="position-relative"><input type="checkbox" value="' + data["id"] + '" class="ace" /><span class="lbl"></span></label>';
-            }},
+            oCheckBox,
             {"data":"id", "sName":"id", "title":"栏目ID",  "edit":{"type":"hidden"}, "search":{"type":"text"}},
             {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus}, 
             {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
@@ -89,24 +87,14 @@
             {"data":"create_id", "sName":"create_id", "title":"创建用户", }, // "createdCell":adminToString
             {"data":"update_time", "sName":"update_time", "title":"修改时间", "createdCell":dateTimeString},
             {"data":"update_id", "sName":"update_id", "title":"修改用户", }, // "createdCell":adminToString
-            {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate}
+            oOperate,
         ],
     });
 
     $(function() {
-        // 表单初始化
+        // dataTable 初始化
         myTable.init();
 
-        // 行选择
-        $(document).on('click', 'th input:checkbox' , function(){
-            var that = this;
-            $(this).closest('table').find('tr > td:first-child input:checkbox')
-            .each(function(){
-                this.checked = that.checked;
-                $(this).closest('tr').toggleClass('selected');
-            });
-        });
-        
         // 表格样式转换
         $('#simple-colorpicker-1').ace_colorpicker({pull_right:true}).on('change', function(){
             var color_class = $(this).find('option:selected').data('class');

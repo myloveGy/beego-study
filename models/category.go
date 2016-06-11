@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 // 定义分类模型
 type Category struct {
 	Id         int64  `orm:"column(id);auto;pk"json:"id"form:"id"`
@@ -22,17 +18,4 @@ type Category struct {
 // 返回表名字
 func (u *Category) TableName() string {
 	return "my_category"
-}
-
-// 分类新增之前的处理
-func (c *Category) BeforeInsert() string {
-	c.CreateTime = time.Now().Unix()
-	c.UpdateTime = c.CreateTime
-	return ""
-}
-
-// 分类修改之前的处理
-func (c *Category) BeforeUpdate() string {
-	c.UpdateTime = time.Now().Unix()
-	return ""
 }

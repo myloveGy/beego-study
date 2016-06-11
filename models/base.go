@@ -3,8 +3,12 @@ package models
 import (
 	"errors"
 	"reflect"
+	"strconv"
+	"strings"
 
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"time"
 )
 
 // 初始化注册
@@ -103,6 +107,22 @@ func Insert(object interface{}) (id int64, err error) {
 			err = errors.New(str)
 			return
 		}
+	} else {
+		// 修改字段
+		me := v.Elem()
+		mt := me.FieldByName("CreateTime")
+		t := reflect.ValueOf(time.Now().Unix())
+
+		// 开始时间
+		if mt.IsValid() && mt.CanSet() {
+			mt.Set(t)
+		}
+
+		// 修改时间
+		mt = me.FieldByName("UpdateTime")
+		if mt.IsValid() && mt.CanSet() {
+			mt.Set(t)
+		}
 	}
 
 	// 执行新增
@@ -129,6 +149,16 @@ func Update(object interface{}) (num int64, err error) {
 		if str := m[0].String(); str != "" {
 			err = errors.New(str)
 			return
+		}
+	} else {
+		// 不存在自定义的修改方法，那么执行默认的修改方法
+		me := v.Elem()
+		t  := reflect.ValueOf(time.Now().Unix())
+		mt := me.FieldByName("UpdateTime")
+
+		// 修改时间
+		if mt.IsNil() && mt.CanSet() {
+			mt.Set(t)
 		}
 	}
 
@@ -172,4 +202,59 @@ func Delete(object interface{}) (num int64, err error) {
 	}
 
 	return
+}
+
+// 删除全部数据
+func DeleteAll(object interface{}, aIds []string, table string) (num int64, err error) {
+	// 获取反射信息
+	v := reflect.ValueOf(object)
+	f := v.MethodByName("DeleteAll")
+
+	// 判断对象是否存在自己的删除全部的方法
+	if f.IsValid() {
+		value := f.Call([]reflect.Value{reflect.ValueOf(aIds)})
+		num = value[0].Int()
+		m := value[1].Interface()
+		if m != nil {
+			err = m.(error)
+		}
+	} else {
+		// 没有执行全局的删除方法
+		var ids []int64 // 定义接收ID的数组
+		var s []string  // 定义拼接的where条件字符串
+		for _, v := range aIds {
+			if num, err := strconv.ParseInt(v, 10, 64); err == nil {
+				ids = append(ids, num)
+				s = append(s, "?")
+			}
+		}
+
+		// 判断有数据 -- 执行SQL返回
+		if len(ids) > 0 {
+			num, err = DeleteSql(table, " `id` IN ("+strings.Join(s, ",")+")", ids)
+		} else {
+			err = errors.New("删除数据为空")
+		}
+	}
+
+	return
+}
+
+// 执行自定义SQL语句
+func Exec(sql string, params interface{}) (rowAffected int64, err error) {
+	result, err1 := orm.NewOrm().Raw(sql, params).Exec()
+	beego.Alert(sql)
+	if err1 == nil {
+		rowAffected, err = result.RowsAffected()
+	} else {
+		err = err1
+	}
+
+	return
+}
+
+// 删除全部
+func DeleteSql(table, where string, params interface{}) (int64, error) {
+	sql := "DELETE FROM `" + table + "` WHERE " + where
+	return Exec(sql, params)
 }
