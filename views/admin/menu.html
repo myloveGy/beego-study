@@ -29,6 +29,7 @@
         aStatus = {0:"停用", 1:"启用"},
         myTable = new MeTable({"sTitle":"导航栏目信息"},{
         "aoColumns":[
+            oCheckBox,
             {"data":"id", "sName":"id", "title":"栏目ID",  "edit":{"type":"hidden"}, "search":{"type":"text"}},
             {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
             {"data":"menu_name", "sName":"menu_name","title":"栏目名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},

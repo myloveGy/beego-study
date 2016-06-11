@@ -173,3 +173,15 @@ func Delete(object interface{}) (num int64, err error) {
 
 	return
 }
+
+// 执行自定义SQL语句
+func Exec(sql string, params []interface{}) (rowAffected int64, err error) {
+	result, err1 := orm.NewOrm().Raw(sql, params).Exec()
+	if err1 == nil {
+		rowAffected, err = result.RowsAffected()
+	} else {
+		err = err1
+	}
+
+	return
+}
