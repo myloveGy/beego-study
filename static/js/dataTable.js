@@ -230,47 +230,19 @@ var MeTable = (function($) {
 
 		// 处理生成表单
 		this.tableOptions.aoColumns.forEach(function(k, v) {
-			views += createViewTr(k.title, k.data);
-			if (k.edit != undefined) form += createForm(k);
-
-			// 处理搜索
-			if (k.search != undefined)
-			{
-				var tmpOptions = {"name":k.sName, "vid":v, "class":"msearch"},html = '';
-                if (k.search.options) $.extend(tmpOptions, k.search.options);
-                if ( self.options.sSearchPosition == 'top') tmpOptions['placeholder'] = '请输入' + k.title;
-				switch (k.search.type)
-				{
-					case "select":
-						k.value["All"] = "全部"; 
-						html += createSelect(k.value, "All", tmpOptions)
-						delete k.value['All']
-					break;
-					default:
-						html += createInput('text', tmpOptions);
-				}
-
-				self.options.sSearchHtml += Label(k.title + " : " + html) + ' ';
-			}
+			views += createViewTr(k.title, k.data);											// 查看详情信息
+			if (k.edit != undefined) form += createForm(k);									// 编辑表单信息
+			if (k.search != undefined) self.options.sSearchHtml += createSearchForm(k, v);  // 搜索信息
 		});
 
 		// 生成HTML
-		var Modal = '<div class="isHide" id="data-info"> ' + views +  ' </table></div> \
-				    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myImageLabel"> \
-				        <div class="modal-dialog" role="document"> \
-				            <div class="modal-content"> \
-				                <div class="modal-header"> \
-				                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> \
-				                    <h4 class="modal-title">编辑详情</h4> \
-				                </div> \
-				                <div class="modal-body">' + form + '</fieldset></form></div> \
-				                <div class="modal-footer"> \
-				                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> \
-				                    <button type="button" class="btn btn-primary btn-image me-table-save">确定</button> \
-				                </div> \
-				            </div> \
-				        </div> \
-				    </div>';
+		var Modal = createModal({
+			"params": {"id":"myModal"},
+			"html":   form,
+			"bClass": "me-table-save"},
+		{
+			"params": {"id":"data-info"}, "html":views
+		});
 
 		// 处理详情编辑信息
 		if (this.bHandleDetails) {
@@ -283,22 +255,14 @@ var MeTable = (function($) {
 			});
 
 			// 添加详情输入框
-			Modal += '<div class="isHide" id="data-info-detail"> ' + views +  ' </table></div> \
-					<div class="modal fade" id="myDetailModal" tabindex="-1" role="dialog"> \
-				        <div class="modal-dialog" role="document"> \
-				            <div class="modal-content"> \
-				                <div class="modal-header"> \
-				                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> \
-				                    <h4 class="modal-title">编 辑</h4> \
-				                </div> \
-				                <div class="modal-body">' + form + '</fieldset></form></div> \
-				                <div class="modal-footer"> \
-				                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> \
-				                    <button type="button" class="btn btn-primary btn-image me-table-save-detail">确定</button> \
-				                </div> \
-				            </div> \
-				        </div> \
-				    </div>';
+			Modal += createModal({
+				"params": {"id":"myDetailModal"},
+				"html":	  form,
+				"bClass": "me-table-save-detail"},
+			{
+				"params": {"id":"data-info-detail"},
+				"html":   views,
+			});
 		}
 
 		// 向页面添加HTML

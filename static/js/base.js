@@ -82,7 +82,7 @@ function createLangInput(obj)
     return html;
 }
 
-// 上传多选按钮 checkbox
+// 多选按钮 checkbox
 function createCheckbox(data, checked, params, arr, isHave)
 {
     if (arr == undefined) arr = 'col-xs-6';
@@ -186,6 +186,45 @@ function createViewTr(title, data) {
     return '<tr><td width="25%">' + title + '</td><td class="views-info data-info-' + data + '"></td></tr>'
 }
 
+// 生成查表单信息
+function createSearchForm(k, v) {
+    var tmpOptions = {"name":k.sName, "vid":v, "class":"msearch"},
+        html       = '';
+    if (k.search.options) $.extend(tmpOptions, k.search.options);
+    switch (k.search.type)
+    {
+        case "select":
+            k.value["All"] = "全部";
+            html += createSelect(k.value, "All", tmpOptions)
+            delete k.value['All']
+            break;
+        default:
+            html += createInput('text', tmpOptions);
+    }
+
+    return Label(k.title + " : " + html) + ' ';
+}
+
+// 生成编辑和查看详细modal
+function createModal(oModal, oViews) {
+    return '<div class="isHide" '+ handleParams(oViews['params']) +'> ' + oViews['html'] +  ' </table></div> \
+            <div class="modal fade" '+ handleParams(oModal['params']) +' tabindex="-1" role="dialog" > \
+                <div class="modal-dialog" role="document"> \
+                    <div class="modal-content"> \
+                        <div class="modal-header"> \
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> \
+                            <h4 class="modal-title"> 编 辑 </h4> \
+                        </div> \
+                        <div class="modal-body">' + oModal['html'] + '</fieldset></form></div> \
+                        <div class="modal-footer"> \
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> \
+                            <button type="button" class="btn btn-primary btn-image ' + oModal['bClass'] + '">确定</button> \
+                        </div> \
+                    </div> \
+                </div> \
+            </div>';
+}
+
 
 // 验证上传文件
 function verifyUpload(uploadObj,size,allowType,fileurl){var obj=uploadObj.files[0],arr=[false,"对不起！上传文件超过指定值..."],num=obj.name.indexOf("."),fileext=obj.name.substr(num+1).toLocaleLowerCase();if(allowType==undefined){allowType=["jpeg","jpg","gif","png"]}if(obj.size<size){arr[1]="对不起！上传文件类型错误...";if(in_array(fileext,allowType)){if(fileurl!=undefined){var link=uploadObj.url.indexOf("?")>=0?"&":"?";uploadObj.url+=link+"fileurl="+fileurl}arr=[true,"文件上传成功！"]}}return arr}
@@ -226,3 +265,5 @@ Date.prototype.Format=function(fmt){var o={"M+":this.getMonth()+1,"d+":this.getD
 function timeFormat(time,str){if(empty(str)){str="yyyy-MM-dd"}var date=new Date(time*1000);return date.Format(str)}
 // 值的转换
 function stringTo(type,value){switch(type){case"int":case"int8":case"int16":case"int32":case"int64":case"uint":case"uint8":case"uint16":case"uint32":case"uint64":return parseInt(value);case"bool":return value==="true"||value===true||value===1||value=="1";case"float32":case"float64":}return value};
+// 初始化表单信息
+function InitForm(select, )

@@ -157,7 +157,7 @@ func Update(object interface{}) (num int64, err error) {
 		mt := me.FieldByName("UpdateTime")
 
 		// 修改时间
-		if mt.IsNil() && mt.CanSet() {
+		if mt.IsValid() && mt.CanSet() {
 			mt.Set(t)
 		}
 	}

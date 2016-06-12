@@ -3,7 +3,7 @@ package models
 // 定义分类模型
 type Category struct {
 	Id         int64  `orm:"column(id);auto;pk"json:"id"form:"id"`
-	Pid        int64  `orm:"column(pid);"form:"title"json:"pid"form:"pid"`
+	Pid        int64  `orm:"column(pid)"json:"pid"form:"pid"`
 	Path       string `orm:"column(path)"json:"path"`
 	CateName   string `orm:"column(cate_name)"json:"cate_name"form:"cate_name"`
 	Sort       string `orm:"column(sort)"json:"sort"form:"sort"`
