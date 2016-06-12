@@ -127,6 +127,7 @@ func (this *AdminController) BaseUpdate(object interface{}, table string) {
 
 			// 其他数据的处理
 			if bTrue {
+<<<<<<< HEAD
 				err := errors.New("格式化数据出现错误")
 				if actionType == "deleteAll" {
 					ids := this.GetString("ids")
@@ -156,6 +157,41 @@ func (this *AdminController) BaseUpdate(object interface{}, table string) {
 					this.E.Data = object
 				} else {
 					this.E.Msg = "抱歉！执行该操作出现错误 Error：" + err.Error()
+=======
+				this.E.Msg = "格式化数据出现错误"
+				if actionType == "deleteAll" {
+					ids := this.GetString("ids")
+					this.E.Msg = "删除数据为空"
+					if ids != "" {
+						aIds := strings.Split(ids, ",")
+						if len(aIds) >= 1 {
+							//							if _, err := object.DeleteAll(aIds); err != nil {
+
+							//							}
+						}
+					}
+				} else {
+					if err := this.ParseForm(object); err == nil {
+						// 根据类型做出相应的处理
+						switch actionType {
+						case "insert": // 新增数据
+							_, err = models.Insert(object)
+						case "update": // 修改数据
+							_, err = models.Update(object)
+						case "delete": // 删除数据
+							_, err = models.Delete(object)
+						}
+
+						// 判断返回数据
+						if err == nil {
+							this.E.Status = 1
+							this.E.Msg = "恭喜你, 操作成功 ^.^"
+							this.E.Data = object
+						} else {
+							this.E.Msg = "抱歉！执行该操作出现错误 Error：" + err.Error()
+						}
+					}
+>>>>>>> 76323023a9b7a71e85a24577d1b4250837249948
 				}
 			}
 		}

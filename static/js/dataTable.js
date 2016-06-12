@@ -38,18 +38,29 @@ function setOperate(td, data, rowArr, row, col)
 
 // 多选按钮信息
 var oCheckBox = {
+<<<<<<< HEAD
 		"data": 	 null, 
 		"bSortable": false, 
 		"class": 	 "center", 
 		"title": 	 '<label class="position-relative"><input type="checkbox" class="ace" /><span class="lbl"></span></label>',
 		"render": 	 function(data){
+=======
+		"data": 		null, 
+		"class": 		"center", 
+		"title": 		'<label class="position-relative"><input type="checkbox" class="ace" /><span class="lbl"></span></label>',
+		"bSortable": 	false, 
+		"render": 		function(data){
+>>>>>>> 76323023a9b7a71e85a24577d1b4250837249948
 			return '<label class="position-relative"><input type="checkbox" value="' + data["id"] + '" class="ace" /><span class="lbl"></span></label>';
         }
     };
 
+<<<<<<< HEAD
 // 默认操作选项
 var oOperate = {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate};
 
+=======
+>>>>>>> 76323023a9b7a71e85a24577d1b4250837249948
 // 服务器数据处理
 function fnServerData(sSource, aoData, fnCallback) {
     var intLayer   = layer.load(),
@@ -398,7 +409,11 @@ var MeTable = (function($) {
 
 	// 查询详情
 	MeTable.prototype.view = function(row) {
+<<<<<<< HEAD
         if (this.options.iViewLoading != 0) return false;
+=======
+        if (this.options.iLoading != 0) return false;
+>>>>>>> 76323023a9b7a71e85a24577d1b4250837249948
 		var self = this, data = this.table.data()[row];
 		// 处理的数据
 		if (data != undefined)
