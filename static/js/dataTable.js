@@ -49,6 +49,30 @@ var oCheckBox = {
 
 // 默认操作选项
 var oOperate = {"data": null, "title":"操作", "bSortable":false, "createdCell":setOperate};
+var oOperateDetails = {"data":null, "title":"操作", "bSortable":false, "createdCell":function(td, data, rowArr, row, col){
+	$(td).html(createButtons([
+		{"data":row, "title":"查看", "className":"btn-success", "cClass":"me-table-view-detail",  "icon":"fa-search-plus",  "sClass":"blue"},
+		{"data":row, "title":"编辑", "className":"btn-info", "cClass":"me-table-edit-detail", "icon":"fa-pencil-square-o",  "sClass":"green"},
+		{"data":row, "title":"删除", "className":"btn-danger", "cClass":"me-table-del-detail", "icon":"fa-trash-o",  "sClass":"red"}
+	]));
+}};
+
+var oTableLanguage = {
+	// 显示
+	"sLengthMenu": 	 "每页 _MENU_ 条记录",
+	"sZeroRecords":  "没有找到记录",
+	"sInfo": 		 "显示 _START_ 到 _END_ 共有 _TOTAL_ 条数据",
+	"sInfoEmpty": 	 "无记录",
+	"sInfoFiltered": "(从 _MAX_ 条记录过滤)",
+	"sSearch": 		"搜索：",
+	// 分页
+	"oPaginate": {
+		"sFirst": 	 "首页",
+		"sPrevious": "上一页",
+		"sNext": 	 "下一页",
+		"sLast": 	 "尾页"
+	}
+};
 
 // 服务器数据处理
 function fnServerData(sSource, aoData, fnCallback) {
@@ -75,7 +99,6 @@ function fnServerData(sSource, aoData, fnCallback) {
         data: aoData,
         type: 'post',
         dataType: 'json',
-        cache: false,
         success: function(data) {
             layer.close(intLayer);
             // 判断返回数据
@@ -93,40 +116,23 @@ function fnServerData(sSource, aoData, fnCallback) {
 
 var MeTable = (function($) {
 	// 构造函数初始化配置
-	function MeTable(options, tableOptions) {
+	function MeTable(options, tableOptions, detailOptions) {
 		// 表格信息配置
 		this.tableOptions = {
-			'bStateSave': true,
-			"fnServerData": fnServerData,						// 获取数据的处理函数
-			"sAjaxSource": "search",							// 获取数据地址
-			"bLengthChange": true, 								// 是否可以调整分页
-			"bAutoWidth": false,
-            "bPaginate": true,
+			"fnServerData": fnServerData,		// 获取数据的处理函数
+			"sAjaxSource": "search",			// 获取数据地址
+			"bLengthChange": true, 				// 是否可以调整分页
+			"bAutoWidth": false,           	 	// 是否自动计算列宽
+            "bPaginate": true,					// 是否使用分页
             "iDisplayStart": 0,
             "iDisplayLength": 10,
-            "bServerSide": true,
+            "bServerSide": true,		 		// 是否开启从服务器端获取数据
             "bRetrieve": true,
             "bDestroy": true,
-            // "processing": true,
-            "serverSide": true,
-            "sPaginationType": "full_numbers",
-            "oLanguage": {
-                // 显示
-                "sLengthMenu": "每页 _MENU_ 条记录",
-                "sZeroRecords": "没有找到记录",
-                "sInfo": "显示 _START_ 到 _END_ 共有 _TOTAL_ 条数据",
-                "sInfoEmpty": "无记录",
-                "sInfoFiltered": "(从 _MAX_ 条记录过滤)",
-                "sSearch": "搜索：",
-                // 分页
-                "oPaginate": {
-                    "sFirst": "首页",
-                    "sPrevious": "上一页",
-                    "sNext": "下一页",
-                    "sLast": "尾页"
-                }
-            },
-            "order":[[0, "desc"]],
+            // "processing": true,				// 是否使用加载进度条
+            "sPaginationType": "full_numbers",  // 分页样式
+            "oLanguage": oTableLanguage,		// 语言配置
+            "order":[[1, "desc"]],
 		};
 
 		// 自定义信息配置
@@ -136,6 +142,7 @@ var MeTable = (function($) {
 			sTable: 	  "#showTable", 	// 显示表格选择器
 			sFormId:  	  "#editForm",		// 编辑表单选择器
 			sBaseUrl:     "update",			// 编辑数据提交URL
+			sSearchHtml:  "",				// 搜索信息
 			sSearchType:  "middle",			// 搜索表单位置
 			sSearchForm:  "#searchForm",	// 搜索表单选择器
 			bRenderH1: 	  true,				// 是否渲染H1内容
@@ -155,20 +162,77 @@ var MeTable = (function($) {
 		}, this.options.formOptions);
 
 		// 操作类型
-		this.actionType   = "";
+		this.actionType     = "";	  // 默认没有类型
+		this.bHandleDetails = false;  // 默认没有开启详情处理
+		this.oDetails 		= null;   // 详情配置为空
+
+		// 详情配置的处理
+		if (detailOptions != undefined && typeof detailOptions == "object")
+		{
+			this.bHandleDetails = true;
+			this.oDetailParams  = null;
+			this.oDetailObject  = null;
+			var self = this;
+			this.oDetails 		= {
+				sTable:   "#detailTable",
+				sModal:   "#myDetailModal",
+				sBaseUrl: "edit",
+				oTableOptions: {
+					"bPaginate": 	 false,             // 不使用分页
+					"bLengthChange": false,             // 是否可以调整分页
+					"bServerSide": 	 true,		 		// 是否开启从服务器端获取数据
+					"bAutoWidth": 	 false,
+					"sAjaxSource":	"view",
+					"fnServerData": function(sSource, aoData, fnCallback) {
+						if (self.oDetailParams)
+						{
+							var intLayer = layer.load()
+							for (var i in self.oDetailParams) aoData.push({name:i, value:self.oDetailParams[i]})
+							// ajax请求
+							$.ajax({
+								url: sSource,
+								data: aoData,
+								type: 'post',
+								dataType: 'json',
+								success: function(data) {
+									layer.close(intLayer);
+									// 判断返回数据
+									if (data.status != 1) return layer.msg('出现错误:' + data.msg, {time:2000, icon:5});
+									$.fn.dataTable.defaults['bFilter'] = true;
+									fnCallback(data.data);
+									if (self.oDetailObject) self.oDetailObject.child(function(){return $('#detailTable').parent().html();}).show()
+								},
+								error: function() {
+									layer.close(intLayer);
+									layer.msg("服务器繁忙,请稍候再试...", {time:2000});
+								}
+							});
+						}
+
+					},		// 获取数据的处理函数
+					"searching": 	 false,
+					"ordering":  	 false,
+					"oLanguage": 	 oTableLanguage,		// 语言配置
+				}
+			};
+
+			detailOptions.oTableOptions = $.extend(this.oDetails.oTableOptions, detailOptions.oTableOptions)
+			this.oDetails 		= $.extend(this.oDetails, detailOptions)
+		}
 	}
 
 	// 处理表单信息
 	MeTable.prototype.CreateForm = function() {
-		var self = this, form = "", search = "", views = "", formParams = handleParams(this.formOptions);
-		form += '<form ' + formParams + '><fieldset>';
-		views += '<table class="table table-bordered table-striped table-detail">';
+		var self       = this,
+			formParams = handleParams(this.formOptions),
+			form 	   = '<form ' + formParams + '><fieldset>',
+			views 	   = '<table class="table table-bordered table-striped table-detail">';
+
 		// 处理生成表单
 		this.tableOptions.aoColumns.forEach(function(k, v) {
+			views += createViewTr(k.title, k.data);
+			if (k.edit != undefined) form += createForm(k);
 
-			// 初始化详情信息
-			views += '<tr><td width="25%">' + k.title + '</td><td class="views-info data-info-' + k.data + '"></td></tr>';
-			
 			// 处理搜索
 			if (k.search != undefined)
 			{
@@ -186,87 +250,20 @@ var MeTable = (function($) {
 						html += createInput('text', tmpOptions);
 				}
 
-				search += Label(k.title + " : " + html) + ' ';
-				
-			}
-
-			// 处理编辑
-			if (k.edit != undefined) 
-			{
-				// 处理其他参数
-				if (k.edit.options == undefined) k.edit.options = {};
-				k.edit.options["name"]  = k.sName;
-				k.edit.options["class"] = "form-control";
-				if (k.edit.type == undefined) k.edit.type = "text"
-
-				if ( k.edit.type == "hidden" ) 
-					form += createInput('hidden', k.edit.options)
-				else 
-				{
-
-					form += '<div class="form-group">' + Label(k.title, {"class":"col-sm-3 control-label"}) + '<div class="col-sm-9">';
-
-					// 判断类型
-					switch (k.edit.type)
-					{
-                        // 单选
-						case "radio":
-							k.edit.options['class'] = 'ace valid';
-							form += createRadio(k.value, k.edit.default, k.edit.options);
-							break;
-                        // 多选
-                        case "checkbox":
-                            k.edit.options['class'] = 'ace m-checkbox';
-                            k.edit.options['name']  = k.sName + '[]';
-                            form += createCheckbox(k.value, k.edit.default, k.edit.options);
-                            break;
-                        // 下拉
-						case "select":
-							form += createSelect(k.value, k.edit.default, k.edit.options);
-							break;
-                        // 文件上传
-						case "file":
-							form += createFile(k.edit.options);
-							break;
-                        // 文本
-                        case "textarea":
-                            form += createTextarea(k.edit.options);
-                            break;
-						// 多语言
-						case 'lang':
-							form += createLangInput(k.edit.options);
-							break;
-                        // 时间
-                        case "time":
-                            if (!empty(k.value)) k.edit.options["value"] = k.value
-                            k.edit.options["class"] += " time";
-                            form += '<div class="col-sm-6 m-pl-0">' + createInput('text', k.edit.options) + '</div>';
-                            break;
-                        // 输入框
-						default:
-							if (!empty(k.value)) k.edit.options["value"] = k.value	
-							form += createInput(k.edit.type, k.edit.options);
-					}
-
-					form += '</div></div>';
-				}
+				self.options.sSearchHtml += Label(k.title + " : " + html) + ' ';
 			}
 		});
 
-		form += '</fieldset></form>';
-		views += '</table>';
-		this.sSearchHtml = search;
-
 		// 生成HTML
-		var Modal = '<div class="isHide" id="data-info"> ' + views +  ' </div> \
+		var Modal = '<div class="isHide" id="data-info"> ' + views +  ' </table></div> \
 				    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myImageLabel"> \
 				        <div class="modal-dialog" role="document"> \
 				            <div class="modal-content"> \
 				                <div class="modal-header"> \
 				                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> \
-				                    <h4 class="modal-title">温馨提醒</h4> \
+				                    <h4 class="modal-title">编辑详情</h4> \
 				                </div> \
-				                <div class="modal-body">' + form + '</div> \
+				                <div class="modal-body">' + form + '</fieldset></form></div> \
 				                <div class="modal-footer"> \
 				                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> \
 				                    <button type="button" class="btn btn-primary btn-image me-table-save">确定</button> \
@@ -274,6 +271,36 @@ var MeTable = (function($) {
 				            </div> \
 				        </div> \
 				    </div>';
+
+		// 处理详情编辑信息
+		if (this.bHandleDetails) {
+			form  = '<form id="meDetailForm" class="form-horizontal" action="' + this.oDetails.sBaseUrl + '" name="meDetailForm" method="post" enctype="multipart/form-data"><fieldset>';
+			views = '<table class="table table-bordered table-striped table-detail">';
+			// 处理生成表单
+			this.oDetails.oTableOptions.aoColumns.forEach(function(k) {
+				views += createViewTr(k.title, k.data + '-detail'); // 查看详情信息
+				if (k.edit != undefined) form += createForm(k);		// 编辑表单信息
+			});
+
+			// 添加详情输入框
+			Modal += '<div class="isHide" id="data-info-detail"> ' + views +  ' </table></div> \
+					<div class="modal fade" id="myDetailModal" tabindex="-1" role="dialog"> \
+				        <div class="modal-dialog" role="document"> \
+				            <div class="modal-content"> \
+				                <div class="modal-header"> \
+				                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> \
+				                    <h4 class="modal-title">编 辑</h4> \
+				                </div> \
+				                <div class="modal-body">' + form + '</fieldset></form></div> \
+				                <div class="modal-footer"> \
+				                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> \
+				                    <button type="button" class="btn btn-primary btn-image me-table-save-detail">确定</button> \
+				                </div> \
+				            </div> \
+				        </div> \
+				    </div>';
+		}
+
 		// 向页面添加HTML
     	$("body").append(Modal);
 	};
@@ -282,7 +309,12 @@ var MeTable = (function($) {
 	MeTable.prototype.init = function() {
 		var self = this
 		this.CreateForm();
-		this.table = $(this.options.sTable).DataTable(this.tableOptions);
+
+		// 初始化主要表格
+		this.table   = $(this.options.sTable).DataTable(this.tableOptions);
+
+		// 初始化详情表格
+		if (this.bHandleDetails) this.details = $(this.oDetails.sTable).DataTable(this.oDetails.oTableOptions)
 
 		// 判断是否渲染H1
         if (this.options.bRenderH1) $('h1').html(this.options.sTitle);
@@ -290,8 +322,7 @@ var MeTable = (function($) {
         // 判断初始化处理(搜索添加位置)
         if (this.options.sSearchType == 'middle')
         {
-        	
-            $('#showTable_filter').html('<form action="post" id="searchForm">' + this.sSearchHtml + '</form>');
+            $('#showTable_filter').html('<form action="post" id="searchForm">' + self.options.sSearchHtml + '</form>');
 
             // 表格添加搜索事件
             $('.msearch').on('keyup change', function () {
@@ -302,7 +333,7 @@ var MeTable = (function($) {
             $('#showTable_wrapper div.row div.col-xs-6:first').removeClass('col-xs-6').addClass('col-xs-2').next().removeClass('col-xs-6').addClass('col-xs-10');
         } else {
         	// 添加搜索表单信息
-        	$(this.options.sSearchForm).append(this.sSearchHtml);
+        	$(this.options.sSearchForm).append(self.options.sSearchHtml);
         }
 
 		// 新增
@@ -313,6 +344,9 @@ var MeTable = (function($) {
 
 		// 删除
 		$(document).on('click', '.me-table-del', function(evt){evt.preventDefault();self.delete($(this).attr('table-data'))});
+
+		// 修改
+		$(document).on('click', '.me-table-edit-detail', function(evt){evt.preventDefault();self.updateDetail($(this).attr('table-data'))});
 
 		// 查看
 		$(document).on('click', '.me-table-view', function(evt){evt.preventDefault();self.view($(this).attr('table-data'))});
@@ -396,7 +430,7 @@ var MeTable = (function($) {
 		$(this.options.sModal).modal({backdrop: "static"});
 	}
 
-	// 查询详情
+	// 查看详情
 	MeTable.prototype.view = function(row) {
         if (this.options.iViewLoading != 0) return false;
 		var self = this, data = this.table.data()[row];
@@ -452,6 +486,12 @@ var MeTable = (function($) {
     MeTable.prototype.updateShow = function(obj) {
         return true;
     };
+
+	// 修改数据信息
+	MeTable.prototype.updateDetail = function(row) {
+		this.actionType = "updateDetail";
+		$(this.oDetails.sModal).modal({backdrop: "static"});
+	};
 
 	// 修改数据信息
 	MeTable.prototype.update = function(row) {
@@ -519,16 +559,14 @@ var MeTable = (function($) {
 	};
 
 	// 修改数据之后的处理
-    MeTable.prototype.beforeSave = function(){
-        return true;
-    };
+    MeTable.prototype.beforeSave = function(){return true;};
 
 	// 数据新增和修改的执行
 	MeTable.prototype.save = function(data) {
 		layer.closeAll();
 		var self = this;
 		// 判断类型
-		if (this.actionType == "") return;
+		if (this.actionType == "") return false;
 
 		// 新增和修改验证数据
 		if (this.actionType !== "delete" && this.actionType !== "deleteAll")

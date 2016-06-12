@@ -5,7 +5,7 @@ import (
 	"project/models"
 	"strconv"
 
-	//	"github.com/astaxie/beego"
+	"github.com/astaxie/beego"
 )
 
 type CategoryAdminController struct {
@@ -57,4 +57,30 @@ func (this *CategoryAdminController) Search() {
 func (this *CategoryAdminController) Update() {
 	var object models.Category
 	this.BaseUpdate(&object, "my_category")
+}
+
+// 详情信息
+func (this *CategoryAdminController) View() {
+	this.E = ArrError{Status: 0, Msg: "请求数据为空", Data: nil}
+	// 获取ID
+	id, err := this.GetInt64("id")
+	s := 0
+	if num, err := this.GetInt("sEcho"); err == nil {
+		s = num
+	}
+
+	if err == nil {
+		var arr []*models.Category
+		query := models.QueryOther{Table:"my_category", Where:map[string]interface{}{"pid":id, "status":1}}
+		beego.Alert(query)
+		if num, err := models.All(&arr, query); err == nil {
+			this.E.Data = DataTable{Total:num, Count:num, Echo:s, Data:arr}
+			this.E.Msg  = "success"
+			this.E.Status = 1
+		}
+	} else {
+		this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
+	}
+
+	this.AjaxReturn()
 }

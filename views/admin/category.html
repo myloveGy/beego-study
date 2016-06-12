@@ -61,6 +61,9 @@
                     <table id="showTable" class="table table-striped table-bordered table-hover" >
                     </table>
                 </div>
+                <div class="col-xs-12 hidden">
+                    <table id="detailTable" class="table table-striped table-bordered table-hover" ></table>
+                </div>
             </div>
         </div>
     </div>
@@ -72,29 +75,68 @@
     }
 
     var select   = ".admin-category",
-        Mstatus  = {"0":"停用", "1":"启用"},
+        oStatus = {"0":"停用", "1":"启用"},
         myTable  = new MeTable({"sTitle":"文章分类信息"},{
-        "aoColumns":[
-            oCheckBox,
-            {"data":"id", "sName":"id", "title":"栏目ID",  "edit":{"type":"hidden"}, "search":{"type":"text"}},
-            {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus}, 
-            {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
-            {"data":"status", "sName":"status","title":"状态", "value" : Mstatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-            {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
-             {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
-            // 公共属性字段信息
-            {"data":"create_time", "sName":"create_time","title":"创建时间", "createdCell":dateTimeString},
-            {"data":"create_id", "sName":"create_id", "title":"创建用户", }, // "createdCell":adminToString
-            {"data":"update_time", "sName":"update_time", "title":"修改时间", "createdCell":dateTimeString},
-            {"data":"update_id", "sName":"update_id", "title":"修改用户", }, // "createdCell":adminToString
-            oOperate,
-        ],
-    });
+            "aoColumns":[
+                oCheckBox,
+                {"data":"id", "sName":"id", "class":"details-control", "title":"栏目ID",  "edit":{"type":"hidden"}, "search":{"type":"text"}, "createdCell":function(td, data, rowArr, row, col){
+                    $(td).html(data + '<b class="arrow fa fa-angle-down pull-right"></b>');
+                }},
+                {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
+                {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
+                {"data":"status", "sName":"status","title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
+                {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
+                 {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
+                // 公共属性字段信息
+                {"data":"create_time", "sName":"create_time","title":"创建时间", "createdCell":dateTimeString},
+                {"data":"create_id", "sName":"create_id", "title":"创建用户", },
+                {"data":"update_time", "sName":"update_time", "title":"修改时间", "createdCell":dateTimeString},
+                {"data":"update_id", "sName":"update_id", "title":"修改用户", },
+                oOperate,
+            ],
+        }, {
+            "oTableOptions": {
+                "aoColumns":[
+                    {"data":"id", "sName":"id", "title":"栏目ID",  "edit":{"type":"hidden"}},
+                    {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
+                    {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
+                    {"data":"status", "sName":"status","title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
+                    {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
+                    {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
+                    // 公共属性字段信息
+                    {"data":"create_time", "sName":"create_time","title":"创建时间", "createdCell":dateTimeString},
+                    {"data":"create_id", "sName":"create_id", "title":"创建用户", },
+                    {"data":"update_time", "sName":"update_time", "title":"修改时间", "createdCell":dateTimeString},
+                    {"data":"update_id", "sName":"update_id", "title":"修改用户", },
+                    oOperateDetails,
+                ]
+            }
+        });
 
     $(function() {
         // dataTable 初始化
         myTable.init();
 
+        // 详情显示
+        $('#showTable tbody').on('click', 'td.details-control', function(){
+            var tr  = $(this).closest('tr'),
+                row = myTable.table.row(tr);
+
+            // 处理已经打开的
+            tr.siblings(tr).each(function(){ if (myTable.table.row($(this)).child.isShown()) myTable.table.row($(this)).child.hide();$(this).removeClass('shown');});
+
+            if (row.child.isShown()){
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else
+            {
+                myTable.oDetailParams = row.data();
+                myTable.oDetailObject = row;
+                myTable.details.draw();
+                tr.addClass('shown');
+            }
+        });
         // 表格样式转换
         $('#simple-colorpicker-1').ace_colorpicker({pull_right:true}).on('change', function(){
             var color_class = $(this).find('option:selected').data('class');

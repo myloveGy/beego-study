@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/astaxie/beego"
+//	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"time"
 )
@@ -204,7 +204,6 @@ func Delete(object interface{}) (num int64, err error) {
 	return
 }
 
-<<<<<<< HEAD
 // 删除全部数据
 func DeleteAll(object interface{}, aIds []string, table string) (num int64, err error) {
 	// 获取反射信息
@@ -243,13 +242,8 @@ func DeleteAll(object interface{}, aIds []string, table string) (num int64, err 
 
 // 执行自定义SQL语句
 func Exec(sql string, params interface{}) (rowAffected int64, err error) {
+	// 执行自定义SQL语句
 	result, err1 := orm.NewOrm().Raw(sql, params).Exec()
-	beego.Alert(sql)
-=======
-// 执行自定义SQL语句
-func Exec(sql string, params []interface{}) (rowAffected int64, err error) {
-	result, err1 := orm.NewOrm().Raw(sql, params).Exec()
->>>>>>> 76323023a9b7a71e85a24577d1b4250837249948
 	if err1 == nil {
 		rowAffected, err = result.RowsAffected()
 	} else {
@@ -258,12 +252,9 @@ func Exec(sql string, params []interface{}) (rowAffected int64, err error) {
 
 	return
 }
-<<<<<<< HEAD
 
 // 删除全部
 func DeleteSql(table, where string, params interface{}) (int64, error) {
 	sql := "DELETE FROM `" + table + "` WHERE " + where
 	return Exec(sql, params)
 }
-=======
->>>>>>> 76323023a9b7a71e85a24577d1b4250837249948

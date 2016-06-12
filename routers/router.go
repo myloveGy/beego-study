@@ -33,4 +33,5 @@ func init() {
 	beego.Router("/admin/category/", &controllers.CategoryAdminController{}, "*:Index")
 	beego.Router("/admin/category/search", &controllers.CategoryAdminController{}, "*:Search")
 	beego.Router("/admin/category/update", &controllers.CategoryAdminController{}, "*:Update")
+	beego.Router("/admin/category/view", &controllers.CategoryAdminController{}, "*:View")
 }

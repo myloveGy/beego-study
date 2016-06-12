@@ -118,6 +118,75 @@ function createButtons(data) {
     return div1 + '</div>' + div2 + '</ul></div></div>';
 }
 
+// 生成表单对象
+function createForm(k)
+{
+    var form = '';
+    // 处理其他参数
+    if (k.edit.options == undefined) k.edit.options = {};
+    k.edit.options["name"]  = k.sName;
+    k.edit.options["class"] = "form-control";
+    if (k.edit.type == undefined) k.edit.type = "text"
+
+    if ( k.edit.type == "hidden" )
+        form += createInput('hidden', k.edit.options)
+    else
+    {
+        form += '<div class="form-group">' + Label(k.title, {"class":"col-sm-3 control-label"}) + '<div class="col-sm-9">';
+        // 判断类型
+        switch (k.edit.type)
+        {
+            // 单选
+            case "radio":
+                k.edit.options['class'] = 'ace valid';
+                form += createRadio(k.value, k.edit.default, k.edit.options);
+                break;
+            // 多选
+            case "checkbox":
+                k.edit.options['class'] = 'ace m-checkbox';
+                k.edit.options['name']  = k.sName + '[]';
+                form += createCheckbox(k.value, k.edit.default, k.edit.options);
+                break;
+            // 下拉
+            case "select":
+                form += createSelect(k.value, k.edit.default, k.edit.options);
+                break;
+            // 文件上传
+            case "file":
+                form += createFile(k.edit.options);
+                break;
+            // 文本
+            case "textarea":
+                form += createTextarea(k.edit.options);
+                break;
+            // 多语言
+            case 'lang':
+                form += createLangInput(k.edit.options);
+                break;
+            // 时间
+            case "time":
+                if (!empty(k.value)) k.edit.options["value"] = k.value
+                k.edit.options["class"] += " time";
+                form += '<div class="col-sm-6 m-pl-0">' + createInput('text', k.edit.options) + '</div>';
+                break;
+            // 输入框
+            default:
+                if (!empty(k.value)) k.edit.options["value"] = k.value
+                form += createInput(k.edit.type, k.edit.options);
+        }
+
+        form += '</div></div>';
+    }
+
+    return form;
+}
+
+// 生成查看详情的Table
+function createViewTr(title, data) {
+    return '<tr><td width="25%">' + title + '</td><td class="views-info data-info-' + data + '"></td></tr>'
+}
+
+
 // 验证上传文件
 function verifyUpload(uploadObj,size,allowType,fileurl){var obj=uploadObj.files[0],arr=[false,"对不起！上传文件超过指定值..."],num=obj.name.indexOf("."),fileext=obj.name.substr(num+1).toLocaleLowerCase();if(allowType==undefined){allowType=["jpeg","jpg","gif","png"]}if(obj.size<size){arr[1]="对不起！上传文件类型错误...";if(in_array(fileext,allowType)){if(fileurl!=undefined){var link=uploadObj.url.indexOf("?")>=0?"&":"?";uploadObj.url+=link+"fileurl="+fileurl}arr=[true,"文件上传成功！"]}}return arr}
 
