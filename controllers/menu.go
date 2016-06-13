@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-type MenuAdminController struct {
+type MenuController struct {
 	AdminController
 }
 
 // 首页显示
-func (this *MenuAdminController) Index() {
+func (this *MenuController) Index() {
 	// 查询主要导航
 	query := models.QueryOther{
 		Table: "my_menu",
@@ -35,7 +35,7 @@ func (this *MenuAdminController) Index() {
 }
 
 // 查询数据
-func (this *MenuAdminController) Search() {
+func (this *MenuController) Search() {
 	var arr []*models.Menu
 
 	// 查询信息
@@ -53,7 +53,7 @@ func (this *MenuAdminController) Search() {
 }
 
 // 修改数据
-func (this *MenuAdminController) Update() {
+func (this *MenuController) Update() {
 	var m models.Menu
 	this.BaseUpdate(&m, "my_menu")
 }
