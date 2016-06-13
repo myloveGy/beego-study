@@ -5,7 +5,7 @@ import (
 	"project/models"
 	"strings"
 
-	"github.com/astaxie/beego"
+//	"github.com/astaxie/beego"
 )
 
 // 表格返回数据
@@ -22,6 +22,14 @@ type AdminController struct {
 	SearchMap func() map[string]string
 }
 
+type StuMenu struct {
+	MenuName string
+	Icons    string
+	Url      string
+	Child    map[int64]models.Menu
+	IsChild  bool
+}
+
 // 前置操作
 func (this *AdminController) Prepare() {
 	// 判断用户是否已经登录, 没有登录返回到登录页面
@@ -29,8 +37,43 @@ func (this *AdminController) Prepare() {
 	//		this.Redirect("/admin", 302)
 	//	}
 
+	// 查询导航栏信息
+	var menu []*models.Menu
+	menus := make(map[int64]StuMenu)
+	models.All(&menu, models.QueryOther{Table: "my_menu", Where: map[string]interface{}{"status": 1}, Order: "-sort"})
+	for _, value := range menu {
+		// 判断数据是首页导航数据
+		if value.Pid == 0 {
+			if _, v := menus[value.Id]; ! v {
+				ma := make(map[int64]models.Menu)
+				menus[value.Id] = StuMenu{
+					MenuName:value.MenuName,
+					Icons:value.Icons,
+					Url:value.Url,
+					IsChild:false,
+					Child:ma,
+				}
+			} else {
+				m := menus[value.Id];
+				m.MenuName, m.Icons, m.Url = value.MenuName, value.Icons, value.Url
+				menus[value.Id] = m
+			}
+		} else {
+			if _, vv := menus[value.Pid]; vv {
+				mm := menus[value.Pid];
+				mm.Child[value.Id], mm.IsChild = *value, true
+				menus[value.Pid] = mm
+			} else {
+				ma := make(map[int64]models.Menu)
+				ma[value.Id] = *value
+				menus[value.Pid] = StuMenu{IsChild:true,Child:ma,}
+			}
+		}
+	}
+
 	// 使用的布局
 	this.Data["admin"] = this.U
+	this.Data["navigation"] = menus
 	this.Layout = "layout/admin.tpl"
 }
 
@@ -79,7 +122,7 @@ func (this *AdminController) Query(search map[string]string) models.Query {
 }
 
 // 公共的查询数据的方法
-func (this *AdminController) BaseSearch(arr interface{}, search map[string]string) {
+func (this *AdminController) BaseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
 	// 定义返回数据
 	var data DataTable
 	var err error
@@ -87,7 +130,9 @@ func (this *AdminController) BaseSearch(arr interface{}, search map[string]strin
 
 	// 处理查询数据信息
 	query := this.Query(search)
-	beego.Alert(query)
+	for k, v := range where {
+		query.Where[k] = v
+	}
 
 	// 查询数据
 	data.Total, data.Count, err = models.FindAll(arr, query)

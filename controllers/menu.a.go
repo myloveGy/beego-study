@@ -49,7 +49,7 @@ func (this *MenuAdminController) Search() {
 	}
 
 	// 返回信息
-	this.BaseSearch(&arr, search)
+	this.BaseSearch(&arr, search, map[string]interface{}{})
 }
 
 // 修改数据

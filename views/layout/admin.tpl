@@ -170,76 +170,29 @@
 
         <!--左侧导航栏信息-->
         <ul class="nav nav-list">
-            <li class="admin-site">
-                <a  href="/admin/site" >
-                    <i class="menu-icon glyphicon glyphicon-user"></i>
-                    <span class="menu-text"> 管理员信息 </span>
+            {{range .navigation}}
+            <li>
+                <a {{if .IsChild}}href="javascript:;" class="dropdown-toggle" {{else}}href="{{.Url}}"{{end}}>
+                    <i class="menu-icon {{.Icons}}"></i>
+                    <span class="menu-text"> {{.MenuName}} </span>
+                    {{if .IsChild}}<b class="arrow fa fa-angle-down"></b>{{end}}
                 </a>
-            </li>
-            <li class="admin-category">
-                <a  href="/admin/category/" >
-                    <i class="menu-icon glyphicon glyphicon-list"></i>
-                    <span class="menu-text"> 文章分类信息 </span>
-                </a>
-            </li>
-            <li class="admin-menu">
-                <a href="/admin/menu/" >
-                    <i class="menu-icon glyphicon glyphicon-th"></i>
-                    <span class="menu-text"> 导航栏信息 </span>
-                </a>
-            </li>
-            <li class="">
-                <a  href="#" class="dropdown-toggle">
-                    <i class="menu-icon fa fa-desktop"></i>
-                    <span class="menu-text"> UI界面&amp;元素 </span>
-                    <b class="arrow fa fa-angle-down"></b>
-                </a>
+                {{if .IsChild}}
                 <b class="arrow"></b>
                 <!--第二级别-->
                 <ul class="submenu">
-                    <li class=" ">
-                        <a  href="#" class="dropdown-toggle" >
-                            <i class="menu-icon fa fa-caret-right"></i>
-                            布局<b class="arrow fa fa-angle-down"></b>
+                    {{range $index, $value := .Child}}
+                    <li class="">
+                        <a  href="{{$value.Url}}"  >
+                            <i class="menu-icon {{$value.Icons}}"></i>
+                            {{$value.MenuName}}
                         </a>
-                        <b class="arrow"></b>
-                        <ul class="submenu">
-                            <li class="othertop">
-                                <a href="/admin/other/top.html">
-                                <i class="menu-icon fa fa-caret-right"></i>
-                                头部导航</a>
-                                <b class="arrow"></b>
-                            </li>
-                        </ul>
                     </li>
+                    {{end}}
                 </ul>
+                {{end}}
             </li>
-            <li class="">
-                <a  href="#" class="dropdown-toggle">
-                    <i class="menu-icon fa fa-file-o"></i>
-                    <span class="menu-text"> 其他页面 </span>
-                    <b class="arrow fa fa-angle-down"></b>
-                </a>
-                <b class="arrow"></b>
-                <!--第二级别-->
-                <ul class="submenu">
-                    <li class="othererror404 ">
-                        <a  href="/admin/other/error404.html"  >
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        Error 404</a>
-                    </li>
-                    <li class="othererror500 ">
-                        <a  href="/admin/other/error500.html"  >
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        Error 500</a>
-                    </li>
-                    <li class="otherblankpage ">
-                        <a  href="/admin/other/blankpage.html"  >
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        空白页</a>
-                    </li>
-                </ul>
-            </li>
+            {{end}}
         </ul>
 
         <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">

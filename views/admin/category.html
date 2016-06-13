@@ -16,6 +16,10 @@
                 <i class="ace-icon fa fa-refresh bigger-120 orange"></i>
                 刷新
             </button>
+            <button class="btn btn-white btn-info btn-xs me-table-insert-detail">
+                <i class="ace-icon fa fa-plus bigger-120 yellow"></i>
+                添加文章分类
+            </button>
         </h5>
 
         <!--颜色选择-->
@@ -70,10 +74,7 @@
 </div>
 <script type="text/javascript">
     var oParents = $.parseJSON({{.categorys}});
-    function parentStatus(td, data, rowArr, row, col) {
-        if (oParents[data]) $(td).html(oParents[data])
-    }
-
+    function parentStatus(td, data, rowArr, row, col) {if (oParents[data]) $(td).html(oParents[data])}
     var select   = ".admin-category",
         oStatus = {"0":"停用", "1":"启用"},
         myTable  = new MeTable({"sTitle":"文章分类信息"},{
@@ -95,6 +96,7 @@
                 oOperate,
             ],
         }, {
+            "sClickSelect" : "td.details-control",
             "oTableOptions": {
                 "aoColumns":[
                     {"data":"id", "sName":"id", "title":"栏目ID",  "edit":{"type":"hidden"}},
@@ -117,26 +119,6 @@
         // dataTable 初始化
         myTable.init();
 
-        // 详情显示
-        $('#showTable tbody').on('click', 'td.details-control', function(){
-            var tr  = $(this).closest('tr'),
-                row = myTable.table.row(tr);
-
-            // 处理已经打开的
-            tr.siblings(tr).each(function(){ if (myTable.table.row($(this)).child.isShown()) myTable.table.row($(this)).child.hide();$(this).removeClass('shown');});
-
-            if (row.child.isShown()){
-                row.child.hide();
-                tr.removeClass('shown');
-            }
-            else
-            {
-                myTable.oDetailParams = row.data();
-                myTable.oDetailObject = row;
-                myTable.details.draw();
-                tr.addClass('shown');
-            }
-        });
         // 表格样式转换
         $('#simple-colorpicker-1').ace_colorpicker({pull_right:true}).on('change', function(){
             var color_class = $(this).find('option:selected').data('class');

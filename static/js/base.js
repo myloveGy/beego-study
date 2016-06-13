@@ -266,4 +266,55 @@ function timeFormat(time,str){if(empty(str)){str="yyyy-MM-dd"}var date=new Date(
 // 值的转换
 function stringTo(type,value){switch(type){case"int":case"int8":case"int16":case"int32":case"int64":case"uint":case"uint8":case"uint16":case"uint32":case"uint64":return parseInt(value);case"bool":return value==="true"||value===true||value===1||value=="1";case"float32":case"float64":}return value};
 // 初始化表单信息
-function InitForm(select, )
+function InitForm(select, data) {
+    objForm = $(select).get(0); // 获取表单对象
+    if (objForm != undefined)
+    {
+        $(objForm).find('input[type=hidden]').val('');                                  // 隐藏按钮充值
+        $(objForm).find('input[type=checkbox]').each(function(){$(this).attr('checked', false);if ($(this).get(0)) $(this).get(0).checked = false;});                                                                             // 多选菜单
+        objForm.reset();                                                                // 表单重置
+        if (data != undefined)
+        {
+            for (var i in data)
+            {
+                // 多语言处理 以及多选配置
+                if (typeof data[i]  ==  'object')
+                {
+                    for (var x in data[i])
+                    {
+                        var key = i + '[' + x + ']';
+                        // 对语言
+                        if (objForm[key] != undefined)
+                            objForm[key].value = data[i][x];
+                        else {
+                            // 多选按钮
+                            if (parseInt(data[i][x]) > 0) {
+                                $('input[type=checkbox][value=' + data[i][x] + ']').attr('checked', true).each(function(){this.checked=true});
+                            }
+                        }
+                    }
+                }
+
+                // 其他除密码的以外的数据
+                if (objForm[i] != undefined && objForm[i].type != "password")
+                {
+                    var obj = $(objForm[i]), tmp = data[i];
+                    // 时间处理
+                    if (obj.hasClass('time')) tmp = timeFormat(parseInt(tmp), 'yyyy/MM/dd hh:mm:ss');
+                    objForm[i].value = tmp;
+                }
+            }
+        }
+    }
+}
+
+// 详情表单赋值
+function viewTable(object, data, tClass, row)
+{
+    // 循环处理显示信息
+    object.forEach(function(k) {
+        var tmpKey = k.data,tmpValue = data[tmpKey],dataInfo = $(tClass + tmpKey);
+        if (k.edit != undefined && k.edit.type == 'password') tmpValue = "******";
+        (k.createdCell != undefined && typeof k.createdCell == "function") ? k.createdCell(dataInfo, tmpValue, data, row, undefined) : dataInfo.html(tmpValue);
+    });
+}

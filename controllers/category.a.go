@@ -8,12 +8,12 @@ import (
 	"github.com/astaxie/beego"
 )
 
-type CategoryAdminController struct {
+type CategoryController struct {
 	AdminController
 }
 
 // 首页显示
-func (this *CategoryAdminController) Index() {
+func (this *CategoryController) Index() {
 	// 查询分类的顶级分类
 	query := models.QueryOther{
 		Table: "my_category",
@@ -37,7 +37,7 @@ func (this *CategoryAdminController) Index() {
 }
 
 // 查询数据
-func (this *CategoryAdminController) Search() {
+func (this *CategoryController) Search() {
 	var arr []*models.Category
 
 	// 查询信息
@@ -49,18 +49,19 @@ func (this *CategoryAdminController) Search() {
 		"Table":   "my_category",
 	}
 
+
 	// 返回信息
-	this.BaseSearch(&arr, search)
+	this.BaseSearch(&arr, search, map[string]interface{}{"pid":0,})
 }
 
 // 修改数据
-func (this *CategoryAdminController) Update() {
+func (this *CategoryController) Update() {
 	var object models.Category
 	this.BaseUpdate(&object, "my_category")
 }
 
 // 详情信息
-func (this *CategoryAdminController) View() {
+func (this *CategoryController) View() {
 	this.E = ArrError{Status: 0, Msg: "请求数据为空", Data: nil}
 	// 获取ID
 	id, err := this.GetInt64("id")

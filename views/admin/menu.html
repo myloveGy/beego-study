@@ -34,7 +34,7 @@
             {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
             {"data":"menu_name", "sName":"menu_name","title":"栏目名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
             {"data":"icons", "sName":"icons","title":"图标", "edit":{"options":{"rangelength":"[2, 50]"}}},
-            {"data":"url", "sName":"url","title":"访问地址", "edit":{"options":{"rangelength":"[2, 50]"}},"search":{"type":"text"}},
+            {"data":"url", "sName":"url","title":"访问地址", "edit":{"options":{"rangelength":"[1, 50]"}},"search":{"type":"text"}},
             {"data":"status", "sName":"status","title":"状态", "value" : aStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
             {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
             // 公共属性字段信息
@@ -46,17 +46,8 @@
         ],
     });
 
-    // 新增之后的处理
-    MeTable.prototype.beforeSave = function(data)
-    {
-        // 判断新增选项
-        layer.msg("修改成功! 正在更新缓存...", {icon:6, end:function(){window.location.reload();}});
-        return true;
-    };
-
     $(function(){
         // 表单初始化
         myTable.init();
-        
     })
 </script>
