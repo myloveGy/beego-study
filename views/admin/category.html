@@ -72,20 +72,25 @@
         </div>
     </div>
 </div>
+<style type="text/css">
+    div.col-xs-12 table.table-hover td:hover {border-right:none;}
+    div.col-xs-12 table.table-hover tr form.editableform {padding:5px;}
+</style>
 <script type="text/javascript">
     var oParents = $.parseJSON({{.categorys}});
     function parentStatus(td, data, rowArr, row, col) {if (oParents[data]) $(td).html(oParents[data])}
-    var select   = ".admin-category",
-        oStatus = {"0":"停用", "1":"启用"},
+    // 公共的方法用来处理编辑的信息
+    function EditError() {$.gritter.add({title: '编辑出现错误!',text: '服务器没有响应',class_name: 'gritter-error gritter-center',time: 800,});}
+    var oStatus = {"0":"停用", "1":"启用"},
         myTable  = new MeTable({"sTitle":"文章分类信息"},{
             "aoColumns":[
                 oCheckBox,
                 {"data":"id", "sName":"id", "class":"details-control", "title":"栏目ID",  "edit":{"type":"hidden"}, "search":{"type":"text"}, "createdCell":function(td, data, rowArr, row, col){
                     $(td).html(data + '<b class="arrow fa fa-angle-down pull-right"></b>');
                 }},
-                {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
+                {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents, "editTable":true,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
                 {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
-                {"data":"status", "sName":"status","title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
+                {"data":"status", "sName":"status", "editTable":true,  "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
                 {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
                  {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
                 // 公共属性字段信息
@@ -116,6 +121,11 @@
         });
 
     $(function() {
+        $.fn.editable.defaults.mode = 'inline';
+        $.fn.editableform.loading = "<div class='editableform-loading'><i class='ace-icon fa fa-spinner fa-spin fa-2x light-blue'></i></div>";
+        $.fn.editableform.buttons = '<button type="submit" class="btn btn-info editable-submit"><i class="ace-icon fa fa-check"></i></button>'+
+                '<button type="button" class="btn editable-cancel"><i class="ace-icon fa fa-times"></i></button>';
+        $.fn.editable.defaults.ajaxOptions = {type: "POST", dataType:'json'};
         // dataTable 初始化
         myTable.init();
 

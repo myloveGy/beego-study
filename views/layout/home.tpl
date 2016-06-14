@@ -41,9 +41,9 @@
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav pull-right">
                 <li {{if eq $.action "index" }}class="active"{{end}}><a href="/">首页</a></li>
-                <li {{if eq $.action "article" "article/view"}}class="active"{{end}}><a href="/article">文章</a></li>
+                <li {{if eq $.action "article" "article/view"}}class="active"{{end}}><a href="/article/index">文章</a></li>
                 <!--<li><a href="javascript:;">心情</a></li>-->
-                <li {{if eq $.action "image"}}class="active"{{end}}><a href="/image">相册</a></li>
+                <li {{if eq $.action "image"}}class="active"{{end}}><a href="/index/image">相册</a></li>
                 <!--<li><a href="javascript:;">留言</a></li>-->
                 <li class="no-login"><a href="javascript:;" class="login is-user">登录</a></li>
                 <li class="dropdown is-login">
@@ -297,11 +297,11 @@
 <script type="text/javascript" src="/static/js/jquery.iframe-transport.js"></script>
 <script type="text/javascript" src="/static/js/jquery.fileupload.js"></script>
 <script type="text/javascript">
-    var isHave = false, Obj = {errorPlacement:validate},lLayer, l, loginurl = "/login";
+    var isHave = false, Obj = {errorPlacement:validate},lLayer, l, loginurl = "/index/login";
     // 请求错误回应
     function requestError(){layer.close(l);layer.msg('服务器繁忙,请稍候再试...');}
     // 验证函数
-    function validate(error, errorPlacement){if (isHave != false) return false;isHave = layer.tips($(error).html(), errorPlacement, {tips: [3], time:1000, end:function(){isHave = false;}});}
+    function validate(error, errorPlacement){if (isHave != false){return false;}isHave = layer.tips($(error).html(), errorPlacement, {tips: [3], time:1000, end:function(){isHave = false;}});}
     // 验证登录
     function isLogin(){if ($.cookie('my_user') == null || empty($.cookie('my_user'))) {sLogin(); return false;} return true;}
     // 执行登录
@@ -315,7 +315,7 @@
 
     $(function(){
         // 用户退出
-        $('.logout').click(function(){if (isLogin()){layer.confirm('您确定要退出登录吗?', {title:'温馨提醒',btn: ['确定退出', '取消'],icon:3,shift:4,}, function(){l = layer.load();$.get('/logout', function(json){layer.close(l);layer.msg(json.msg, {time:1000, end:function(){if (json.status == 1) changUser(null)}});}, 'json');}, function(){layer.msg('您取消了退出登录！', {time:1000});});}});
+        $('.logout').click(function(){if (isLogin()){layer.confirm('您确定要退出登录吗?', {title:'温馨提醒',btn: ['确定退出', '取消'],icon:3,shift:4},function(){l = layer.load();$.get('/index/logout', function(json){layer.msg(json.msg, { time:1000,end:function(){if (json.status == 1){changUser(null)}}});},'json').always(function(){layer.close(l);});},function(){layer.msg('您取消了退出登录！', {time:1000});});}});
         // 登录可以操作
         $('.is-user').click(function(e){e.preventDefault();return isLogin();});
         // 回顶部自动判断
@@ -329,18 +329,18 @@
         // 关闭modal
         $('#myModal').on('hide.bs.modal', function(e){document.article.reset();});
         // 发布文章
-        $('.btn-article').click(function(){if (isLogin()){if ($('.article').validate(Obj).form()){l = layer.load();$.ajax({url: '/insert', data:$('.article').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.status == 1 ? 6 : 5;if (json.status == 1) {$('#myModal').modal('hide');}layer.msg(json.msg, {time:2000, icon:s, end:function(){article([json.data]);}})},error:requestError,})}}return false;})
+        $('.btn-article').click(function(){if (isLogin()){if ($('.article').validate(Obj).form()){l = layer.load();$.ajax({url: '/index/insert', data:$('.article').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.status == 1 ? 6 : 5;if (json.status == 1) {$('#myModal').modal('hide');}layer.msg(json.msg, {time:2000, icon:s, end:function(){article([json.data]);}})},error:requestError,})}}return false;})
         // 弹出model
         $('.file-upload').click(function(){$('#myImage').modal();});
         // 关闭modal
         $('#myImage').on('hide.bs.modal', function(e){document.image.reset();});
         // 上传图片
-        $('.btn-image').click(function(){if (isLogin()){if ($('.image').validate(Obj).form()){l = layer.load();$.ajax({url: '/add', data:$('.image').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.status == 1 ? 6 : 5;if (json.status == 1) {$('#myImage').modal('hide');}layer.msg(json.msg, {time:2000, icon:s})},error:requestError,})}}return false;})
+        $('.btn-image').click(function(){if (isLogin()){if ($('.image').validate(Obj).form()){l = layer.load();$.ajax({url: '/index/add', data:$('.image').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.status == 1 ? 6 : 5;if (json.status == 1) {$('#myImage').modal('hide');}layer.msg(json.msg, {time:2000, icon:s})},error:requestError,})}}return false;})
         // 图片显示
         layer.photos({photos:"#layer-photos-demo"});
     })
 
-    FileUpload("/upload", '.fileUpload', undefined, 200000000);
+    FileUpload("/index/upload", '.fileUpload', undefined, 200000000);
 </script>
 </body>
 </html>

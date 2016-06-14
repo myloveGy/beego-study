@@ -14,7 +14,7 @@ import (
 )
 
 // 首页控制器
-type IndexHomeController struct {
+type IndexController struct {
 	HomeController
 }
 
@@ -26,7 +26,7 @@ type Image struct {
 }
 
 // 首页显示
-func (this *IndexHomeController) Get() {
+func (this *IndexController) Get() {
 	var imgs []Image
 	// 查询轮播图片
 	_, err := orm.NewOrm().Raw("SELECT `title`, `desc`, `url` FROM `my_image` WHERE `type` = ? AND `status` = ?", 1, 1).QueryRows(&imgs)
@@ -40,7 +40,7 @@ func (this *IndexHomeController) Get() {
 }
 
 // 请求获取文章信息
-func (this *IndexHomeController) Ajax() {
+func (this *IndexController) Ajax() {
 	// 初始化返回
 	this.E = ArrError{Status: 0, Msg: "参数为空", Data: nil}
 	var iStart, iLength int
@@ -82,7 +82,7 @@ func (this *IndexHomeController) Ajax() {
 }
 
 // 用户登录
-func (this *IndexHomeController) Login() {
+func (this *IndexController) Login() {
 	// 初始化返回
 	this.E = ArrError{Status: 0, Msg: "参数为空", Data: nil}
 	// 获取参数
@@ -114,7 +114,7 @@ func (this *IndexHomeController) Login() {
 }
 
 // 用户退出
-func (this *IndexHomeController) Logout() {
+func (this *IndexController) Logout() {
 	// 初始化返回
 	this.E = ArrError{Status: 0, Msg: "抱歉，您还没有登录呢!", Data: nil}
 	if this.GetSession("user") != nil {
@@ -126,7 +126,7 @@ func (this *IndexHomeController) Logout() {
 }
 
 // 获取图片信息
-func (this *IndexHomeController) Image() {
+func (this *IndexController) Image() {
 	var maps []orm.Params
 	if _, err := orm.NewOrm().Raw("SELECT `title`, `url` FROM `my_image` WHERE `status` = ?", 1).Values(&maps); err == nil {
 		this.Data["images"] = maps
@@ -136,7 +136,7 @@ func (this *IndexHomeController) Image() {
 }
 
 // 新增文章信息
-func (this *IndexHomeController) Insert() {
+func (this *IndexController) Insert() {
 	this.E = ArrError{Status: 0, Msg: "抱歉，您还没有登录呢!", Data: nil}
 	var article models.Article
 	if this.isLogin("user") {
@@ -162,7 +162,7 @@ func (this *IndexHomeController) Insert() {
 }
 
 // 添加文章信息
-func (this *IndexHomeController) Add() {
+func (this *IndexController) Add() {
 	this.E = ArrError{Status: 0, Msg: "抱歉，您还没有登录呢!", Data: nil}
 	if this.isLogin("user") {
 		// 接收参数
@@ -223,7 +223,7 @@ func isFileExists(path string) bool {
 }
 
 // 图片上传
-func (this *IndexHomeController) Upload() {
+func (this *IndexController) Upload() {
 	oldFile := this.GetString("fileurl")
 	this.E = ArrError{Status: 0, Msg: "抱歉，您还没有登录呢!", Data: nil}
 	if this.isLogin("user") {

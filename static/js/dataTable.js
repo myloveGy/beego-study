@@ -133,6 +133,9 @@ var MeTable = (function($) {
 			sSearchType:  "middle",			// 搜索表单位置
 			sSearchForm:  "#searchForm",	// 搜索表单选择器
 			bRenderH1: 	  true,				// 是否渲染H1内容
+			bEditTable:   true,				// 是否开启行内编辑
+			oEditTable:   {},				// 行内编辑对象信息
+			sEditUrl:	  "inline",			// 行内编辑请求地址
 			iViewLoading: 0, 				// 详情加载Loading
 			bViewFull: 	  false,			// 详情打开的方式 1 2 打开全屏
 		};
@@ -217,7 +220,46 @@ var MeTable = (function($) {
 			views += createViewTr(k.title, k.data);											// 查看详情信息
 			if (k.edit != undefined) form += createForm(k);									// 编辑表单信息
 			if (k.search != undefined) self.options.sSearchHtml += createSearchForm(k, v);  // 搜索信息
+
+			// 判断行内编辑
+			if (k.editTable != undefined) {
+				self.options.oEditTable[k.sName] = {
+					pk:   	 "id",
+					name:    k.sName,
+					type:    k.edit.type == "radio" ? "select" : k.edit.type,
+					source:  k.value,
+					send:    "always",
+					url:     "update",
+					title:   k.title,
+					success: function(response) {if (response.status == 0) return response.msg;},
+					error:   function(){$.gritter.add({title:'温馨提醒',text:'服务器没有响应',class_name:'gritter-warning gritter-center',time:800,});}
+				};
+
+				console.info(self.options.oEditTable[k.sName]);
+
+				k["class"] = "my-edit edit-" + k.sName;
+			}
 		});
+
+		// 判断添加行内编辑信息
+		if (self.options.bEditTable)
+		{
+			self.tableOptions["fnDrawCallback"] = function() {
+				for (var key in self.options.oEditTable) {
+					$(".edit-" + key).click(function(){
+						var data = self.table.row($(this).closest('tr')).data();
+						console.error(data);
+						// 判断存在重新赋值
+						if (data){
+							console.info(self.options.oEditTable[key]["pk"])
+							self.options.oEditTable[key]["value"] = data[key];
+							self.options.oEditTable[key]["pk"] = data[self.options.oEditTable[key]["pk"]];
+						}
+						$(this).editable(self.options.oEditTable[key])
+					});
+				}
+			}
+		}
 
 		// 生成HTML
 		var Modal = createModal({

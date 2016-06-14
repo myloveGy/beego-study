@@ -7,7 +7,7 @@ import (
 )
 
 type MenuController struct {
-	AdminController
+	CommController
 }
 
 // 首页显示

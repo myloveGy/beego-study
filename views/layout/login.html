@@ -301,30 +301,26 @@
         });
     });
 
-    var load = null;
     // 登录表单提交
     $(function(){
         $('#sub-login').click(function(){
            if ($('#login').validate(validatorError).form())
            {
-                load = layer.load()
+                var load = layer.load()
                 // 数据提交
                 $.ajax({
-                    url:'/admin/login',
+                    url:'/admin/site/login',
                     type:'post',
                     data:$('#login').serialize(),
                     dataType:'json',
-                    success:function(json) {
-                        layer.close(load)
-                        var i = json.status == 1 ? 6 : 5; 
-                        layer.msg(json.msg, {time:1500, icon:i, end:function(){
-                            if (json.status == 1) window.location.href = '/admin/site';
-                        }});
-                    },
-                    error:function(){
-                        layer.close(load)
-                        layer.msg('服务器繁忙,请稍候再试...');
-                    }
+                }).always(function(){
+                    layer.close(load)
+                }).done(function(json){
+                    layer.msg(json.msg, {time:1500, icon:(json.status == 1 ? 6 : 5), end:function(){
+                        if (json.status == 1) window.location.href = '/admin/admin/site';
+                    }});
+                }).fail(function(){
+                    layer.msg('服务器繁忙,请稍候再试...');
                 })
            }
             return false;

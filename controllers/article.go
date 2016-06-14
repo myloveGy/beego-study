@@ -6,18 +6,16 @@ import (
 )
 
 // 首页控制器
-type ArticleHomeController struct {
+type ArticleController struct {
 	HomeController
 }
 
-// @router /article:key [get]
-func (this *ArticleHomeController) Index() {
+func (this *ArticleController) Index() {
 	this.Data["action"] = "article"
 	this.TplName = "home/article.html"
 }
 
-// @router /article/view/:id [get]
-func (this *ArticleHomeController) View() {
+func (this *ArticleController) View() {
 	var article, next, prev models.Article
 	if orm.NewOrm().Raw("SELECT `id`, `title`, `content`, `img`, `create_time`, `see_num`, `comment_num` FROM `my_article` WHERE `status` = ? AND `id` = ? LIMIT 1", 1, this.Ctx.Input.Param(":id")).QueryRow(&article) != nil {
 		this.Redirect("/", 302)
@@ -36,8 +34,7 @@ func (this *ArticleHomeController) View() {
 	this.TplName = "home/article_view.html"
 }
 
-// @router /article/list:key [get]
-func (this *ArticleHomeController) List() {
+func (this *ArticleController) List() {
 	// 初始化返回
 	this.E = ArrError{Status: 0, Msg: "参数为空", Data: nil}
 	var iStart, iLength int

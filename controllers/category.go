@@ -9,7 +9,7 @@ import (
 )
 
 type CategoryController struct {
-	AdminController
+	CommController
 }
 
 // 首页显示
