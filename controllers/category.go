@@ -85,3 +85,34 @@ func (this *CategoryController) View() {
 
 	this.AjaxReturn()
 }
+
+// 行内编辑执行
+func (this *CategoryController) Inline() {
+	this.E = ArrError{Status: 0, Msg: "请求数据为空", Data: nil}
+	var cate models.Category
+	// 获取ID
+	id, err := this.GetInt64("pk")
+	if err == nil {
+		err = models.One(&cate, models.QueryOther{Table:"my_category", Where:map[string]interface{}{"id":id}})
+		if err == nil {
+			err = this.ParseForm(&cate)
+			if err == nil {
+				id, err = models.Update(&cate)
+				this.E.Msg = "服务器繁忙,请稍候再试..."
+				if id > 0 && err == nil {
+					this.E.Msg = "修改成功"
+					this.E.Status = 1
+					this.E.Data = cate
+				} else {
+					this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
+				}
+			}
+		}
+	} else {
+		this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
+	}
+
+
+
+	this.AjaxReturn()
+}
