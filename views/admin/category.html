@@ -144,111 +144,6 @@
             btn_choose:'Choose',
             btn_change:'Change',
             droppable:false,
-                    url: function(params) {
-                        var submit_url = '/admin/upload', // 提交页面
-                                deferred   = null,
-                                avatar 	   = '#avatar',			// 选择对象
-                                value 	   = $(avatar).next().find('input[type=hidden]:eq(0)').val();
-
-                        // 数据验证
-                        if(!value || value.length == 0) {
-                            deferred = new $.Deferred
-                            deferred.resolve();
-                            return deferred.promise();
-                        }
-
-                        // 提交表单
-                        var $form 	   = $(avatar).next().find('.editableform:eq(0)'),
-                                file_input = $form.find('input[type=file]:eq(0)'),
-                                pk 		   = $(avatar).attr('data-pk'),	//primary key to be sent to server
-                                ie_timeout = null;
-
-
-                        if( "FormData" in window ) {
-                            var formData_object = new FormData();//create empty FormData object
-
-                            //serialize our form (which excludes file inputs)
-                            $.each($form.serializeArray(), function(i, item) {
-                                //add them one by one to our FormData
-                                formData_object.append(item.name, item.value);
-                            });
-                            //and then add files
-                            $form.find('input[type=file]').each(function(){
-                                var field_name = $(this).attr('name');
-                                var files = $(this).data('ace_input_files');
-                                if(files && files.length > 0) {
-                                    formData_object.append(field_name, files[0]);
-                                }
-                            });
-
-                            //append primary key to our formData
-                            formData_object.append('pk', pk);
-
-                            deferred = $.ajax({
-                                url: submit_url,
-                                type: 'POST',
-                                processData: false,//important
-                                contentType: false,//important
-                                dataType: 'json',//server response type
-                                data: formData_object
-                            })
-                        }
-                        else {
-                            deferred = new $.Deferred
-
-                            var temporary_iframe_id = 'temporary-iframe-'+(new Date()).getTime()+'-'+(parseInt(Math.random()*1000));
-                            var temp_iframe =
-                                    $('<iframe id="'+temporary_iframe_id+'" name="'+temporary_iframe_id+'" \
-							frameborder="0" width="0" height="0" src="about:blank"\
-							style="position:absolute; z-index:-1; visibility: hidden;"></iframe>')
-                                            .insertAfter($form);
-
-                            $form.append('<input type="hidden" name="temporary-iframe-id" value="'+temporary_iframe_id+'" />');
-
-                            //append primary key (pk) to our form
-                            $('<input type="hidden" name="pk" />').val(pk).appendTo($form);
-                            temp_iframe.data('deferrer' , deferred);
-
-                            // 表单添加属性
-                            $form.attr({
-                                action: submit_url,
-                                method: 'POST',
-                                enctype: 'multipart/form-data',
-                                target: temporary_iframe_id //important
-                            });
-
-                            $form.get(0).submit();
-
-                            //if we don't receive any response after 30 seconds, declare it as failed!
-                            ie_timeout = setTimeout(function(){
-                                ie_timeout = null;
-                                temp_iframe.attr('src', 'about:blank').remove();
-                                deferred.reject({'status':'fail', 'message':'Timeout!'});
-                            } , 30000);
-                        }
-
-
-                        //deferred callbacks, triggered by both ajax and iframe solution
-                        deferred
-                                .done(function(result) {
-                                    if(result.status == 1)
-                                        $(avatar).get(0).src = result.data.fileDir;
-                                    else
-                                        layer.msg(result.msg, {icon:5, time:1000})
-                                })
-                                .fail(function(result) {//failure
-                                    layer.msg('请求页面没有响应');
-                                })
-                                .always(function() {//called on both success and failure
-                                    if(ie_timeout) clearTimeout(ie_timeout)
-                                    ie_timeout = null;
-                                });
-
-                        return deferred.promise();
-                    },
-                    success: function(response, newValue) {
-
-                    },
             thumbnail:false, //| true | large
             whitelist:'gif|png|jpg|jpeg',
             // 允许上传的头像
@@ -257,6 +152,11 @@
             //blacklist:'exe|php'
             //onchange:''
             //
-        });
+        }).on('change', function() {
+    var files = $(this).data('ace_input_files');
+    var method = $(this).data('ace_input_method');
+    console.info(files);
+    console.info(method)
+ });
     })
 </script>
