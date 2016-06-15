@@ -49,6 +49,11 @@ function createSelect(params, data, selected){
 
 // 生成上传文件类型 file
 function createFile(params){
+    // 判断类型
+    if (params.type != undefined && params.type == 'ace_input') {
+        delete params.type;
+        return '<input type="file" ' + handleParams(params) + '/>';
+    }
     if(params == undefined) params = {}
     var html = createInput(params, "hidden");
     params["name"]  = "UploadForm[" + params["name"] + "]";
@@ -195,6 +200,7 @@ function createForm(k)
 
         // 使用函数
         var func = 'create' + k.edit.type.substr(0, 1).toUpperCase() + k.edit.type.substr(1);
+        console.info(func)
         form += window[func](k.edit.options, k.value, k.edit.default) + '</div></div>';
     }
 
