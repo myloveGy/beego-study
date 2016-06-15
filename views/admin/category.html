@@ -72,10 +72,6 @@
         </div>
     </div>
 </div>
-<style type="text/css">
-    div.col-xs-12 table.table-hover td:hover {border-right:none;}
-    div.col-xs-12 table.table-hover tr form.editableform {padding:5px;}
-</style>
 <script type="text/javascript">
     var oParents = $.parseJSON({{.categorys}});
     function parentStatus(td, data, rowArr, row, col) {if (oParents[data]) $(td).html(oParents[data])}
@@ -89,17 +85,21 @@
                     $(td).html(data + '<b class="arrow fa fa-angle-down pull-right"></b>');
                 }},
                 {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents, "editTable":{validate:function(x){
-                    var v = parseInt(x);if (isNaN(v) || v == 0) return "必须为数字";
-                }},  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
-                {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
-                {"data":"status", "sName":"status",   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-                {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
-                 {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
+                    var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
+                }, "type":"select"},  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
+                {"data":"cate_name", "sName":"cate_name","title":"分类名称", "editTable":{validate:function(x){
+                    var l = x.length; if (x > 50 || x < 2) return "长度必须为2到50字符";
+                }, "type":"text", "name":"CateName"}, "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
+                {"data":"status", "sName":"status","editTable":{validate:function(x){
+                    var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
+                },},   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
+                {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
+                 {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
                 // 公共属性字段信息
-                {"data":"create_time", "sName":"create_time","title":"创建时间", "createdCell":dateTimeString},
-                {"data":"create_id", "sName":"create_id", "title":"创建用户", },
-                {"data":"update_time", "sName":"update_time", "title":"修改时间", "createdCell":dateTimeString},
-                {"data":"update_id", "sName":"update_id", "title":"修改用户", },
+                {"data":"create_time", "sName":"create_time","title":"创建时间", "edit":{"type" :"date"}, "createdCell":dateTimeString},
+                {"data":"create_id", "sName":"create_id", "title":"创建用户", "edit":{"type" :"datetime"}},
+                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"upload"}, "createdCell":dateTimeString},
+                {"data":"update_id", "sName":"update_id", "title":"修改用户", "edit":{"type" :"time"},},
                 oOperate,
             ],
         }, {
@@ -110,8 +110,8 @@
                     {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
                     {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
                     {"data":"status", "sName":"status","title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-                    {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
-                    {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"type":"text", "options":{"required":1, "number":1}}},
+                    {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
+                    {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
                     // 公共属性字段信息
                     {"data":"create_time", "sName":"create_time","title":"创建时间", "createdCell":dateTimeString},
                     {"data":"create_id", "sName":"create_id", "title":"创建用户", },
@@ -137,6 +137,19 @@
             var new_class = 'widget-box';
             if(color_class != 'default')  new_class += ' widget-color-'+color_class;
             $(this).closest('.widget-box').attr('class', new_class);
+        });
+
+        $('#id-input-file-1 , #id-input-file-2').ace_file_input({
+            no_file:'No File ...',
+            btn_choose:'Choose',
+            btn_change:'Change',
+            droppable:false,
+            onchange:null,
+            thumbnail:false //| true | large
+            //whitelist:'gif|png|jpg|jpeg'
+            //blacklist:'exe|php'
+            //onchange:''
+            //
         });
     })
 </script>

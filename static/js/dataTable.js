@@ -224,6 +224,7 @@ var MeTable = (function($) {
 
 			// 判断行内编辑
 			if (k.editTable != undefined) {
+				// 默认修改参数
 				self.options.oEditTable[k.sName] = {
 					name:    k.sName,
 					type:    k.edit.type == "radio" ? "select" : k.edit.type,
@@ -235,7 +236,8 @@ var MeTable = (function($) {
 					error:   function(){$.gritter.add({title:'温馨提醒',text:'服务器没有响应',class_name:'gritter-warning gritter-center',time:800,});}
 				};
 
-				self.options.oEditTable[k.sName] = $.extend(k.editTable, self.options.oEditTable[k.sName]);
+				// 继承修改配置参数
+				self.options.oEditTable[k.sName] = $.extend(self.options.oEditTable[k.sName], k.editTable);
 				k["class"] = "my-edit edit-" + k.sName;
 			}
 		});
@@ -247,13 +249,11 @@ var MeTable = (function($) {
 				for (var key in self.options.oEditTable) {
 					$(self.options.sTable + " tbody tr td.edit-" + key).each(function(){
 						var data = self.table.row($(this).closest('tr')).data(), mv = {};
-
 						// 判断存在重新赋值
 						if (data){
 							mv['value'] = data[key];
 							mv['pk']    = data[self.options.sEditPk];
 						}
-
 						$(this).editable($.extend(self.options.oEditTable[key], mv))
 					});
 				}

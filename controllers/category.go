@@ -6,6 +6,9 @@ import (
 	"strconv"
 
 	"github.com/astaxie/beego"
+	"reflect"
+	"errors"
+	"strings"
 )
 
 type CategoryController struct {
@@ -91,26 +94,52 @@ func (this *CategoryController) Inline() {
 	this.E = ArrError{Status: 0, Msg: "请求数据为空", Data: nil}
 	var cate models.Category
 	// 获取ID
-	id, err := this.GetInt64("pk")
-	if err == nil {
-		err = models.One(&cate, models.QueryOther{Table:"my_category", Where:map[string]interface{}{"id":id}})
+
+	name, value := this.GetString("name"), this.GetString("value");
+	if name != "" && value != "" {
+		id, err := this.GetInt64("pk")
 		if err == nil {
-			err = this.ParseForm(&cate)
+			err = models.One(&cate, models.QueryOther{Table:"my_category", Where:map[string]interface{}{"id":id}})
 			if err == nil {
-				id, err = models.Update(&cate)
-				this.E.Msg = "服务器繁忙,请稍候再试..."
-				if id > 0 && err == nil {
-					this.E.Msg = "修改成功"
-					this.E.Status = 1
-					this.E.Data = cate
-				} else {
-					this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
+				v := reflect.ValueOf(&cate)
+				// 首字母大写
+				name = strings.ToUpper(name[0:1]) + name[1:]
+				if tempname := v.Elem().FieldByName(name); tempname.IsValid() {
+					var tv interface{}
+					switch tempname.Interface().(type) {
+					case int:
+						tv, err = strconv.Atoi(value)
+						beego.Alert(tv, " type is int")
+					case int64:
+						tv, err = strconv.ParseInt(value, 10, 64)
+						beego.Alert(tv, " type is int64")
+					case string:
+						tv = value
+						beego.Alert(tv, " type is string")
+					default:
+						err = errors.New("数据类型不确定")
+					}
+					if err == nil {
+						if tempname.CanSet() {
+							tempname.Set(reflect.ValueOf(tv))
+							_, err = models.Update(&cate)
+							if err == nil {
+								this.E.Status = 1;
+								this.E.Msg = "修改成功"
+								this.E.Data = cate
+							}
+						}
+					} else {
+						this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
+					}
 				}
 			}
+		} else {
+			this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
 		}
-	} else {
-		this.E.Msg = "服务器处理出现错误 Error ：" + err.Error()
 	}
+
+
 
 
 

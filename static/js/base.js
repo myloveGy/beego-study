@@ -1,17 +1,28 @@
+/**
+ * file: base.js
+ * desc: 主要函数库
+ * user: liujx
+ * date: 2016-6-15
+ * 注 ： create开头函数用来配合生成HTML 第一个参数接收配置信息, 第二个接收值, 第三个接收默认值
+ */
 // 验证数据是否为空
 function empty(val){return val==undefined||val==""}
 // 判断值是否存在数组或者对象中
 function in_array(val,arr){for(var i in arr){if(arr[i]===val){return true}}return false}
+// 首字母大写
+function ucfirst(str){return str.substr(0, 1).toUpperCase() + str.substr(1)}
 // 连接参数为字符串
 function handleParams(params){var other="";if(params!=undefined&&typeof params=="object"){for(var i in params){other+=" "+i+'="'+params[i]+'" '}}return other}
 // 生成label
 function Label(content,params){return"<label "+handleParams(params)+"> "+content+" </label>"}
 // 生成Input
-function createInput(type,params){return'<input type="'+type+'" '+handleParams(params)+" />"}
+function createInput(params, type){return'<input type="'+type+'" '+handleParams(params)+" />"}
+// 生成text
+function createText(params) {console.info(params); return createInput(params, 'text')}
 // 生成textarea
 function createTextarea(params){if(empty(params)){params={"class":" form-control","rows":5}}else{params["class"]+=" form-control";params["rows"]=5}return"<textarea "+handleParams(params)+"></textarea>"}
 // 生成radio
-function createRadio(data,checked,params){
+function createRadio(params, data, checked){
     var html="",params=handleParams(params);
     if(data!=undefined&&typeof data=="object"){
         for(var i in data){
@@ -23,7 +34,7 @@ function createRadio(data,checked,params){
 }
 
 // 生成select
-function createSelect(data,selected,params){
+function createSelect(params, data, selected){
     var html = "", params = handleParams(params);
     if(data != undefined && typeof data == "object") {
         html += "<select "+params+">";
@@ -38,18 +49,49 @@ function createSelect(data,selected,params){
 
 // 生成上传文件类型 file
 function createFile(params){
-    var html="";
     if(params == undefined) params = {}
-    html += createInput("hidden", params);
+    var html = createInput(params, "hidden");
     params["name"]  = "UploadForm[" + params["name"] + "]";
     params["class"] = "input-file uniform_on fileUpload";
-    html += createInput("file",params);
+    html += createInput(params, "file");
     html += "<p class='bg-success p-5 m-3 isHide' onclick='$(this).hide()'></p>";
     return html
 }
 
+// 添加时间天
+function createDate(params) {
+    return '<div class="input-group bootstrap-timepicker"> \
+        <input class="form-control date-picker" id="id-date-picker-1" type="text" data-date-format="yyyy-mm-dd" /> \
+        <span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span> \
+        </div>';
+}
+
+// 添加时间分秒
+function createTime(params) {
+    return '<div class="input-group bootstrap-timepicker"> \
+        <input id="timepicker1" type="text" class="form-control" /> \
+        <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span> \
+        </div>';
+}
+
+// 添加时间
+function createDatetime(params) {
+    return '<div class="input-group"> \
+        <input id="date-timepicker1" type="text" class="form-control" /> \
+        <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span> \
+        </div>';
+}
+
+// 添加时间段
+function createDaterange(params) {
+    return '<div class="input-group"> \
+        <span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span> \
+        <input class="form-control" type="text" name="date-range-picker" id="id-date-range-picker-1" /> \
+        </div>';
+}
+
 // 生成多语言配置信息
-function createLangInput(obj)
+function createLang(obj)
 {
     var html = '<div class="col-sm-12 m-pl-0"><div class="tabbable">', mli = '', mDiv = '';
     if (language)
@@ -83,7 +125,7 @@ function createLangInput(obj)
 }
 
 // 多选按钮 checkbox
-function createCheckbox(data, checked, params, arr, isHave)
+function createCheckbox(params, data, checked, arr, isHave)
 {
     if (arr == undefined) arr = 'col-xs-6';
     var html = '', params = handleParams(params);
@@ -92,9 +134,7 @@ function createCheckbox(data, checked, params, arr, isHave)
         if (isHave == undefined) html += '<div class="checkbox col-xs-12"><label><input type="checkbox" class="ace checkbox-all" /><span class="lbl"> 选择全部 </span></label></div>';
         for (var i in data)
         {
-            html += '<div class="checkbox ' + arr + '"><label>';
-            html += '<input type="checkbox" ' + params + ' value="' + i + '" />';
-            html += '<span class="lbl"> ' + data[i] + ' </span></label></div>';
+            html += '<div class="checkbox ' + arr + '"><label><input type="checkbox" ' + params + ' value="' + i + '" /><span class="lbl"> ' + data[i] + ' </span></label></div>';
         }
     }
 
@@ -123,59 +163,39 @@ function createForm(k)
 {
     var form = '';
     // 处理其他参数
-    if (k.edit.options == undefined) k.edit.options = {};
+    if (k.edit.options == undefined) k.edit.options = {}; // 容错处理
+    if (!k.edit.type) k.edit.type = "text";
     k.edit.options["name"]  = k.sName;
     k.edit.options["class"] = "form-control";
     if (k.edit.type == undefined) k.edit.type = "text"
 
     if ( k.edit.type == "hidden" )
-        form += createInput('hidden', k.edit.options)
+        form += createInput(k.edit.options, 'hidden');
     else
     {
-        form += '<div class="form-group">' + Label(k.title, {"class":"col-sm-3 control-label"}) + '<div class="col-sm-9">';
         // 判断类型
-        switch (k.edit.type)
-        {
-            // 单选
-            case "radio":
-                k.edit.options['class'] = 'ace valid';
-                form += createRadio(k.value, k.edit.default, k.edit.options);
-                break;
-            // 多选
-            case "checkbox":
-                k.edit.options['class'] = 'ace m-checkbox';
-                k.edit.options['name']  = k.sName + '[]';
-                form += createCheckbox(k.value, k.edit.default, k.edit.options);
-                break;
-            // 下拉
-            case "select":
-                form += createSelect(k.value, k.edit.default, k.edit.options);
-                break;
-            // 文件上传
-            case "file":
-                form += createFile(k.edit.options);
-                break;
-            // 文本
-            case "textarea":
-                form += createTextarea(k.edit.options);
-                break;
-            // 多语言
-            case 'lang':
-                form += createLangInput(k.edit.options);
-                break;
-            // 时间
-            case "time":
-                if (!empty(k.value)) k.edit.options["value"] = k.value
-                k.edit.options["class"] += " time";
-                form += '<div class="col-sm-6 m-pl-0">' + createInput('text', k.edit.options) + '</div>';
-                break;
-            // 输入框
-            default:
-                if (!empty(k.value)) k.edit.options["value"] = k.value
-                form += createInput(k.edit.type, k.edit.options);
+        form += '<div class="form-group">' + Label(k.title, {"class":"col-sm-3 control-label"}) + '<div class="col-sm-9">';
+
+        // 单选选按钮添加样式
+        if (k.edit.type == "radio") k.edit.options['class'] = 'ace valid';
+        // 多选按钮处理
+        if (k.edit.type == "checkbox") {
+            k.edit.options['class'] = 'ace m-checkbox';
+            k.edit.options['name']  = k.sName + '[]';
         }
 
-        form += '</div></div>';
+        // 时间处理
+        if (k.edit.type == "time") {
+            if (!empty(k.value)) {k.edit.options["value"] = k.value}
+            k.edit.options["class"] += " time";
+        }
+
+        // 默认输入框处理
+        if (k.edit.type == "text") if (!empty(k.value)) k.edit.options["value"] = k.value
+
+        // 使用函数
+        var func = 'create' + k.edit.type.substr(0, 1).toUpperCase() + k.edit.type.substr(1);
+        form += window[func](k.edit.options, k.value, k.edit.default) + '</div></div>';
     }
 
     return form;
@@ -188,20 +208,10 @@ function createViewTr(title, data) {
 
 // 生成查表单信息
 function createSearchForm(k, v) {
-    var tmpOptions = {"name":k.sName, "vid":v, "class":"msearch"},
-        html       = '';
-    if (k.search.options) $.extend(tmpOptions, k.search.options);
-    switch (k.search.type)
-    {
-        case "select":
-            k.value["All"] = "全部";
-            html += createSelect(k.value, "All", tmpOptions)
-            delete k.value['All']
-            break;
-        default:
-            html += createInput('text', tmpOptions);
-    }
-
+    k.search.options = $.extend({"name":k.sName, "vid":v, "class":"msearch"}, k.search.options);
+    if (k.search.type == "select") {k.value["All"] = "全部";}
+    var html = window['create' + ucfirst(k.search.type)](k.search.options, k.value, "All");
+    if (k.search.type == "select") delete k.value["All"]
     return Label(k.title + " : " + html) + ' ';
 }
 

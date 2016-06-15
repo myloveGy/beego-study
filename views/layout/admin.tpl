@@ -343,7 +343,12 @@
 <script src="/static/assets/js/jquery.gritter.min.js"></script>
 <script src="/static/assets/js/bootbox.min.js"></script>
 <script src="/static/assets/js/jquery.easypiechart.min.js"></script>
+<script src="/static/assets/js/date-time/moment.min.js"></script>
 <script src="/static/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<script src="/static/assets/js/date-time/bootstrap-datetimepicker.min.js"></script>
+<script src="/static/assets/js/date-time/bootstrap-timepicker.min.js"></script>
+<script src="/static/assets/js/date-time/daterangepicker.min.js"></script>
+<script src="/static/assets/js/date-time/locales/bootstrap-datepicker.zh-CN.js"></script>
 <script src="/static/assets/js/jquery.hotkeys.min.js"></script>
 <script src="/static/assets/js/bootstrap-wysiwyg.min.js"></script>
 <script src="/static/assets/js/select2.min.js"></script>
