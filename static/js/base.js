@@ -240,6 +240,25 @@ function createModal(oModal, oViews) {
             </div>';
 }
 
+// 提示信息
+function gAlert(sTitle, sMessage, className, iTime) {
+    className = className ? className : "warning"; iTime = iTime ? iTime : 1500; // 默认值
+    return $.gritter.add({title: sTitle,text: sMessage,class_name: 'gritter-' + className + ' gritter-center',time: iTime});
+}
+
+// 上传错误信息处理
+function validateFile(info) {
+    var error = [];
+    if (info && typeof info == "object") {
+        // 判断错误类型
+        if (info.error_count['ext'] || info.error_count['mime']) error.push("上传文件类型错误")
+        // 判断上传文件大小
+        if (info.error_count['size']) error.push("上传文件过大");
+        error.push("上传文件为(" + info.error_list.ext.join(',') + ")")
+    }
+    return error.join(";");
+}
+
 
 // 验证上传文件
 function verifyUpload(uploadObj,size,allowType,fileurl){var obj=uploadObj.files[0],arr=[false,"对不起！上传文件超过指定值..."],num=obj.name.indexOf("."),fileext=obj.name.substr(num+1).toLocaleLowerCase();if(allowType==undefined){allowType=["jpeg","jpg","gif","png"]}if(obj.size<size){arr[1]="对不起！上传文件类型错误...";if(in_array(fileext,allowType)){if(fileurl!=undefined){var link=uploadObj.url.indexOf("?")>=0?"&":"?";uploadObj.url+=link+"fileurl="+fileurl}arr=[true,"文件上传成功！"]}}return arr}
