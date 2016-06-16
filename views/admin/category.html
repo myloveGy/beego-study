@@ -145,18 +145,22 @@
             btn_change:'Change',
             droppable:false,
             thumbnail:false, //| true | large
-            whitelist:'gif|png|jpg|jpeg',
-            // 允许上传的头像
+
+            // 允许上传的文件类型
             allowExt: ['jpg', 'jpeg', 'png', 'gif'],
-            allowMime: ['image/jpg', 'image/jpeg', 'image/png', 'image/gif']
-            //blacklist:'exe|php'
-            //onchange:''
-            //
+            allowMime: ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'],
+            maxSize: 200000000,
+            denyExt:['exe', 'php'],
+            before_change:function(files, dropped){
+                console.info(files)
+                console.info(dropped)
+                return true
+            },
         }).on('change', function() {
-    var files = $(this).data('ace_input_files');
-    var method = $(this).data('ace_input_method');
-    console.info(files);
-    console.info(method)
- });
+//            var files = $(this).data('ace_input_files');
+//            var method = $(this).data('ace_input_method');
+//            console.info(files);
+//            console.info(method)
+         });
     })
 </script>

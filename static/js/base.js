@@ -18,7 +18,7 @@ function Label(content,params){return"<label "+handleParams(params)+"> "+content
 // 生成Input
 function createInput(params, type){return'<input type="'+type+'" '+handleParams(params)+" />"}
 // 生成text
-function createText(params) {console.info(params); return createInput(params, 'text')}
+function createText(params) {return createInput(params, 'text')}
 // 生成textarea
 function createTextarea(params){if(empty(params)){params={"class":" form-control","rows":5}}else{params["class"]+=" form-control";params["rows"]=5}return"<textarea "+handleParams(params)+"></textarea>"}
 // 生成radio
@@ -200,7 +200,6 @@ function createForm(k)
 
         // 使用函数
         var func = 'create' + k.edit.type.substr(0, 1).toUpperCase() + k.edit.type.substr(1);
-        console.info(func)
         form += window[func](k.edit.options, k.value, k.edit.default) + '</div></div>';
     }
 
