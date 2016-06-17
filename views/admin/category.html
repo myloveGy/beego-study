@@ -132,6 +132,8 @@
         // dataTable 初始化
         myTable.init();
 
+        var ie_timeout = null;
+
         // 表格样式转换
         $('#simple-colorpicker-1').ace_colorpicker({pull_right:true}).on('change', function(){
             var color_class = $(this).find('option:selected').data('class');
@@ -140,7 +142,9 @@
             $(this).closest('.widget-box').attr('class', new_class);
         });
 
-        $('#id-input-file-2').ace_file_input({
+        var $input = $('#id-input-file-2');
+
+        $input.ace_file_input({
             no_file:        'No File ...',
             btn_choose:     'Choose',
             btn_change:     'Change',
@@ -151,94 +155,30 @@
             allowMime:     ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'],
             maxSize:       200000000,
             denyExt:       ['exe', 'php'],
-            before_change: function(files, dropped){
-                return true;
-            },
-            before_remove:function() {
-
-            },
+//            before_change: function(files, dropped){
+//                return true;
+//            },
+//            before_remove:function() {
+//
+//            },
         // 执行上传文件
         }).on('change', function() {
-            var file_input = $('#id-input-file-2'), $form = file_input.closest('form');
-            var files = file_input.data('ace_input_files');
-            if( !files || files.length == 0 ) return false;//no files selected
-            var deferred, ie_timeout;
-            if( "FormData" in window ) {
-                formData_object = new FormData();
-                $.each($form.serializeArray(), function(i, item) {
-                    formData_object.append(item.name, item.value);
-                });
-                //and then add files
-                $form.find('input[type=file]').each(function(){
-                    var field_name = $(this).attr('name');
-                    var files = $(this).data('ace_input_files');
-                    if(files && files.length > 0) {
-                        for(var f = 0; f < files.length; f++) {
-                            formData_object.append(field_name, files[f]);
-                        }
-                    }
-                });
-
-
-                upload_in_progress = true;
-                file_input.ace_file_input('loading', true);
-                deferred = $.ajax({
-                    url:         '/admin/admin/upload',
-                    type:        'Post',
-                    processData: false,//important
-                    contentType: false,//important
-                    dataType:   'json',
-                    data:       formData_object,
-                })
-
-                alert(123)
-            }
-            else {
-                deferred = new $.Deferred;
-                var temporary_iframe_id = 'temporary-iframe-'+(new Date()).getTime()+'-'+(parseInt(Math.random()*1000));
-                var temp_iframe =
-                        $('<iframe id="'+temporary_iframe_id+'" name="'+temporary_iframe_id+'" \
-								frameborder="0" width="0" height="0" src="about:blank"\
-								style="position:absolute; z-index:-1; visibility: hidden;"></iframe>')
-                                .insertAfter($form)
-
-                $form.append('<input type="hidden" name="temporary-iframe-id" value="'+temporary_iframe_id+'" />');
-                temp_iframe.data('deferrer' , deferred);
-                $form.attr({
-                    method:  'POST',
-                    enctype: 'multipart/form-data',
-                    target:  temporary_iframe_id //important
-                });
-
-                upload_in_progress = true;
-                file_input.ace_file_input('loading', true);
-                $form.get(0).submit();
-                ie_timeout = setTimeout(function(){
-                    ie_timeout = null;
-                    temp_iframe.attr('src', 'about:blank').remove();
-                    deferred.reject({'status':'fail', 'message':'Timeout!'});
-                } , 30000);
-            }
-
+            var deferred = aceFileInput($input, '/admin/admin/upload');
             // 成功执行
             deferred.done(function(result) {
                 if (result.status == 1) {
-                    message = "File successfully saved. Thumbnail is: " + result.data.fileDir
+                    gAlert("上传文件成功", "上传文件的地址为：" + result.data.fileDir, "success");
                 } else {
-                    message = "File not saved. " + result.msg;
+                    gAlert("上传文件出现错误Error:", result.msg)
                 }
-
-                alert(message);
-
             // 失败执行
             }).fail(function(result) {
-
+                gAlert("温馨提醒：", "页面没有响应...");
             // 请求完成执行
             }).always(function() {
                 if(ie_timeout) clearTimeout(ie_timeout)
                 ie_timeout = null;
-                upload_in_progress = false;
-                file_input.ace_file_input('loading', false);
+                $input.ace_file_input('loading', false);
             });
 
             deferred.promise();

@@ -254,43 +254,63 @@ function validateFile(info) {
         if (info.error_count['ext'] || info.error_count['mime']) error.push("上传文件类型错误")
         // 判断上传文件大小
         if (info.error_count['size']) error.push("上传文件过大");
-        error.push("上传文件为(" + info.error_list.ext.join(',') + ")")
     }
     return error.join(";");
 }
 
-
-// 验证上传文件
-function verifyUpload(uploadObj,size,allowType,fileurl){var obj=uploadObj.files[0],arr=[false,"对不起！上传文件超过指定值..."],num=obj.name.indexOf("."),fileext=obj.name.substr(num+1).toLocaleLowerCase();if(allowType==undefined){allowType=["jpeg","jpg","gif","png"]}if(obj.size<size){arr[1]="对不起！上传文件类型错误...";if(in_array(fileext,allowType)){if(fileurl!=undefined){var link=uploadObj.url.indexOf("?")>=0?"&":"?";uploadObj.url+=link+"fileurl="+fileurl}arr=[true,"文件上传成功！"]}}return arr}
-
 // 文件上传
-function FileUpload(url, select, allowType, size){
-    $(select).fileupload({
-        dataType:"json",
-        url:url,
-        beforeSend:function(e,data){
-            var arr=verifyUpload(data, size, allowType, $(select).parent().find("input[type=hidden]").val());
-            if(!arr[0])
-            {
-                layer.msg(arr[1],{time:1500,icon:5});
-                return false
-            }
-        },
-        success:function(json){
-            if(json.status==1){
-                layer.msg(json.msg, {time:1500,icon:6,end:function(){
-                    var str = json.data.image + " " + json.msg;
-                    $(select).next('p').html(str).show().parent().find("input[type=hidden]").val(json.data.fileDir)
-                }});
-                return false
-            }
+function aceFileInput(file_input, url) {
+    var $form      = file_input.closest('form'),
+        files      = file_input.data('ace_input_files'),
+        deferred   = new $.Deferred;
+    // 没有上传文件
+    if ( !files || files.length == 0 ) { deferred.resolve();return deferred.promise();}
 
-            layer.msg(json.msg,{time:1500,icon:5})
-        },
-        error:function(){
-            layer.msg('服务器繁忙,请稍候再试...', {time:1500});
-        }
-    })
+    // 数据提交的处理
+    if ( "FormData" in window )
+    {
+        formData_object = new FormData();
+        // 表单数据
+        $.each($form.serializeArray(), function(i, item) {formData_object.append(item.name, item.value);});
+        // 上传文件信息
+        formData_object.append(file_input.attr('name'), files[0]);
+        file_input.ace_file_input('loading', true);
+
+        // 提交数据
+        deferred = $.ajax({
+            url:         url,
+            type:        'Post',
+            processData: false,//important
+            contentType: false,//important
+            dataType:   'json',
+            data:       formData_object,
+        })
+    } else {
+        var temporary_iframe_id = 'temporary-iframe-'+(new Date()).getTime()+'-'+(parseInt(Math.random()*1000));
+        var temp_iframe =
+            $('<iframe id="'+temporary_iframe_id+'" name="'+temporary_iframe_id+'" \
+								frameborder="0" width="0" height="0" src="about:blank"\
+								style="position:absolute; z-index:-1; visibility: hidden;"></iframe>')
+                .insertAfter($form)
+
+        $form.append('<input type="hidden" name="temporary-iframe-id" value="'+temporary_iframe_id+'" />');
+        temp_iframe.data('deferrer' , deferred);
+        $form.attr({
+            method:  'POST',
+            enctype: 'multipart/form-data',
+            target:  temporary_iframe_id //important
+        });
+
+        file_input.ace_file_input('loading', true);
+        $form.get(0).submit();
+        ie_timeout = setTimeout(function(){
+            ie_timeout = null;
+            temp_iframe.attr('src', 'about:blank').remove();
+            deferred.reject({'status':'fail', 'message':'Timeout!'});
+        } , 30000);
+    }
+
+    return deferred;
 }
 
 // 时间格式化
