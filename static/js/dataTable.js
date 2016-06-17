@@ -343,6 +343,15 @@ var MeTable = (function($) {
 				if (row.child.isShown()){row.child.hide();tr.removeClass('shown');}else{self.oDetailParams = row.data();self.oDetailObject = row;self.details.draw();tr.addClass('shown');}
 			});
 		}
+
+		// 判断开启editTable
+		if (self.options.bEditTable) {
+			$.fn.editable.defaults.mode = 'inline';
+			$.fn.editableform.loading = "<div class='editableform-loading'><i class='ace-icon fa fa-spinner fa-spin fa-2x light-blue'></i></div>";
+			$.fn.editableform.buttons = '<button type="submit" class="btn btn-info editable-submit"><i class="ace-icon fa fa-check"></i></button>'+
+					'<button type="button" class="btn editable-cancel"><i class="ace-icon fa fa-times"></i></button>';
+			$.fn.editable.defaults.ajaxOptions = {type: "POST", dataType:'json'};
+		}
 	};
 
 	// 表格搜索

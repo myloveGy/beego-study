@@ -171,7 +171,7 @@
         <!--左侧导航栏信息-->
         <ul class="nav nav-list">
             {{range .navigation}}
-            <li class="{{.Url | Replace}}">
+            <li>
                 <a {{if .IsChild}}href="javascript:;" class="dropdown-toggle" {{else}}href="{{.Url}}"{{end}}>
                     <i class="menu-icon {{.Icons}}"></i>
                     <span class="menu-text"> {{.MenuName}} </span>
@@ -182,7 +182,7 @@
                 <!--第二级别-->
                 <ul class="submenu">
                     {{range $index, $value := .Child}}
-                    <li class="{{$value.Url | Replace}}">
+                    <li>
                         <a  href="{{$value.Url}}"  >
                             <i class="menu-icon {{$value.Icons}}"></i>
                             {{$value.MenuName}}
@@ -366,8 +366,8 @@
 <script type="text/javascript">
     $(function(){
         // 导航栏样式装换
-        var select = '.' + window.location.pathname.replace(/\//g, "");
-        $(select).addClass('active').parentsUntil('ul.nav-list').addClass('active open');
+        var select = 'ul.nav-list a[href=' + window.location.pathname.replace(/\//g, '\\/') +']';
+        $(select).closest('li').addClass('active').parentsUntil('ul.nav-list').addClass('active open');
 
         // 隐藏和显示
         $('.me-hide').click(function(evt){

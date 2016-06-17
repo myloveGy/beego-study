@@ -98,7 +98,7 @@
                 // 公共属性字段信息
                 {"data":"create_time", "sName":"create_time","title":"创建时间", "edit":{"type" :"date"}, "createdCell":dateTimeString},
                 {"data":"create_id", "sName":"create_id", "title":"创建用户", "edit":{"type" :"datetime"}},
-                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"file", options:{"id":"id-input-file-2", type:"ace_input"}}, "createdCell":dateTimeString},
+                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"file", options:{"id":"myfile", type:"ace_input"}}, "createdCell":dateTimeString},
                 {"data":"update_id", "sName":"update_id", "title":"修改用户", "edit":{"type" :"time"},},
                 oOperate,
             ],
@@ -124,15 +124,8 @@
 
     // 页面加载完成
     $(function() {
-        $.fn.editable.defaults.mode = 'inline';
-        $.fn.editableform.loading = "<div class='editableform-loading'><i class='ace-icon fa fa-spinner fa-spin fa-2x light-blue'></i></div>";
-        $.fn.editableform.buttons = '<button type="submit" class="btn btn-info editable-submit"><i class="ace-icon fa fa-check"></i></button>'+
-        '<button type="button" class="btn editable-cancel"><i class="ace-icon fa fa-times"></i></button>';
-        $.fn.editable.defaults.ajaxOptions = {type: "POST", dataType:'json'};
         // dataTable 初始化
         myTable.init();
-
-        var ie_timeout = null;
 
         // 表格样式转换
         $('#simple-colorpicker-1').ace_colorpicker({pull_right:true}).on('change', function(){
@@ -142,51 +135,6 @@
             $(this).closest('.widget-box').attr('class', new_class);
         });
 
-        var $input = $('#id-input-file-2');
-
-        $input.ace_file_input({
-            no_file:        'No File ...',
-            btn_choose:     'Choose',
-            btn_change:     'Change',
-            droppable:      false,
-            thumbnail:      false, //| true | large
-            // 允许上传的文件类型
-            allowExt:      ['jpg', 'jpeg', 'png', 'gif'],
-            allowMime:     ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'],
-            maxSize:       200000000,
-            denyExt:       ['exe', 'php'],
-//            before_change: function(files, dropped){
-//                return true;
-//            },
-//            before_remove:function() {
-//
-//            },
-        // 执行上传文件
-        }).on('change', function() {
-            var deferred = aceFileInput($input, '/admin/admin/upload');
-            // 成功执行
-            deferred.done(function(result) {
-                if (result.status == 1) {
-                    gAlert("上传文件成功", "上传文件的地址为：" + result.data.fileDir, "success");
-                } else {
-                    gAlert("上传文件出现错误Error:", result.msg)
-                }
-            // 失败执行
-            }).fail(function(result) {
-                gAlert("温馨提醒：", "页面没有响应...");
-            // 请求完成执行
-            }).always(function() {
-                if(ie_timeout) clearTimeout(ie_timeout)
-                ie_timeout = null;
-                $input.ace_file_input('loading', false);
-            });
-
-            deferred.promise();
-        // 错误处理
-        }).on('file.error.ace', function(event, info) {
-            // 判断错误
-            gAlert('文件上传出现错误：', validateFile(info));
-            event.preventDefault();
-        });
+        aceFileInput('#ace_myfile', '/admin/admin/upload');
     });
 </script>

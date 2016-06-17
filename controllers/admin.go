@@ -26,7 +26,7 @@ func (this *AdminController) Update() {
 func (this *AdminController) Upload() {
 	this.E = ArrError{Status: 0, Msg: "抱歉，您还没有登录呢!", Data: nil}
 //	if this.isLogin("admin") {
-		f, h, err := this.GetFile("update_time")
+		f, h, err := this.GetFile("ace_update_time")
 		defer f.Close()
 		if err == nil {
 			file := path.Ext(h.Filename)
@@ -48,11 +48,11 @@ func (this *AdminController) Upload() {
 					if err == nil {
 						// 文件最终保存的地址
 						fileName := dirName + "/" + strconv.Itoa(rand.Int()) + file
-						err = this.SaveToFile("update_time", fileName)
+						err = this.SaveToFile("ace_update_time", fileName)
 						if err == nil {
 							this.E.Status = 1
 							this.E.Msg = "图片上传成功"
-							this.E.Data = map[string]string{"image": h.Filename, "fileDir": fileName[1:]}
+							this.E.Data = map[string]string{"fileName": h.Filename, "fileUrl": fileName[1:]}
 						} else {
 							this.E.Msg = err.Error()
 						}

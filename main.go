@@ -18,13 +18,9 @@ func init() {
 	orm.RegisterDataBase("default", "mysql", db)
 }
 
-// 定义模板函数用来处理导航信息
-func Replace(str string) string {
-	return strings.Replace(str, "/", "", -1)
-}
+
 
 // 执行主函数
 func main() {
-	beego.AddFuncMap("Replace", Replace)
 	beego.Run()
 }

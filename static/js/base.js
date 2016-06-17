@@ -12,7 +12,7 @@ function in_array(val,arr){for(var i in arr){if(arr[i]===val){return true}}retur
 // 首字母大写
 function ucfirst(str){return str.substr(0, 1).toUpperCase() + str.substr(1)}
 // 连接参数为字符串
-function handleParams(params){var other="";if(params!=undefined&&typeof params=="object"){for(var i in params){other+=" "+i+'="'+params[i]+'" '}}return other}
+function handleParams(params, prefix){var other=""; prefix = prefix ? prefix : '';if(params!=undefined&&typeof params=="object"){for(var i in params){other+=" "+i+'="'+prefix + params[i]+'" '}}return other}
 // 生成label
 function Label(content,params){return"<label "+handleParams(params)+"> "+content+" </label>"}
 // 生成Input
@@ -49,24 +49,13 @@ function createSelect(params, data, selected){
 
 // 生成上传文件类型 file
 function createFile(params){
-    // 判断类型
-    if (params.type != undefined && params.type == 'ace_input') {
-        delete params.type;
-        return '<input type="file" ' + handleParams(params) + '/>';
-    }
-    if(params == undefined) params = {}
-    var html = createInput(params, "hidden");
-    params["name"]  = "UploadForm[" + params["name"] + "]";
-    params["class"] = "input-file uniform_on fileUpload";
-    html += createInput(params, "file");
-    html += "<p class='bg-success p-5 m-3 isHide' onclick='$(this).hide()'></p>";
-    return html
+    return '<input type="file" ' + handleParams(params, 'ace_') + '/><input type="hidden" ' + handleParams(params) + '/>';
 }
 
 // 添加时间天
 function createDate(params) {
-    return '<div class="input-group bootstrap-timepicker"> \
-        <input class="form-control date-picker" id="id-date-picker-1" type="text" data-date-format="yyyy-mm-dd" /> \
+    return '<div class="input-group bootstrap-datepicker"> \
+        <input class="form-control date-picker me-date"  type="text" ' + handleParams(params) + '/> \
         <span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span> \
         </div>';
 }
@@ -74,15 +63,15 @@ function createDate(params) {
 // 添加时间分秒
 function createTime(params) {
     return '<div class="input-group bootstrap-timepicker"> \
-        <input id="timepicker1" type="text" class="form-control" /> \
+        <input type="text" class="form-control time-picker me-time" ' + handleParams(params) + '/> \
         <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span> \
         </div>';
 }
 
 // 添加时间
 function createDatetime(params) {
-    return '<div class="input-group"> \
-        <input id="date-timepicker1" type="text" class="form-control" /> \
+    return '<div class="input-group bootstrap-datetimepicker"> \
+        <input type="text" class="form-control datetime-picker me-datetime" ' + handleParams(params) + '/> \
         <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span> \
         </div>';
 }
@@ -91,7 +80,7 @@ function createDatetime(params) {
 function createDaterange(params) {
     return '<div class="input-group"> \
         <span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span> \
-        <input class="form-control" type="text" name="date-range-picker" id="id-date-range-picker-1" /> \
+        <input class="form-control daterange" type="text" ' + handleParams(params) + ' /> \
         </div>';
 }
 
@@ -259,7 +248,7 @@ function validateFile(info) {
 }
 
 // 文件上传
-function aceFileInput(file_input, url) {
+function aceFileInputAjax(file_input, url) {
     var $form      = file_input.closest('form'),
         files      = file_input.data('ace_input_files'),
         deferred   = new $.Deferred;
@@ -311,6 +300,52 @@ function aceFileInput(file_input, url) {
     }
 
     return deferred;
+}
+
+// 文件上传
+function aceFileInput(select, url, fun) {
+    var $input = $(select), ie_timeout = null, objHide = $(select.replace('ace_', '')), conf = {
+        no_file:        'No File ...',
+        btn_choose:     'Choose',
+        btn_change:     'Change',
+        droppable:      false,
+        thumbnail:      false, //| true | large
+        // 允许上传的文件类型
+        allowExt:      ['jpg', 'jpeg', 'png', 'gif'],
+        allowMime:     ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'],
+        maxSize:       200000000,
+        denyExt:       ['exe', 'php'],
+    };
+    if (arguments[3]) conf = $.extend(conf, arguments[3]);
+    if (!fun) fun = function(result) {
+        if (result.status == 1) {
+            gAlert("上传文件成功", "上传文件的地址为：" + result.data.fileUrl, "success");
+            objHide.val(result.data.fileUrl)
+        } else {
+            gAlert("上传文件出现错误Error:", result.msg)
+            $input.ace_file_input('apply_settings')
+        }
+        // 失败执行
+    };
+    $input.ace_file_input(conf).on('change', function() {
+        var deferred = aceFileInputAjax($input, url);
+        // 成功执行
+        deferred.done(fun).fail(function(result) {
+            gAlert("温馨提醒：", "页面没有响应...");
+            // 请求完成执行
+        }).always(function() {
+            if(ie_timeout) clearTimeout(ie_timeout)
+            ie_timeout = null;
+            $input.ace_file_input('loading', false);
+        });
+
+        deferred.promise();
+        // 错误处理
+    }).on('file.error.ace', function(event, info) {
+        // 判断错误
+        gAlert('文件上传出现错误：', validateFile(info));
+        event.preventDefault();
+    });
 }
 
 // 时间格式化
