@@ -15,7 +15,6 @@
         <i class="ace-icon fa fa-refresh bigger-120 orange"></i>
         刷新
     </button>
-    <input type="text" class="daterange-picker">
 </p>
 <div class="col-xs-12">
     <table id="showTable" class="table table-striped table-bordered table-hover"></table>
@@ -43,8 +42,13 @@
                 }, "type":"text", "name":"CateName"}, "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
                 {"data":"status", "sName":"status","editTable":{validate:function(x){
                     var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
-                },},   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-                {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"daterange", options:{"id":"my-daterange"}}, "search":{"type":"daterange"}},
+                }},   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
+                {"data":"recommend", "sName":"recommend","title":"推荐", "editTable":{validate:function(x){
+                    var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
+                },"success":function(json, value){
+                    if (json.status == 0) return json.msg;
+                    recommendToString(this, value)
+                }}, "value" : {"0":"不推荐", "1":"推荐"}, "edit":{"type":"radio", options:{"id":"my-daterange"}}, "createdCell":recommendToString},
                  {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
                 // 公共属性字段信息
                 {"data":"create_time", "sName":"create_time","title":"创建时间", "edit":{"type" :"date"}, "createdCell":dateTimeString},
@@ -91,6 +95,7 @@
             $(this).prev().focus();
         });
 
+        // 时间段选择
         $('#my-daterange').daterangepicker({
             'applyClass' : 'btn-sm btn-success',
             'cancelClass' : 'btn-sm btn-default',
@@ -100,22 +105,20 @@
             },
             format:'YYYY-DD-MM hh:mm A',
         }, function(start, end, label) {
-             $('#my-daterange').val(start.format('YYYY-MM-DD') + '-' + end.format('YYYY-MM-DD'));
+             $('#my-daterange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
         });
 
-
-        $('.input-daterange').datepicker({autoclose:true,format:"yyyy-mm-dd", todayHighlight: true, language: 'zh-CN'});
-
-
+        // 时间选择
         $('.time-picker').timepicker({
             minuteStep: 1,
             showSeconds: true,
             showMeridian: false
         });
 
+        // 时间小时选择
         $('.datetime-picker').datetimepicker({
-                format:'YYYY-MM-DD hh:mm:ss',
-                language:"zh-CN",
+            format:'YYYY-MM-DD hh:mm:ss A',
+            language:"zh-CN",
         });
     });
 </script>

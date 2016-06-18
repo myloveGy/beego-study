@@ -205,7 +205,7 @@ function createViewTr(title, data) {
 
 // 生成查表单信息
 function createSearchForm(k, v) {
-    k.search.options = $.extend({"name":k.sName, "vid":v, "class":"msearch"}, k.search.options);
+    k.search.options = $.extend({"name":k.sName, "vid":v, "class":"me-search"}, k.search.options);
     if (k.search.type == "select") {k.value["All"] = "全部";}
     var html = window['create' + ucfirst(k.search.type)](k.search.options, k.value, "All");
     if (k.search.type == "select") delete k.value["All"]
