@@ -45,9 +45,6 @@
                 }},   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
                 {"data":"recommend", "sName":"recommend","title":"推荐", "editTable":{validate:function(x){
                     var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
-                },"success":function(json, value){
-                    if (json.status == 0) return json.msg;
-                    recommendToString(this, value)
                 }}, "value" : {"0":"不推荐", "1":"推荐"}, "edit":{"type":"radio", options:{"id":"my-daterange"}}, "createdCell":recommendToString},
                  {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
                 // 公共属性字段信息
