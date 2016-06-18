@@ -33,8 +33,6 @@ function createRadio(params, data, checked){
     return html
 }
 
-//
-
 // 生成select
 function createSelect(params, data, selected){
     var html = "", params = handleParams(params);
