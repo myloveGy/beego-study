@@ -291,7 +291,7 @@ var MeTable = (function($) {
 		}
 
 		// 向页面添加HTML
-    	$("body").append(Modal);
+        //$("body").append(Modal);
 	};
 
 	// 生成表格对象
@@ -476,9 +476,8 @@ var MeTable = (function($) {
 		if (this.actionType == "" && !in_array(this.actionType, ["insert", "update", "delete", "deleteAll", "insertDetail", "updateDetail", "deleteDetail"])) return false; // 类型验证
 		var self = this, sFormId = this.options.sFormId,sBaseUrl = self.options.sBaseUrl, sModal = self.options.sModal;														// 初始化数据
 		if (in_array(this.actionType, ["insertDetail", "updateDetail"])) sFormId = self.oDetails.sFormId, sBaseUrl = self.oDetails.sBaseUrl, sModal = self.oDetails.sModal; // 详情处理
-		 																																	// 确定操作类型
 		// 新增和修改验证数据、数据的处理
-		if (!in_array(this.actionType, ["delete", "deleteAll", "deleteDetail"])){if(!$(sFormId).validate(validatorError).form()){return false;}data = $(sFormId).serialize();data += "&actionType=" + this.actionType;}else{data.actionType = this.actionType;}
+		if (!in_array(this.actionType, ["delete", "deleteAll", "deleteDetail"])){if(!$(sFormId).validate(validatorError).form()){return false;}data = $(sFormId).serializeArray();data.push({"name":"actionType", "value":this.actionType})}else{data.actionType = this.actionType;}
 
 		var intLoad = layer.load();
 		// ajax提交数据

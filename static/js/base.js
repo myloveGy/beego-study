@@ -76,11 +76,20 @@ function createDatetime(params) {
         </div>';
 }
 
+// 时间段
+function createTimerange(params) {
+    return '<div class="input-daterange input-group"> \
+        <input type="text" class="input-sm form-control" name="start" /> \
+        <span class="input-group-addon"><i class="fa fa-exchange"></i></span> \
+        <input type="text" class="input-sm form-control" name="end" /> \
+        </div>'
+}
+
 // 添加时间段
 function createDaterange(params) {
     return '<div class="input-group"> \
         <span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span> \
-        <input class="form-control daterange" type="text" ' + handleParams(params) + ' /> \
+        <input class="form-control daterange-picker me-daterange" type="text" ' + handleParams(params) + ' /> \
         </div>';
 }
 
@@ -176,12 +185,6 @@ function createForm(k)
         if (k.edit.type == "checkbox") {
             k.edit.options['class'] = 'ace m-checkbox';
             k.edit.options['name']  = k.sName + '[]';
-        }
-
-        // 时间处理
-        if (k.edit.type == "time") {
-            if (!empty(k.value)) {k.edit.options["value"] = k.value}
-            k.edit.options["class"] += " time";
         }
 
         // 默认输入框处理

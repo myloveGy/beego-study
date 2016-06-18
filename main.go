@@ -7,7 +7,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	_ "project/routers"
-	"strings"
 )
 
 // 初始化处理
@@ -17,8 +16,6 @@ func init() {
 	db := fmt.Sprintf("%v:%v@/%v", mysql["dbuser"], mysql["dbpass"], mysql["dbname"])
 	orm.RegisterDataBase("default", "mysql", db)
 }
-
-
 
 // 执行主函数
 func main() {

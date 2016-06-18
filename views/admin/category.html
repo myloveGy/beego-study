@@ -1,76 +1,27 @@
-<div class="widget-box widget-color-blue ui-sortable-handle">
-    <div class="widget-header">
-
-        <h5 class="widget-title bigger lighter">
-            <i class="ace-icon fa fa-desktop"></i>
-            文章分类信息
-            <button class="btn btn-white btn-success btn-xs me-table-insert">
-                <i class="ace-icon fa fa-plus bigger-120 blue"></i>
-                添加
-            </button>
-            <button class="btn btn-white btn-warning btn-xs me-table-delete">
-                <i class="ace-icon fa fa-trash-o bigger-120 orange"></i>
-                删除
-            </button>
-            <button class="btn btn-white btn-primary btn-xs orange2 me-table-reload">
-                <i class="ace-icon fa fa-refresh bigger-120 orange"></i>
-                刷新
-            </button>
-            <button class="btn btn-white btn-info btn-xs me-table-insert-detail">
-                <i class="ace-icon fa fa-plus bigger-120 yellow"></i>
-                添加文章分类
-            </button>
-        </h5>
-
-        <!--颜色选择-->
-        <div class="widget-toolbar widget-toolbar-light no-border">
-            <select id="simple-colorpicker-1" class="hide">
-                <option selected="" data-class="blue" value="#307ECC">#307ECC</option>
-                <option data-class="blue2" value="#5090C1">#5090C1</option>
-                <option data-class="blue3" value="#6379AA">#6379AA</option>
-                <option data-class="green" value="#82AF6F">#82AF6F</option>
-                <option data-class="green2" value="#2E8965">#2E8965</option>
-                <option data-class="green3" value="#5FBC47">#5FBC47</option>
-                <option data-class="red" value="#E2755F">#E2755F</option>
-                <option data-class="red2" value="#E04141">#E04141</option>
-                <option data-class="red3" value="#D15B47">#D15B47</option>
-                <option data-class="orange" value="#FFC657">#FFC657</option>
-                <option data-class="purple" value="#7E6EB0">#7E6EB0</option>
-                <option data-class="pink" value="#CE6F9E">#CE6F9E</option>
-                <option data-class="dark" value="#404040">#404040</option>
-                <option data-class="grey" value="#848484">#848484</option>
-                <option data-class="default" value="#EEE">#EEE</option>
-            </select>
-        </div>
-
-        <!-- 默认操作按钮 -->
-        <div class="widget-toolbar no-border">
-            <a class="orange2" data-action="fullscreen" href="#">
-                <i class="ace-icon fa fa-expand"></i>
-            </a>
-            <a data-action="collapse" href="#">
-                <i class="ace-icon fa fa-chevron-up"></i>
-            </a>
-            <a class="me-hide" data-hide=".widget-box:first" href="#">
-                <i class="ace-icon fa fa-times white"></i>
-            </a>
-        </div>
-    </div>
-
-    <!--主要显示信息-->
-    <div class="widget-body">
-        <div class="widget-main no-padding">
-            <div class="row">
-                <div class="col-xs-12">
-                    <table id="showTable" class="table table-striped table-bordered table-hover" >
-                    </table>
-                </div>
-                <div class="col-xs-12 hidden">
-                    <table id="detailTable" class="table table-striped table-bordered table-hover" ></table>
-                </div>
-            </div>
-        </div>
-    </div>
+<p>
+    <button class="btn btn-white btn-success btn-bold me-table-insert">
+        <i class="ace-icon fa fa-plus bigger-120 blue"></i>
+        添加
+    </button>
+    <button class="btn btn-white btn-warning btn-bold me-table-delete">
+        <i class="ace-icon fa fa-trash-o bigger-120 orange"></i>
+        删除
+    </button>
+    <button class="btn btn-white btn-info btn-bold me-hide">
+        <i class="ace-icon fa  fa-external-link bigger-120 orange"></i>
+        隐藏
+    </button>
+    <button class="btn btn-white btn-primary btn-bold orange2 me-table-reload">
+        <i class="ace-icon fa fa-refresh bigger-120 orange"></i>
+        刷新
+    </button>
+    <input type="text" class="daterange-picker">
+</p>
+<div class="col-xs-12">
+    <table id="showTable" class="table table-striped table-bordered table-hover"></table>
+</div>
+<div class="col-xs-12 hidden">
+    <table id="detailTable" class="table table-striped table-bordered table-hover"></table>
 </div>
 <script type="text/javascript">
     var oParents = $.parseJSON({{.categorys}});
@@ -93,12 +44,12 @@
                 {"data":"status", "sName":"status","editTable":{validate:function(x){
                     var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
                 },},   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-                {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
+                {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"type":"daterange", options:{"id":"my-daterange"}}, "search":{"type":"daterange"}},
                  {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
                 // 公共属性字段信息
                 {"data":"create_time", "sName":"create_time","title":"创建时间", "edit":{"type" :"date"}, "createdCell":dateTimeString},
                 {"data":"create_id", "sName":"create_id", "title":"创建用户", "edit":{"type" :"datetime"}},
-                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"file", options:{"id":"myfile", type:"ace_input"}}, "createdCell":dateTimeString},
+                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"text", options:{"id":"myfile", type:"ace_input"}}, "createdCell":dateTimeString},
                 {"data":"update_id", "sName":"update_id", "title":"修改用户", "edit":{"type" :"time"},},
                 oOperate,
             ],
@@ -127,14 +78,44 @@
         // dataTable 初始化
         myTable.init();
 
-        // 表格样式转换
-        $('#simple-colorpicker-1').ace_colorpicker({pull_right:true}).on('change', function(){
-            var color_class = $(this).find('option:selected').data('class');
-            var new_class = 'widget-box';
-            if(color_class != 'default')  new_class += ' widget-color-'+color_class;
-            $(this).closest('.widget-box').attr('class', new_class);
+        // 文件上传
+        aceFileInput('#ace_myfile', '/admin/admin/upload');
+
+        // 时间显示
+        $('.date-picker').datepicker({
+            autoclose:true,
+            format:"yyyy-mm-dd",
+            todayHighlight: true,
+            language: 'zh-CN'
+        }).next().on(ace.click_event, function(){
+            $(this).prev().focus();
         });
 
-        aceFileInput('#ace_myfile', '/admin/admin/upload');
+        $('#my-daterange').daterangepicker({
+            'applyClass' : 'btn-sm btn-success',
+            'cancelClass' : 'btn-sm btn-default',
+            locale: {
+                applyLabel: '确定',
+                cancelLabel: '取消',
+            },
+            format:'YYYY-DD-MM hh:mm A',
+        }, function(start, end, label) {
+             $('#my-daterange').val(start.format('YYYY-MM-DD') + '-' + end.format('YYYY-MM-DD'));
+        });
+
+
+        $('.input-daterange').datepicker({autoclose:true,format:"yyyy-mm-dd", todayHighlight: true, language: 'zh-CN'});
+
+
+        $('.time-picker').timepicker({
+            minuteStep: 1,
+            showSeconds: true,
+            showMeridian: false
+        });
+
+        $('.datetime-picker').datetimepicker({
+                format:'YYYY-MM-DD hh:mm:ss',
+                language:"zh-CN",
+        });
     });
 </script>

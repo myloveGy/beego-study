@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="/static/assets/css/jquery.gritter.css" />
     <link rel="stylesheet" href="/static/assets/css/select2.css" />
     <link rel="stylesheet" href="/static/assets/css/datepicker.css" />
+    <link rel="stylesheet" href="/static/assets/css/bootstrap-timepicker.css" />
+    <link rel="stylesheet" href="/static/assets/css/daterangepicker.css" />
+    <link rel="stylesheet" href="/static/assets/css/bootstrap-datetimepicker.css" />
     <link rel="stylesheet" href="/static/assets/css/bootstrap-editable.css" />
     <!-- text fonts -->
     <link rel="stylesheet" href="/static/assets/css/ace-fonts.css" />
@@ -340,19 +343,20 @@
 </div>
 <script src="/static/assets/js/jquery-ui.custom.min.js"></script>
 <script src="/static/assets/js/jquery.ui.touch-punch.min.js"></script>
+<script src="/static/assets/js/chosen.jquery.min.js"></script>
+<script src="/static/assets/js/fuelux/fuelux.spinner.min.js"></script>
 <script src="/static/assets/js/jquery.gritter.min.js"></script>
 <script src="/static/assets/js/bootbox.min.js"></script>
 <script src="/static/assets/js/jquery.easypiechart.min.js"></script>
-<script src="/static/assets/js/date-time/moment.min.js"></script>
 <script src="/static/assets/js/date-time/bootstrap-datepicker.min.js"></script>
-<script src="/static/assets/js/date-time/bootstrap-datetimepicker.min.js"></script>
 <script src="/static/assets/js/date-time/bootstrap-timepicker.min.js"></script>
+<script src="/static/assets/js/date-time/moment.min.js"></script>
 <script src="/static/assets/js/date-time/daterangepicker.min.js"></script>
+<script src="/static/assets/js/date-time/bootstrap-datetimepicker.min.js"></script>
 <script src="/static/assets/js/date-time/locales/bootstrap-datepicker.zh-CN.js"></script>
 <script src="/static/assets/js/jquery.hotkeys.min.js"></script>
 <script src="/static/assets/js/bootstrap-wysiwyg.min.js"></script>
 <script src="/static/assets/js/select2.min.js"></script>
-<script src="/static/assets/js/fuelux/fuelux.spinner.min.js"></script>
 <script src="/static/assets/js/x-editable/bootstrap-editable.min.js"></script>
 <script src="/static/assets/js/x-editable/ace-editable.min.js"></script>
 <script src="/static/assets/js/jquery.maskedinput.min.js"></script>
@@ -374,7 +378,7 @@
             evt.preventDefault();
             var sDataHide = $(this).attr('data-hide'),
                 $parent   = empty(sDataHide) ? $(this).parent().parent().fadeOut() : $(sDataHide).fadeOut();
-            $(select).children('a').append('<span class="badge badge-primary tooltip-error" title="显示">显示</span>').bind('click', function (e) {
+            $(select).append('<span class="badge badge-primary tooltip-error" title="显示">显示</span>').bind('click', function (e) {
                 e.preventDefault();
                 $parent.fadeIn();
                 $(this).unbind('click').find('span:last').remove();
