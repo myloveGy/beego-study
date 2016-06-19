@@ -50,7 +50,7 @@
                 // 公共属性字段信息
                 {"data":"create_time", "sName":"create_time","title":"创建时间", "edit":{"type" :"date"}, "createdCell":dateTimeString},
                 {"data":"create_id", "sName":"create_id", "title":"创建用户", "edit":{"type" :"datetime"}},
-                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"text", options:{"id":"myfile", type:"ace_input"}}, "createdCell":dateTimeString},
+                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"file", options:{"id":"myfile", type:"ace_input"}}, "createdCell":dateTimeString},
                 {"data":"update_id", "sName":"update_id", "title":"修改用户", "edit":{"type" :"time"},},
                 oOperate,
             ],
@@ -74,13 +74,26 @@
             }
         });
 
+    // 显示之前的处理
+    myTable.beforeShow = function(data, isDetail) {
+        // 新增
+        if (this.actionType == 'insert') $("#ace_myfile").ace_file_input("reset_input");
+        // 修改复值
+        if (this.actionType == 'update' && ! empty(data.update_time)) $("#ace_myfile").ace_file_input("show_file_list", ['my.gif'])
+        return true;
+    };
+
     // 页面加载完成
     $(function() {
         // dataTable 初始化
         myTable.init();
 
         // 文件上传
-        aceFileInput('#ace_myfile', '/admin/admin/upload');
+        aceFileInput('#ace_myfile', '/admin/admin/upload', false, {"before_remove":function(){
+            if ($("#myfile").val()){ $.post('/admin/admin/upload', {"update_time":$("#myfile").val()})}
+            $("#myfile").val('');
+            return true;
+        }});
 
         // 时间显示
         $('.date-picker').datepicker({
@@ -88,21 +101,6 @@
             format:"yyyy-mm-dd",
             todayHighlight: true,
             language: 'zh-CN'
-        }).next().on(ace.click_event, function(){
-            $(this).prev().focus();
-        });
-
-        // 时间段选择
-        $('#my-daterange').daterangepicker({
-            'applyClass' : 'btn-sm btn-success',
-            'cancelClass' : 'btn-sm btn-default',
-            locale: {
-                applyLabel: '确定',
-                cancelLabel: '取消',
-            },
-            format:'YYYY-DD-MM hh:mm A',
-        }, function(start, end, label) {
-             $('#my-daterange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
         });
 
         // 时间选择
@@ -116,6 +114,19 @@
         $('.datetime-picker').datetimepicker({
             format:'YYYY-MM-DD hh:mm:ss A',
             language:"zh-CN",
+        });
+
+        // 时间段选择
+        $('#my-daterange').daterangepicker({
+            'applyClass' : 'btn-sm btn-success',
+            'cancelClass' : 'btn-sm btn-default',
+            locale: {
+                applyLabel: '确定',
+                cancelLabel: '取消',
+            },
+            format:'YYYY-DD-MM hh:mm A',
+        }, function(start, end, label) {
+             $('#my-daterange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
         });
     });
 </script>

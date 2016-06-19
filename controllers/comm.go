@@ -8,6 +8,9 @@ import (
 	"github.com/astaxie/beego/cache"
 	"time"
 	"strconv"
+	"math/rand"
+	"path"
+	"os"
 )
 
 // 表格返回数据
@@ -242,6 +245,57 @@ func (this *CommController) BaseUpdate(object interface{}, table string) {
 				}
 			}
 		}
+	}
+
+	this.AjaxReturn()
+}
+
+// 图片删除处理
+func (this *CommController) BaseUpload(filename, pathname string, allowType []string, size int32, oldFile string) {
+	this.E = ArrError{Status: 0, Msg: "没有文件上传!", Data: nil}
+
+	oldPath := this.GetString(oldFile)
+	if oldPath != "" {
+		// 删除之前的文件
+		_ = os.Remove("." + oldPath)
+	}
+
+	f, h, err := this.GetFile(filename)
+	if err == nil {
+		defer f.Close()
+		file := path.Ext(h.Filename)
+		this.E.Msg = "上传文件格式不对"
+		if InArray(allowType, file) {
+			this.E.Msg = "上传文件不能超过过大"
+			if 1024*1024*2 > f.(Sizer).Size() {
+				// 处理上传目录
+				dirName := "./static/uploads/" + pathname
+
+				// 目录不存在创建
+				if !isDirExists(dirName) {
+					err = os.MkdirAll(dirName, 0777)
+				}
+
+				this.E.Msg = "创建目录失败 :( " + dirName
+
+				// 创建目录失败
+				if err == nil {
+					// 文件最终保存的地址
+					fileName := dirName + "/" + strconv.Itoa(rand.Int()) + file
+					err = this.SaveToFile(filename, fileName)
+					if err == nil {
+						this.E.Status = 1
+						this.E.Msg = "文件上传成功"
+						this.E.Data = map[string]string{"fileName": h.Filename, "fileUrl": fileName[1:]}
+					} else {
+						this.E.Msg = err.Error()
+					}
+				}
+
+			}
+		}
+	} else {
+		this.E.Msg = err.Error()
 	}
 
 	this.AjaxReturn()
