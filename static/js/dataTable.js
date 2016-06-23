@@ -370,6 +370,8 @@ var MeTable = (function($) {
 			m = ! isDetail ? this.options.sModal  : this.oDetails.sModal;  // modal
 		if ( ! isDetail) $(m).find('h4').html(this.options.sTitle + (this.actionType == "insert" ? "新增" : "编辑"));
 		InitForm(f, data);					// 初始化表单
+		// 显示之后的处理
+		if (typeof this.afterShow == 'function' && ! this.afterShow(data, isDetail)) return false;
 		$(m).modal({backdrop: "static"});   // 弹出信息
 	};
 

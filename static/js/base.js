@@ -191,8 +191,7 @@ function createForm(k)
         if (k.edit.type == "text") if (!empty(k.value)) k.edit.options["value"] = k.value
 
         // 使用函数
-        var func = 'create' + k.edit.type.substr(0, 1).toUpperCase() + k.edit.type.substr(1);
-        form += window[func](k.edit.options, k.value, k.edit.default) + '</div></div>';
+        form += window['create' + ucfirst(k.edit.type)](k.edit.options, k.value, k.edit.default) + '</div></div>';
     }
 
     return form;
