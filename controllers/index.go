@@ -3,14 +3,17 @@ package controllers
 import (
 	"crypto/sha1"
 	"fmt"
-	"github.com/astaxie/beego/orm"
 	"io"
+	"log"
 	"math/rand"
 	"os"
 	"path"
-	"project/models"
 	"strconv"
 	"time"
+
+	"github.com/astaxie/beego/orm"
+
+	"project/models"
 )
 
 // 首页控制器
@@ -31,7 +34,8 @@ func (this *IndexController) Get() {
 	// 查询轮播图片
 	_, err := orm.NewOrm().Raw("SELECT `title`, `desc`, `url` FROM `my_image` WHERE `type` = ? AND `status` = ?", 1, 1).QueryRows(&imgs)
 	if err != nil {
-		this.Redirect("/", 302)
+		log.Println(err)
+		// this.Redirect("/", 302)
 	}
 
 	this.Data["images"] = imgs
@@ -130,9 +134,10 @@ func (this *IndexController) Image() {
 	var maps []orm.Params
 	if _, err := orm.NewOrm().Raw("SELECT `title`, `url` FROM `my_image` WHERE `status` = ?", 1).Values(&maps); err == nil {
 		this.Data["images"] = maps
-		this.Data["action"] = "image"
-		this.TplName = "home/image.html"
 	}
+
+	this.Data["action"] = "image"
+	this.TplName = "home/image.html"
 }
 
 // 新增文章信息

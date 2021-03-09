@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-//	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"time"
 )
@@ -153,7 +152,7 @@ func Update(object interface{}) (num int64, err error) {
 	} else {
 		// 不存在自定义的修改方法，那么执行默认的修改方法
 		me := v.Elem()
-		t  := reflect.ValueOf(time.Now().Unix())
+		t := reflect.ValueOf(time.Now().Unix())
 		mt := me.FieldByName("UpdateTime")
 
 		// 修改时间

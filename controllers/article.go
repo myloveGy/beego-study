@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"log"
+
 	"github.com/astaxie/beego/orm"
 	"project/models"
 )
@@ -17,8 +19,8 @@ func (this *ArticleController) Index() {
 
 func (this *ArticleController) View() {
 	var article, next, prev models.Article
-	if orm.NewOrm().Raw("SELECT `id`, `title`, `content`, `img`, `create_time`, `see_num`, `comment_num` FROM `my_article` WHERE `status` = ? AND `id` = ? LIMIT 1", 1, this.Ctx.Input.Param(":id")).QueryRow(&article) != nil {
-		this.Redirect("/", 302)
+	if err := orm.NewOrm().Raw("SELECT `id`, `title`, `content`, `img`, `create_time`, `see_num`, `comment_num` FROM `my_article` WHERE `status` = ? AND `id` = ? LIMIT 1", 1, this.Ctx.Input.Param(":id")).QueryRow(&article); err != nil {
+		log.Println(err)
 	}
 
 	// 上一篇
