@@ -169,7 +169,7 @@
 <div id="login" class="hidden ">
     <div class="container-fluid">
         <div class="row" style="margin:30px auto 5px auto">
-            <form class="form-horizontal user-login" name="login" onsubmit="return userLogin(this);">
+            <form class="form-horizontal user-login" name="login" onsubmit="return userLogin(c);">
                 <div class="form-group">
                     <label for="username" class="col-sm-3 control-label">用户名：</label>
                     <div class="col-sm-8">
@@ -325,7 +325,7 @@
         // 回顶部自动判断
         $(window).scroll(function(){if ($(window).scrollTop() > 250){$('#tbox').fadeIn();}else{$('#tbox').fadeOut();}});
         // 时间显示
-        $('.time').each(function(){$(this).html(timeFormat(parseInt($(this).html())))});
+        $('.time').each(function(){$(c).html(timeFormat(parseInt($(c).html())))});
         // 回到顶部
         $('#gotop').click(function(){$('body,html').animate({scrollTop:0},1000);});
         // 弹出model

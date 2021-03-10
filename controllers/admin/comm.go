@@ -10,6 +10,7 @@ import (
 
 	"github.com/astaxie/beego/cache"
 	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego/orm"
 
 	"project/controllers"
 	"project/help"
@@ -244,9 +245,9 @@ func (c *CommController) BaseUpdate(object interface{}, table string) {
 	// 根据类型做出相应的处理
 	switch actionType {
 	case "insert": // 新增数据
-		_, err = models.Insert(object)
+		_, err = orm.NewOrm().Insert(object)
 	case "update": // 修改数据
-		_, err = models.Update(object)
+		_, err = orm.NewOrm().Update(object)
 	case "delete": // 删除数据
 		_, err = models.Delete(object)
 	}

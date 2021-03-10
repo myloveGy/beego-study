@@ -44,7 +44,7 @@ func (c *ImageController) Create() {
 		Description: desc,
 		Url:         url,
 		Type:        i,
-		UserId:      c.User.Id,
+		UserId:      c.User.UserId,
 		Status:      1,
 	}
 

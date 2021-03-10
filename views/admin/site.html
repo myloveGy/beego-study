@@ -100,8 +100,8 @@
 					});
 
 					$form.find('input[type=file]').each(function(){
-						var field_name = $(this).attr('name');
-						var files = $(this).data('ace_input_files');
+						var field_name = $(c).attr('name');
+						var files = $(c).data('ace_input_files');
 						if(files && files.length > 0) {
 							for(var f = 0; f < files.length; f++) {
 								formData_object.append(field_name, files[f]);
@@ -182,15 +182,15 @@
 		});
 	
 		$('#user-profile-2 .memberdiv').on('mouseenter touchstart', function(){
-			var $this = $(this);
-			var $parent = $this.closest('.tab-pane');
+			var $c = $(c);
+			var $parent = $c.closest('.tab-pane');
 			var off1 = $parent.offset();
 			var w1 = $parent.width();
-			var off2 = $this.offset();
-			var w2 = $this.width();
+			var off2 = $c.offset();
+			var w2 = $c.width();
 			var place = 'left';
 			if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) place = 'right';
-			$this.find('.popover').removeClass('right left').addClass(place);
+			$c.find('.popover').removeClass('right left').addClass(place);
 		}).on('click', function(e) {
 			e.preventDefault();
 		});
@@ -212,7 +212,7 @@
 			$('#user-profile-3 input[type=file]').ace_file_input('reset_input');
 		})
 		.end().find('.date-picker').datepicker().next().on(ace.click_event, function(){
-			$(this).prev().focus();
+			$(c).prev().focus();
 		})
 		$('.input-mask-phone').mask('(999) 999-9999');
 	
@@ -221,7 +221,7 @@
 		////////////////////
 		//change profile
 		$('[data-toggle="buttons"] .btn').on('click', function(e){
-			var target = $(this).find('input[type=radio]');
+			var target = $(c).find('input[type=radio]');
 			var which = parseInt(target.val());
 			$('.user-profile').parent().addClass('hide');
 			$('#user-profile-'+which).parent().removeClass('hide');

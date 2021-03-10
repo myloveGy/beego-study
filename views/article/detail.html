@@ -23,7 +23,7 @@
     {{if ne .prev.Title ""}}
     <span class="glyphicon glyphicon-arrow-left pull-left p-10" aria-hidden="true">
         上一篇：
-        <a href="/article/view/{{.prev.Id}}">
+        <a href="/article/detail/{{.prev.Id}}">
             {{substr .prev.Title 0 30}}
         </a>
     </span>
@@ -31,7 +31,7 @@
     {{if ne .next.Title ""}}
     <span class="glyphicon glyphicon-arrow-right pull-right p-10" aria-hidden="true">
         下一篇：
-        <a href="/article/view/{{.next.Id}}">
+        <a href="/article/detail/{{.next.Id}}">
             {{substr .next.Title 0 30}}
         </a>
     </span>

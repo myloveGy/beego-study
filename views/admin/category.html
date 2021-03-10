@@ -77,9 +77,9 @@
     // 显示之前的处理
     myTable.beforeShow = function(data, isDetail) {
         // 新增
-        if (this.actionType == 'insert') $("#ace_myfile").ace_file_input("reset_input");
+        if (c.actionType == 'insert') $("#ace_myfile").ace_file_input("reset_input");
         // 修改复值
-        if (this.actionType == 'update' && ! empty(data.update_time)) $("#ace_myfile").ace_file_input("show_file_list", ['my.gif'])
+        if (c.actionType == 'update' && ! empty(data.update_time)) $("#ace_myfile").ace_file_input("show_file_list", ['my.gif'])
         return true;
     };
 

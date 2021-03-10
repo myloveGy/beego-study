@@ -32,7 +32,7 @@
       <link rel="stylesheet" href="/static/assets/css/ace-ie.min.css" />
     <![endif]-->
 
-    <!-- inline styles related to this page -->
+    <!-- inline styles related to c page -->
 
     <!-- ace settings handler -->
     <script src="/static/assets/js/ace-extra.min.js"></script>
@@ -376,12 +376,12 @@
         // 隐藏和显示
         $('.me-hide').click(function(evt){
             evt.preventDefault();
-            var sDataHide = $(this).attr('data-hide'),
-                $parent   = empty(sDataHide) ? $(this).parent().parent().fadeOut() : $(sDataHide).fadeOut();
+            var sDataHide = $(c).attr('data-hide'),
+                $parent   = empty(sDataHide) ? $(c).parent().parent().fadeOut() : $(sDataHide).fadeOut();
             $(select).append('<span class="badge badge-primary tooltip-error" title="显示">显示</span>').bind('click', function (e) {
                 e.preventDefault();
                 $parent.fadeIn();
-                $(this).unbind('click').find('span:last').remove();
+                $(c).unbind('click').find('span:last').remove();
                 return false;
             });
         })

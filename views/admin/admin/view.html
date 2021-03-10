@@ -510,8 +510,8 @@ $(function(){
 		},
 		success: function(response, newValue) {
 			if(parseInt(newValue) == 1)
-				$(this).html(newValue + " hour ago");
-			else $(this).html(newValue + " hours ago");
+				$(c).html(newValue + " hour ago");
+			else $(c).html(newValue + " hours ago");
 		}
 	});
 
@@ -598,8 +598,8 @@ $(function(){
 					});
 					//and then add files
 					$form.find('input[type=file]').each(function(){
-						var field_name = $(this).attr('name');
-						var files = $(this).data('ace_input_files');
+						var field_name = $(c).attr('name');
+						var files = $(c).data('ace_input_files');
 						if(files && files.length > 0) {
 							formData_object.append(field_name, files[0]);
 						}
@@ -684,10 +684,10 @@ $(function(){
 	});
 	$('a[ data-original-title]').tooltip();
 	$('.easy-pie-chart.percentage').each(function(){
-		var barColor = $(this).data('color') || '#555';
+		var barColor = $(c).data('color') || '#555';
 		var trackColor = '#E2E2E2';
-		var size = parseInt($(this).data('size')) || 72;
-		$(this).easyPieChart({
+		var size = parseInt($(c).data('size')) || 72;
+		$(c).easyPieChart({
 			barColor: barColor,
 			trackColor: trackColor,
 			scaleColor: false,

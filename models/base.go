@@ -7,12 +7,11 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/orm"
-	"time"
 )
 
 // 初始化注册
 func init() {
-	orm.RegisterModel(new(Menu), new(Category), new(Image), new(Article))
+	orm.RegisterModel(new(Menu), new(Category), new(Image), new(Article), new(Admin))
 }
 
 // 查询对象信息
@@ -91,86 +90,6 @@ func All(data interface{}, query QueryOther) (total int64, err error) {
 func One(data interface{}, query QueryOther) error {
 	qs := Find(query)
 	return qs.One(data)
-}
-
-// 新增数据
-func Insert(object interface{}) (id int64, err error) {
-	v := reflect.ValueOf(object)
-	f := v.MethodByName("BeforeInsert")
-	// 执行新增之前
-	if f.IsValid() {
-		m := f.Call([]reflect.Value{})
-		// 存在错误直接返回
-		if str := m[0].String(); str != "" {
-			err = errors.New(str)
-			return
-		}
-	} else {
-		// 修改字段
-		me := v.Elem()
-		mt := me.FieldByName("CreateTime")
-		t := reflect.ValueOf(time.Now().Unix())
-
-		// 开始时间
-		if mt.IsValid() && mt.CanSet() {
-			mt.Set(t)
-		}
-
-		// 修改时间
-		mt = me.FieldByName("UpdateTime")
-		if mt.IsValid() && mt.CanSet() {
-			mt.Set(t)
-		}
-	}
-
-	// 执行新增
-	id, err = orm.NewOrm().Insert(object)
-
-	// 新增成功执行新增之后的处理
-	if err == nil {
-		a := v.MethodByName("AfterInsert")
-		if a.IsValid() {
-			f.Call([]reflect.Value{})
-		}
-	}
-	return
-}
-
-// 修改数据
-func Update(object interface{}) (num int64, err error) {
-	v := reflect.ValueOf(object)
-	f := v.MethodByName("BeforeUpdate")
-	// 执行修改之前
-	if f.IsValid() {
-		m := f.Call([]reflect.Value{})
-		// 存在错误直接返回
-		if str := m[0].String(); str != "" {
-			err = errors.New(str)
-			return
-		}
-	} else {
-		// 不存在自定义的修改方法，那么执行默认的修改方法
-		me := v.Elem()
-		t := reflect.ValueOf(time.Now().Unix())
-		mt := me.FieldByName("UpdateTime")
-
-		// 修改时间
-		if mt.IsValid() && mt.CanSet() {
-			mt.Set(t)
-		}
-	}
-
-	// 执行修改
-	num, err = orm.NewOrm().Update(object)
-
-	// 执行修改之后
-	if err == nil {
-		a := v.MethodByName("AfterUpdate")
-		if a.IsValid() {
-			f.Call([]reflect.Value{})
-		}
-	}
-	return
 }
 
 // 删除数据

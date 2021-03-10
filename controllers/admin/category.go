@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego/orm"
 
 	"project/controllers"
 	"project/models"
@@ -147,7 +148,7 @@ func (c *CategoryController) Inline() {
 
 	if tempName.CanSet() {
 		tempName.Set(reflect.ValueOf(tv))
-		if _, err = models.Update(&cate); err != nil {
+		if _, err = orm.NewOrm().Update(&cate, name); err != nil {
 			c.Error(controllers.CodeBusinessError, "修改失败", nil)
 			return
 		}

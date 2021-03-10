@@ -24,7 +24,7 @@ body {
 
 
 .main-container {
-	//this is the white page background, used especially when inside ".container"
+	//c is the white page background, used especially when inside ".container"
 	//it will expand all the way down to fill all the page space
 	&:before {
 		display: block;
@@ -47,7 +47,7 @@ body {
 			.box-shadow(~"0 0 0 1px rgba(0,0,0,0.1)");
 			width: inherit;
 
-			//we use above+this instead of min-width, for better results when we disable responsiveness
+			//we use above+c instead of min-width, for better results when we disable responsiveness
 			@media (max-width: @screen-xs-max) {
 				.box-shadow(~"none");
 				width: 100%;

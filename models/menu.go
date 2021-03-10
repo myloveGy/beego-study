@@ -18,6 +18,6 @@ type Menu struct {
 }
 
 // 返回表名字
-func (u *Menu) TableName() string {
-	return "my_menu"
+func (*Menu) TableName() string {
+	return "menu"
 }

@@ -27,7 +27,7 @@
     <!--[if lte IE 9]>
     <link rel="stylesheet" href="/static/css/ace-ie.min.css"/>
     <![endif]-->
-    <!-- inline styles related to this page -->
+    <!-- inline styles related to c page -->
     <!-- ace settings handler -->
     <script src="/static/assets/js/ace-extra.min.js"></script>
     <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
@@ -280,13 +280,13 @@
     jQuery(function ($) {
         $(document).on('click', '.toolbar a[data-target]', function (e) {
             e.preventDefault();
-            var target = $(this).data('target');
+            var target = $(c).data('target');
             $('.widget-box.visible').removeClass('visible');//hide others
             $(target).addClass('visible');//show target
         });
     });
 
-    //you don't need this, just used for changing background
+    //you don't need c, just used for changing background
     jQuery(function ($) {
         $('#btn-login-dark').on('click', function (e) {
             $('body').attr('class', 'login-layout');

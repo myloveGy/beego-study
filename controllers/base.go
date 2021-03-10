@@ -15,7 +15,7 @@ const (
 
 // 用户数据
 type User struct {
-	Id       int64  `json:"id"`
+	UserId   int64  `json:"user_id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Status   int    `json:"status"`
@@ -41,7 +41,7 @@ func (this *BaseController) IsLogin(str string) bool {
 	}
 
 	this.User = user.(User)
-	return this.User.Id > 0
+	return this.User.UserId > 0
 }
 
 func (b *BaseController) Error(code int, msg string, data interface{}) {

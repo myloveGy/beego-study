@@ -14,20 +14,19 @@ type ArticleController struct {
 	HomeController
 }
 
+// Index 文章列表
 func (a *ArticleController) Index() {
 	a.Data["action"] = "article"
-	a.TplName = "home/article.html"
 }
 
-func (a *ArticleController) View() {
+// View 文章详情
+func (a *ArticleController) Detail() {
 	var (
 		article, next, prev models.Article
 		o                   = orm.NewOrm()
 	)
 
 	a.Data["action"] = "article"
-	a.TplName = "home/article_view.html"
-
 	id := a.Ctx.Input.Param("0")
 	if id == "" {
 		return
@@ -60,6 +59,7 @@ func (a *ArticleController) View() {
 	a.Data["prev"] = prev
 }
 
+// List 文章列表
 func (a *ArticleController) List() {
 	var (
 		err         error
@@ -107,4 +107,59 @@ func (a *ArticleController) List() {
 	m["aData"] = articleList
 
 	a.Success(m, "success")
+}
+
+// Image 请求获取图片文章信息
+func (i *ArticleController) Image() {
+	// 初始化返回
+	var (
+		start, length int
+		total         int64
+		err           error
+	)
+
+	// 接收参数
+	start, err = i.GetInt("iStart")
+	if err != nil {
+		i.Error(CodeMissingParams, "参数为空", nil)
+		return
+	}
+
+	length, err = i.GetInt("iLength")
+	if err != nil {
+		i.Error(CodeMissingParams, "参数为空", nil)
+		return
+	}
+
+	var articleList []models.Article
+	m := map[string]interface{}{
+		"iTotal":        0,
+		"iTotalRecords": 0,
+		"aData":         articleList,
+	}
+
+	o := orm.NewOrm()
+	// 查询数据总条数
+	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).FilterRaw("img", "!= ''").Count()
+	if err != nil {
+		i.Error(CodeBusinessError, "查询数据为空", nil)
+		return
+	}
+
+	// 查询文章
+	if _, err := o.QueryTable(&models.Article{}).
+		Filter("status", 1).
+		FilterRaw("img", "!= ''").
+		OrderBy("-id").
+		Limit(length, start).
+		All(&articleList); err != nil {
+		i.Error(CodeBusinessError, "查询数据出错", nil)
+		return
+	}
+
+	m["iTotal"] = total
+	m["iTotalRecords"] = len(articleList)
+	m["aData"] = articleList
+
+	i.Success(m, "")
 }

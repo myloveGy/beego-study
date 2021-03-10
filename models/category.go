@@ -19,5 +19,5 @@ type Category struct {
 
 // 返回表名字
 func (*Category) TableName() string {
-	return "my_category"
+	return "category"
 }
