@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/astaxie/beego/orm"
 
@@ -19,22 +20,44 @@ func (a *ArticleController) Index() {
 }
 
 func (a *ArticleController) View() {
-	var article, next, prev models.Article
-	if err := orm.NewOrm().Raw("SELECT `id`, `title`, `content`, `img`, `create_time`, `see_num`, `comment_num` FROM `my_article` WHERE `status` = ? AND `id` = ? LIMIT 1", 1, a.Ctx.Input.Param(":id")).QueryRow(&article); err != nil {
-		log.Println(err)
+	var (
+		article, next, prev models.Article
+		o                   = orm.NewOrm()
+	)
+
+	a.Data["action"] = "article"
+	a.TplName = "home/article_view.html"
+
+	id := a.Ctx.Input.Param("0")
+	if id == "" {
+		return
+	}
+
+	article.Id, _ = strconv.ParseInt(id, 10, 64)
+	if article.Id > 0 {
+		if err := o.Read(&article); err != nil {
+			log.Println(err)
+		}
 	}
 
 	// 上一篇
-	_ = orm.NewOrm().Raw("SELECT `id`, `title` FROM `my_article` WHERE `status` = ? AND `id` < ? ORDER BY `id` DESC LIMIT 1", 1, article.Id).QueryRow(&prev)
+	_ = o.QueryTable(&prev).
+		Filter("status", 1).
+		Filter("id__lt", article.Id).
+		OrderBy("-id").
+		Limit(1).
+		One(&prev)
 
 	// 下一篇
-	_ = orm.NewOrm().Raw("SELECT `id`, `title` FROM `my_article` WHERE `status` = ? AND `id` > ? ORDER BY `id` ASC LIMIT 1", 1, article.Id).QueryRow(&next)
+	_ = o.QueryTable(&next).
+		Filter("status", 1).
+		Filter("id__gt", article.Id).
+		OrderBy("id").Limit(1).
+		One(&next)
 
 	a.Data["article"] = article
 	a.Data["next"] = next
 	a.Data["prev"] = prev
-	a.Data["action"] = "article"
-	a.TplName = "home/article_view.html"
 }
 
 func (a *ArticleController) List() {

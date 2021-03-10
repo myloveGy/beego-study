@@ -1,25 +1,26 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
 	"time"
+
+	"github.com/astaxie/beego/orm"
 )
 
 // 定义文章模型
 type Article struct {
-	Id         int64  `orm:"column(id);auto;pk"json:"id"`
-	Title      string `orm:"column(title);"form:"title"json:"title"`
-	Content    string `orm:"column(content);"form:"content"json:"content"`
-	Img        string `orm:"column(img);"form:"img"json:"img"`
-	Type       int    `orm:"column(type);default(1)"json:"type"`
-	SeeNum     int    `orm:"column(see_num)"json:"see_num"`
-	CommentNum int    `orm:"column(comment_num)"json:"comment_num"`
-	Recommend  int    `orm:"column(recommend)"json:"recommend"`
+	Id         int64  `orm:"column(id);auto;pk" json:"id"`
+	Title      string `orm:"column(title);" form:"title" json:"title"`
+	Content    string `orm:"column(content);" form:"content" json:"content"`
+	Img        string `orm:"column(img);" form:"img" json:"img"`
+	Type       int    `orm:"column(type);default(1)" json:"type"`
+	SeeNum     int    `orm:"column(see_num)" json:"see_num"`
+	CommentNum int    `orm:"column(comment_num)" json:"comment_num"`
+	Recommend  int    `orm:"column(recommend)" json:"recommend"`
 	Status     int    `orm:"column(status);default(1)"json:"status"`
-	CreateTime int64  `orm:"column(create_time)"json:"create_time"`
-	CreateId   int64  `orm:"column(create_id)"json:"create_id"`
-	UpdateTime int64  `orm:"column(update_time)"json:"update_time"`
-	UpdateId   int64  `orm:"column(update_id)"json:"update_id"`
+	CreateTime int64  `orm:"column(create_time)" json:"create_time"`
+	CreateId   int64  `orm:"column(create_id)" json:"create_id"`
+	UpdateTime int64  `orm:"column(update_time)" json:"update_time"`
+	UpdateId   int64  `orm:"column(update_id)" json:"update_id"`
 }
 
 func (u *Article) TableName() string {

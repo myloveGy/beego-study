@@ -17,7 +17,7 @@ var MePage = (function($){
 				last  : '尾页'
 			},
 			callback:function(data, size) {
-				layer.msg('success !');
+				layer.msg('success!');
 			}
 		};
 
@@ -51,7 +51,7 @@ var MePage = (function($){
 			data : this.Params,
 			success:function(data) {
 				layer.close(self.load)
-				if (data.status == 1 && data.data != undefined && data.data != null)
+				if (data.code === 10000 && data.data !== undefined && data.data !== null)
 				{
 					self.aData = data.data;
 					self.options.callback(data.data.aData, data.data.iTotalRecords);
@@ -110,7 +110,7 @@ var MePage = (function($){
 
 	// 指定跳转到那一页
 	MePage.prototype.skip = function(params) {
-		typeof params == 'string' ? (params == 'prev' ? this._iCurr -- : this._iCurr ++) : this._iCurr = params;
+		typeof params == 'string' ? (params === 'prev' ? this._iCurr -- : this._iCurr ++) : this._iCurr = params;
 		this.current();
 		this.ajax();
 	};

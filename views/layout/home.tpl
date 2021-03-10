@@ -58,7 +58,11 @@
                         <li><a href="javascript:;" class="file-upload is-user">上传图片</a></li>
                     </ul>
                 </li>
-                <li class="is-login"><a href="javascript:;" class="logout"><span class="text-danger">退出</span></a></li>
+                <li class="is-login">
+                    <a href="javascript:;" class="logout">
+                        <span class="text-danger">退出</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
@@ -113,7 +117,7 @@
                     </div>
                     <div class="tab-pane fade" id="recommend">
                         <ul>
-                        {{range $.comms}}
+                        {{range $.commList}}
                             <li><a href="/article/view/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
                         {{end}} 
                         </ul>
@@ -122,10 +126,10 @@
                 <!--ms-main end -->
             </div>
             <!--切换卡 moreSelect end -->
-            <div class="tuwen">
+            <div class="tu-wen">
                 <h3>图文推荐</h3>
                 <ul>
-                    {{range $.imgs}}
+                    {{range $.imgList}}
                     <li>
                         <a href="/article/view/{{.Id}}">
                             <img width="75px" height="70px" src="{{.Img}}" />
