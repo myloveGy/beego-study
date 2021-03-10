@@ -11,6 +11,7 @@ import (
 
 	"project/controllers"
 	"project/help"
+	"project/models"
 )
 
 type ImageController struct {
@@ -38,23 +39,19 @@ func (c *ImageController) Create() {
 		return
 	}
 
-	t := time.Now().Unix()
-	if _, err := orm.NewOrm().Raw(
-		"INSERT INTO `my_image` (`title`, `desc`, `url`, `type`, `create_time`, `create_id`, `update_time`, `update_id`) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-		title,
-		desc,
-		url,
-		i,
-		t,
-		c.User.Id,
-		t,
-		c.User.Id,
-	).Exec(); err != nil {
+	image := &models.Image{
+		Title:       title,
+		Description: desc,
+		Url:         url,
+		Type:        i,
+		UserId:      c.User.Id,
+	}
+	if _, err := orm.NewOrm().Insert(image); err != nil {
 		c.Error(controllers.CodeSystemError, "添加失败", nil)
 		return
 	}
 
-	c.Success(nil, "添加成功")
+	c.Success(image, "添加成功")
 }
 
 // Upload 图片上传
@@ -111,7 +108,7 @@ func (c *ImageController) Upload() {
 		os.Remove("./" + oldFile)
 	}
 
-	data := map[string]string{"image": h.Filename, "fileDir": fileName[1:]}
+	data := map[string]string{"image": h.Filename, "path": fileName[1:]}
 	c.Success(data, "图片上传成功")
 	return
 }

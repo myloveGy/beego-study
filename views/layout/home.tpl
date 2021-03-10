@@ -309,7 +309,7 @@
     // 验证登录
     function isLogin(){if ($.cookie('my_user') == null || empty($.cookie('my_user'))) {sLogin(); return false;} return true;}
     // 执行登录
-    function userLogin(obj){if ($(obj).validate(Obj).form()) {l = layer.load();$.ajax({url: loginurl, data:$(obj).serialize(),type:'post',dataType:'json',error:requestError,success:function(json){layer.close(l);var i = json.status == 1 ? 6 : 5;if (json.status == 1) layer.close(lLayer);layer.msg(json.msg, {icon:i,time:1000, end:function(){if (json.status == 1) changUser(json.data);}})},})}return false;}
+    function userLogin(obj){if ($(obj).validate(Obj).form()) {l = layer.load();$.ajax({url: loginurl, data:$(obj).serialize(),type:'post',dataType:'json',error:requestError,success:function(json){layer.close(l);var i = json.code === 10000 ? 6 : 5;if (json.code === 10000) layer.close(lLayer);layer.msg(json.msg, {icon:i,time:1000, end:function(){if (json.code === 10000) changUser(json.data);}})},})}return false;}
     // 用户登录和退出切换
     function changUser(params){var sx = params !== null ? '.no-login' : '.is-login',sh = params !== null ? '.is-login' : '.no-login';$.cookie('my_user', params);$('.user').html(params);$(sx).fadeOut(1000, function(){$(sh).fadeIn(1000)});}
     // 显示登录页面
@@ -319,7 +319,7 @@
 
     $(function(){
         // 用户退出
-        $('.logout').click(function(){if (isLogin()){layer.confirm('您确定要退出登录吗?', {title:'温馨提醒',btn: ['确定退出', '取消'],icon:3,shift:4},function(){l = layer.load();$.get('/index/logout', function(json){layer.msg(json.msg, { time:1000,end:function(){if (json.status == 1){changUser(null)}}});},'json').always(function(){layer.close(l);});},function(){layer.msg('您取消了退出登录！', {time:1000});});}});
+        $('.logout').click(function(){if (isLogin()){layer.confirm('您确定要退出登录吗?', {title:'温馨提醒',btn: ['确定退出', '取消'],icon:3,shift:4},function(){l = layer.load();$.get('/index/logout', function(json){layer.msg(json.msg, { time:1000,end:function(){if (json.code === 10000){changUser(null)}}});},'json').always(function(){layer.close(l);});},function(){layer.msg('您取消了退出登录！', {time:1000});});}});
         // 登录可以操作
         $('.is-user').click(function(e){e.preventDefault();return isLogin();});
         // 回顶部自动判断
@@ -333,13 +333,13 @@
         // 关闭modal
         $('#myModal').on('hide.bs.modal', function(e){document.article.reset();});
         // 发布文章
-        $('.btn-article').click(function(){if (isLogin()){if ($('.article').validate(Obj).form()){l = layer.load();$.ajax({url: '/index/insert', data:$('.article').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.status == 1 ? 6 : 5;if (json.status == 1) {$('#myModal').modal('hide');}layer.msg(json.msg, {time:2000, icon:s, end:function(){article([json.data]);}})},error:requestError,})}}return false;})
+        $('.btn-article').click(function(){if (isLogin()){if ($('.article').validate(Obj).form()){l = layer.load();$.ajax({url: '/index/insert', data:$('.article').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.code === 10000 ? 6 : 5;if (json.code === 10000) {$('#myModal').modal('hide');}layer.msg(json.msg, {time:2000, icon:s, end:function(){article([json.data]);}})},error:requestError,})}}return false;})
         // 弹出model
         $('.file-upload').click(function(){$('#myImage').modal();});
         // 关闭modal
         $('#myImage').on('hide.bs.modal', function(e){document.image.reset();});
         // 上传图片
-        $('.btn-image').click(function(){if (isLogin()){if ($('.image').validate(Obj).form()){l = layer.load();$.ajax({url: '/index/add', data:$('.image').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.status == 1 ? 6 : 5;if (json.status == 1) {$('#myImage').modal('hide');}layer.msg(json.msg, {time:2000, icon:s})},error:requestError,})}}return false;})
+        $('.btn-image').click(function(){if (isLogin()){if ($('.image').validate(Obj).form()){l = layer.load();$.ajax({url: '/user/image/create', data:$('.image').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.code === 10000 ? 6 : 5;if (json.code === 10000) {$('#myImage').modal('hide');}layer.msg(json.msg, {time:2000, icon:s})},error:requestError,})}}return false;})
         // 图片显示
         layer.photos({photos:"#layer-photos-demo"});
     })
@@ -349,11 +349,16 @@
             url: url,
             dataType: 'json',
         }).on('fileuploaddone', function (e, data) {
-            console.info('url', data.result)
+            if (data.result.code === 10000) {
+                layer.msg("图片上传成功")
+                $(selector).parent().find("input[name=url]").val(data.result.data.path)
+            } else {
+                layer.msg("图片上传失败")
+            }
         });
     }
 
-    FileUpload("/index/upload", '.fileUpload', undefined, 200000000);
+    FileUpload("/user/image/upload", '.fileUpload', undefined, 200000000);
 </script>
 </body>
 </html>

@@ -15,20 +15,11 @@ type IndexController struct {
 	HomeController
 }
 
-// 定义图片类型
-type Image struct {
-	Title string
-	Desc  string
-	Url   string
-}
-
 // 首页显示
 func (i *IndexController) Get() {
-	var imgList []Image
-
+	imgList := make([]*models.Image, 0)
 	// 查询轮播图片
-	orm.NewOrm().Raw("SELECT `title`, `desc`, `url` FROM `my_image` WHERE `type` = ? AND `status` = ?", 1, 1).QueryRows(&imgList)
-
+	orm.NewOrm().QueryTable(&imgList).Filter("status", 1).Filter("user_id", i.User.Id).All(&imgList)
 	i.Data["images"] = imgList
 	i.Data["action"] = "index"
 	i.TplName = "home/index.html"
@@ -134,9 +125,9 @@ func (i *IndexController) Logout() {
 
 // 获取图片信息
 func (i *IndexController) Image() {
-	var maps []orm.Params
-	if _, err := orm.NewOrm().Raw("SELECT `title`, `url` FROM `my_image` WHERE `status` = ?", 1).Values(&maps); err == nil {
-		i.Data["images"] = maps
+	imageList := make([]*models.Image, 0)
+	if _, err := orm.NewOrm().QueryTable(&models.Image{}).Filter("status", 1).All(&imageList); err == nil {
+		i.Data["images"] = imageList
 	}
 
 	i.Data["action"] = "image"

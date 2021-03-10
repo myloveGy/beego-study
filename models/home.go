@@ -16,7 +16,7 @@ type Article struct {
 	SeeNum     int    `orm:"column(see_num)" json:"see_num"`
 	CommentNum int    `orm:"column(comment_num)" json:"comment_num"`
 	Recommend  int    `orm:"column(recommend)" json:"recommend"`
-	Status     int    `orm:"column(status);default(1)"json:"status"`
+	Status     int    `orm:"column(status);default(1)" json:"status"`
 	CreateTime int64  `orm:"column(create_time)" json:"create_time"`
 	CreateId   int64  `orm:"column(create_id)" json:"create_id"`
 	UpdateTime int64  `orm:"column(update_time)" json:"update_time"`

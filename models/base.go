@@ -12,8 +12,7 @@ import (
 
 // 初始化注册
 func init() {
-	orm.RegisterModel(new(Menu))
-	orm.RegisterModel(new(Category))
+	orm.RegisterModel(new(Menu), new(Category), new(Image))
 }
 
 // 查询对象信息
