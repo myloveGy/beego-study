@@ -131,13 +131,6 @@ func (i *ArticleController) Image() {
 		return
 	}
 
-	var articleList []models.Article
-	m := map[string]interface{}{
-		"iTotal":        0,
-		"iTotalRecords": 0,
-		"aData":         articleList,
-	}
-
 	o := orm.NewOrm()
 	// 查询数据总条数
 	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).FilterRaw("img", "!= ''").Count()
@@ -147,6 +140,7 @@ func (i *ArticleController) Image() {
 	}
 
 	// 查询文章
+	articleList := make([]*models.Article, 0)
 	if _, err := o.QueryTable(&models.Article{}).
 		Filter("status", 1).
 		FilterRaw("img", "!= ''").
@@ -157,9 +151,11 @@ func (i *ArticleController) Image() {
 		return
 	}
 
-	m["iTotal"] = total
-	m["iTotalRecords"] = len(articleList)
-	m["aData"] = articleList
+	m := map[string]interface{}{
+		"iTotal":        total,
+		"iTotalRecords": len(articleList),
+		"aData":         articleList,
+	}
 
 	i.Success(m, "")
 }
