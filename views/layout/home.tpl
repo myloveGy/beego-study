@@ -340,6 +340,15 @@
         layer.photos({photos:"#layer-photos-demo"});
     })
 
+    function FileUpload(url, selector, type, size) {
+        $(selector).fileupload({
+            url: url,
+            dataType: 'json',
+        }).on('fileuploaddone', function (e, data) {
+            console.info('url', data.result)
+        });
+    }
+
     FileUpload("/index/upload", '.fileUpload', undefined, 200000000);
 </script>
 </body>
