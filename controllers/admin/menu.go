@@ -1,9 +1,10 @@
-package controllers
+package admin
 
 import (
 	"encoding/json"
-	"project/models"
 	"strconv"
+
+	"project/models"
 )
 
 type MenuController struct {
@@ -11,7 +12,7 @@ type MenuController struct {
 }
 
 // 首页显示
-func (this *MenuController) Index() {
+func (m *MenuController) Index() {
 	// 查询主要导航
 	query := models.QueryOther{
 		Table: "my_menu",
@@ -28,14 +29,14 @@ func (this *MenuController) Index() {
 			data[strconv.FormatInt(v.Id, 10)] = v.MenuName
 		}
 		str, _ := json.Marshal(&data)
-		this.Data["menus"] = string(str)
+		m.Data["menus"] = string(str)
 	}
 
-	this.TplName = "admin/menu.html"
+	m.TplName = "admin/menu.html"
 }
 
 // 查询数据
-func (this *MenuController) Search() {
+func (m *MenuController) Search() {
 	var arr []*models.Menu
 
 	// 查询信息
@@ -49,11 +50,10 @@ func (this *MenuController) Search() {
 	}
 
 	// 返回信息
-	this.BaseSearch(&arr, search, map[string]interface{}{})
+	m.BaseSearch(&arr, search, map[string]interface{}{})
 }
 
 // 修改数据
-func (this *MenuController) Update() {
-	var m models.Menu
-	this.BaseUpdate(&m, "my_menu")
+func (m *MenuController) Update() {
+	m.BaseUpdate(&models.Menu{}, "my_menu")
 }

@@ -2,6 +2,9 @@ package routers
 
 import (
 	"project/controllers"
+	"project/controllers/admin"
+	"project/controllers/user"
+
 	"github.com/astaxie/beego"
 )
 
@@ -11,16 +14,22 @@ func init() {
 	beego.AutoRouter(&controllers.IndexController{})
 	beego.AutoRouter(&controllers.ArticleController{})
 
-	// 后台显示
-	beego.Router("/admin", &controllers.SiteController{}, "*:Index")
-
 	// 使用命名空间
-	ns := beego.NewNamespace("/admin",
-		beego.NSAutoRouter(&controllers.SiteController{}),
-		beego.NSAutoRouter(&controllers.AdminController{}),
-		beego.NSAutoRouter(&controllers.MenuController{}),
-		beego.NSAutoRouter(&controllers.CategoryController{}),
+	userNamespace := beego.NewNamespace("/user",
+		beego.NSAutoRouter(&user.ImageController{}),
+		beego.NSAutoRouter(&user.ArticleController{}),
 	)
 
-	beego.AddNamespace(ns)
+	// 后台显示
+	beego.Router("/admin", &admin.SiteController{}, "*:Index")
+
+	// 使用命名空间
+	adminNamespace := beego.NewNamespace("/admin",
+		beego.NSAutoRouter(&admin.SiteController{}),
+		beego.NSAutoRouter(&admin.Controller{}),
+		beego.NSAutoRouter(&admin.MenuController{}),
+		beego.NSAutoRouter(&admin.CategoryController{}),
+	)
+
+	beego.AddNamespace(adminNamespace, userNamespace)
 }

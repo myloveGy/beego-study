@@ -4,6 +4,15 @@ import (
 	"github.com/astaxie/beego"
 )
 
+const (
+	CodeSuccess       = 10000 // 成功状态码
+	CodeMissingParams = 40000 // 缺少参数
+	CodeInvalidParams = 40001 // 参数错误
+	CodeNotLogin      = 40003 // 未登录
+	CodeBusinessError = 40004 // 业务错误
+	CodeSystemError   = 40005 // 系统错误
+)
+
 // 用户数据
 type User struct {
 	Id       int64  `json:"id"`
@@ -12,35 +21,39 @@ type User struct {
 	Status   int    `json:"status"`
 }
 
-// 请求返回数据
-type ArrError struct {
-	Status int         `json:"status"`
-	Msg    string      `json:"msg"`
-	Data   interface{} `json:"data"`
+type Response struct {
+	Code int         `json:"code"` // 响应状态
+	Msg  string      `json:"msg"`  // 响应消息
+	Data interface{} `json:"data"` // 响应数据
 }
 
 // 继承基础控制器
 type BaseController struct {
 	beego.Controller
-	U User
-	E ArrError
+	User User
 }
 
 // 验证用户是否已经登录
-func (this *BaseController) isLogin(str string) bool {
+func (this *BaseController) IsLogin(str string) bool {
 	user := this.GetSession(str)
-	if user != nil {
-		this.U = user.(User)
-		if this.U.Id > 0 {
-			return true
-		}
+	if user == nil {
+		return false
 	}
 
-	return false
+	this.User = user.(User)
+	return this.User.Id > 0
 }
 
-// 返回json数据
-func (this *BaseController) AjaxReturn() {
-	this.Data["json"] = &this.E
-	this.ServeJSON()
+func (b *BaseController) Error(code int, msg string, data interface{}) {
+	b.Data["json"] = &Response{Code: code, Msg: msg, Data: data}
+	b.ServeJSON()
+}
+
+func (b *BaseController) Success(data interface{}, message string) {
+	if message == "" {
+		message = "success"
+	}
+
+	b.Data["json"] = &Response{Code: CodeSuccess, Msg: message, Data: data}
+	b.ServeJSON()
 }
