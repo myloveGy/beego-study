@@ -4,6 +4,8 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func MapArray(arr []interface{}, key, val string) map[string]interface{} {
@@ -33,16 +35,6 @@ func IsDirExists(path string) bool {
 	return file.IsDir()
 }
 
-// 获取文件大小
-func GetFileSize(name string) int64 {
-	file, err := os.Stat(name)
-	if err != nil {
-		return 0
-	}
-
-	return file.Size()
-}
-
 // 判断文件是否在一个数组中
 func InArray(arr []string, val string) bool {
 	for _, value := range arr {
@@ -57,4 +49,15 @@ func InArray(arr []string, val string) bool {
 // 获取文件大小的接口
 type Sizer interface {
 	Size() int64
+}
+
+// GeneratePassword 生成密码
+func GeneratePassword(password string) (string, error) {
+	bytePassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytePassword), err
+}
+
+// ValidatePassword 验证密码
+func ValidatePassword(password, hashed string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password)) == nil
 }
