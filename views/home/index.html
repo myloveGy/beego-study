@@ -14,7 +14,7 @@
                 <img src="{{.Url}}" class="img-responsive" alt="First slide">
                 <div class="carousel-caption">
                     <h3>{{.Title}}</h3>
-                    <p>{{.Desc}}</p>
+                    <p>{{.Description}}</p>
                 </div>
             </div>
             {{end}}
@@ -55,7 +55,7 @@
                 <p>引导语：' + data[i].content.substr(0, 300) + '</p>\
                 <p class="autor">\
                     <span class="lm f_l"><a href="/article/view/' + data[i].id + '">个人博客</a></span>\
-                    <span class="dtime time f_l">' + timeFormat(data[i].create_time) + '</span>\
+                    <span class="dtime time f_l">' + data[i].created_at + '</span>\
                     <span class="viewnum f_r">浏览(<a href="/article/view/' + data[i].id + '">' + data[i].see_num + '</a>)</span>\
                     <span class="pingl f_r">评论(<a href="/article/view/' + data[i].id + '">' + data[i].comment_num + '</a>)</span>\
                 </p>\

@@ -1,6 +1,8 @@
 package user
 
 import (
+	"github.com/astaxie/beego/orm"
+
 	"project/controllers"
 	"project/models"
 )
@@ -24,9 +26,9 @@ func (a *ArticleController) Create() {
 	}
 
 	// 附加信息
-	article.CreateId = a.User.Id
-	article.UpdateId = a.User.Id
-	if _, err := models.AddArticle(&article); err != nil {
+	article.UserId = a.User.Id
+	article.Status = 1
+	if _, err := orm.NewOrm().Insert(&article); err != nil {
 		a.Error(controllers.CodeSystemError, "添加文章失败", nil)
 		return
 	}

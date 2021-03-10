@@ -19,7 +19,7 @@ type IndexController struct {
 func (i *IndexController) Get() {
 	imgList := make([]*models.Image, 0)
 	// 查询轮播图片
-	orm.NewOrm().QueryTable(&imgList).Filter("status", 1).Filter("user_id", i.User.Id).All(&imgList)
+	orm.NewOrm().QueryTable(&models.Image{}).Filter("status", 1).Filter("type", 1).All(&imgList)
 	i.Data["images"] = imgList
 	i.Data["action"] = "index"
 	i.TplName = "home/index.html"
@@ -28,22 +28,26 @@ func (i *IndexController) Get() {
 // 请求获取文章信息
 func (i *IndexController) Article() {
 	// 初始化返回
-	var iStart, iLength int
-	var err error
-	var articleList []models.Article
+	var (
+		start, length int
+		total         int64
+		err           error
+	)
+
 	// 接收参数
-	iStart, err = i.GetInt("iStart")
+	start, err = i.GetInt("iStart")
 	if err != nil {
 		i.Error(CodeMissingParams, "参数为空", nil)
 		return
 	}
 
-	iLength, err = i.GetInt("iLength")
+	length, err = i.GetInt("iLength")
 	if err != nil {
 		i.Error(CodeMissingParams, "参数为空", nil)
 		return
 	}
 
+	var articleList []models.Article
 	m := map[string]interface{}{
 		"iTotal":        0,
 		"iTotalRecords": 0,
@@ -52,28 +56,25 @@ func (i *IndexController) Article() {
 
 	o := orm.NewOrm()
 	// 查询数据总条数
-	var maps []orm.Params
-	_, err = o.Raw("SELECT COUNT(*) AS `length` FROM `my_article` WHERE `status` = ? AND `img` != ?", 1, "").Values(&maps)
+	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).FilterRaw("img", "!= ''").Count()
 	if err != nil {
 		i.Error(CodeBusinessError, "查询数据为空", nil)
 		return
 	}
 
 	// 查询文章
-	num, err1 := o.Raw(
-		"SELECT `id`, `title`, `content`, `img`, `create_time`, `see_num`, `comment_num` FROM `my_article` WHERE `status` = ? AND `img` != ? ORDER BY `id` DESC LIMIT ?, ?",
-		1,
-		"",
-		iStart,
-		iLength,
-	).QueryRows(&articleList)
-	if err1 != nil {
+	if _, err := o.QueryTable(&models.Article{}).
+		Filter("status", 1).
+		FilterRaw("img", "!= ''").
+		OrderBy("-id").
+		Limit(length, start).
+		All(&articleList); err != nil {
 		i.Error(CodeBusinessError, "查询数据出错", nil)
 		return
 	}
 
-	m["iTotal"] = maps[0]["length"]
-	m["iTotalRecords"] = num
+	m["iTotal"] = total
+	m["iTotalRecords"] = len(articleList)
 	i.Success(m, "")
 }
 

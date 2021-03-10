@@ -89,22 +89,21 @@ func (a *ArticleController) List() {
 	}
 
 	o := orm.NewOrm()
-	// 查询数据总条数
-	var maps []orm.Params
-	if _, err = o.Raw("SELECT COUNT(*) AS `length` FROM `my_article` WHERE `status` = ?", 1).Values(&maps); err != nil {
-		a.Error(CodeBusinessError, "查询错误", nil)
-		return
-	}
 
-	// 查询文章
-	total, err = o.Raw("SELECT `id`, `title`, `content`, `img`, `create_time`, `see_num`, `comment_num` FROM `my_article` WHERE `status` = ? LIMIT ?, ?", 1, start, length).QueryRows(&articleList)
+	// 查询数据总条数
+	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).Count()
 	if err != nil {
 		a.Error(CodeBusinessError, "查询错误", nil)
 		return
 	}
 
-	m["iTotal"] = maps[0]["length"]
-	m["iTotalRecords"] = total
+	if _, err := o.QueryTable(&models.Article{}).Filter("status", 1).Limit(length, start).All(&articleList); err != nil {
+		a.Error(CodeBusinessError, "查询错误", nil)
+		return
+	}
+
+	m["iTotal"] = total
+	m["iTotalRecords"] = len(articleList)
 	m["aData"] = articleList
 
 	a.Success(m, "success")

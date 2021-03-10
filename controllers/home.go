@@ -26,25 +26,15 @@ func (this *HomeController) Prepare() {
 	}
 
 	// 热门
-	hots, err1 := models.GetArticle(status, 6, "-create_time")
-	if err1 != nil {
-		log.Println("create_time", err)
-	}
-
+	hots, _ := models.GetArticle(status, 6, "-created_at")
 	status["recommend"] = 1
 
 	// 推荐
-	commList, err2 := models.GetArticle(status, 6, "-create_time")
-	if err2 != nil {
-		log.Println("create_time 1", err)
-	}
+	commList, _ := models.GetArticle(status, 6, "-created_at")
 
 	// 图文推荐
-	var imgList []models.Article
-	_, err = orm.NewOrm().Raw("SELECT `id`, `title`, `img`, `create_time` FROM `my_article` WHERE `status` = ? AND `img` != '' ORDER BY `create_time` LIMIT 5", 1).QueryRows(&imgList)
-	if err != nil {
-		log.Println("create_time 2", err)
-	}
+	var imgList []*models.Article
+	orm.NewOrm().QueryTable(&models.Article{}).Filter("status", 1).Exclude("img", "").OrderBy("created_at").Limit(5).All(&imgList)
 
 	// 用户是否已经登录
 	this.Data["isLogin"] = this.IsLogin("user")

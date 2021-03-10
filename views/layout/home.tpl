@@ -333,7 +333,7 @@
         // 关闭modal
         $('#myModal').on('hide.bs.modal', function(e){document.article.reset();});
         // 发布文章
-        $('.btn-article').click(function(){if (isLogin()){if ($('.article').validate(Obj).form()){l = layer.load();$.ajax({url: '/index/insert', data:$('.article').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.code === 10000 ? 6 : 5;if (json.code === 10000) {$('#myModal').modal('hide');}layer.msg(json.msg, {time:2000, icon:s, end:function(){article([json.data]);}})},error:requestError,})}}return false;})
+        $('.btn-article').click(function(){if (isLogin()){if ($('.article').validate(Obj).form()){l = layer.load();$.ajax({url: '/user/article/create', data:$('.article').serialize(),type:'post',dataType:'json',success:function(json){layer.close(l);var s = json.code === 10000 ? 6 : 5;if (json.code === 10000) {$('#myModal').modal('hide');}layer.msg(json.msg, {time:2000, icon:s, end:function(){article([json.data]);}})},error:requestError,})}}return false;})
         // 弹出model
         $('.file-upload').click(function(){$('#myImage').modal();});
         // 关闭modal
@@ -351,7 +351,7 @@
         }).on('fileuploaddone', function (e, data) {
             if (data.result.code === 10000) {
                 layer.msg("图片上传成功")
-                $(selector).parent().find("input[name=url]").val(data.result.data.path)
+                $(selector).parent().find("input[type=hidden]").val(data.result.data.path)
             } else {
                 layer.msg("图片上传失败")
             }

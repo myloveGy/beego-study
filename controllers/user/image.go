@@ -45,7 +45,9 @@ func (c *ImageController) Create() {
 		Url:         url,
 		Type:        i,
 		UserId:      c.User.Id,
+		Status:      1,
 	}
+
 	if _, err := orm.NewOrm().Insert(image); err != nil {
 		c.Error(controllers.CodeSystemError, "添加失败", nil)
 		return
