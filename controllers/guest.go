@@ -4,12 +4,12 @@ import (
 	"project/models"
 )
 
-type GuestController struct {
-	Controller
+type Guest struct {
+	Base
 }
 
 // Login 登录
-func (g *GuestController) Login() {
+func (g *Guest) Login() {
 	// 获取参数
 	username, password := g.GetString("username"), g.GetString("password")
 	if username == "" && password == "" {
@@ -32,13 +32,13 @@ func (g *GuestController) Login() {
 }
 
 // Logout 退出
-func (g *GuestController) Logout() {
+func (g *Guest) Logout() {
 	// 初始化返回
 	g.DelSession("user")
 	g.Success(nil, "您已经退出登录")
 }
 
 // Detail 详情
-func (g *GuestController) Detail() {
+func (g *Guest) Detail() {
 	g.Success(g.GetSession("user"), "")
 }

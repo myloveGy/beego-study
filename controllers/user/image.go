@@ -14,12 +14,12 @@ import (
 	"project/models"
 )
 
-type ImageController struct {
-	controllers.HomeController
+type Image struct {
+	controllers.Controller
 }
 
 // Create 添加图片信息
-func (c *ImageController) Create() {
+func (c *Image) Create() {
 	// 未登录
 	if !c.IsLogin("user") {
 		c.Error(controllers.CodeNotLogin, "抱歉，您还没有登录呢!", nil)
@@ -57,7 +57,7 @@ func (c *ImageController) Create() {
 }
 
 // Upload 图片上传
-func (c *ImageController) Upload() {
+func (c *Image) Upload() {
 	oldFile := c.GetString("fileurl")
 
 	// 未登录

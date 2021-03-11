@@ -1,7 +1,6 @@
 package help
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,7 +45,6 @@ func TestGeneratePassword(t *testing.T) {
 	password, err := GeneratePassword("123456")
 	assert.NoError(t, err)
 	assert.Equal(t, true, password != "")
-	fmt.Println(password)
 }
 
 func TestValidatePassword(t *testing.T) {

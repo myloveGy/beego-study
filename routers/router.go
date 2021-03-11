@@ -10,17 +10,17 @@ import (
 
 func init() {
 	// 前台显示
-	beego.Router("/", &controllers.HomeController{}, "*:Index")
+	beego.Router("/", &controllers.Home{}, "*:Index")
 
-	beego.AutoRouter(&controllers.HomeController{})
-	beego.AutoRouter(&controllers.GuestController{})
-	beego.AutoRouter(&controllers.ArticleController{})
-	beego.AutoRouter(&controllers.ImageController{})
+	beego.AutoRouter(&controllers.Home{})
+	beego.AutoRouter(&controllers.Guest{})
+	beego.AutoRouter(&controllers.Article{})
+	beego.AutoRouter(&controllers.Image{})
 
 	// 使用命名空间
 	userNamespace := beego.NewNamespace("/user",
-		beego.NSAutoRouter(&user.ImageController{}),
-		beego.NSAutoRouter(&user.ArticleController{}),
+		beego.NSAutoRouter(&user.Image{}),
+		beego.NSAutoRouter(&user.Article{}),
 	)
 
 	// 后台显示

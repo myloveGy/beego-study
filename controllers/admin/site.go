@@ -7,7 +7,7 @@ import (
 
 // 后台首页控制器
 type SiteController struct {
-	controllers.BaseController
+	controllers.Base
 }
 
 // 显示登录页面

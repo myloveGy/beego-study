@@ -7,12 +7,12 @@ import (
 	"project/models"
 )
 
-type ArticleController struct {
-	controllers.HomeController
+type Article struct {
+	controllers.Controller
 }
 
 // Create 新增文章信息
-func (a *ArticleController) Create() {
+func (a *Article) Create() {
 	// 未登录
 	if !a.IsLogin("user") {
 		a.Error(controllers.CodeNotLogin, "抱歉，您还没有登录呢!", nil)

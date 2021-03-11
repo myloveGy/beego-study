@@ -11,8 +11,8 @@ import (
 
 type Admin struct {
 	UserId        int64     `orm:"column(user_id);auto;pk" json:"user_id" form:"user_id"`
-	Username      string    `orm:"column(menu_name);" form:"menu_name" json:"menu_name"`
-	Password      string    `orm:"column(icons);" form:"icons" json:"icons"`
+	Username      string    `orm:"column(username);" form:"username" json:"username"`
+	Password      string    `orm:"column(password);" form:"password" json:"password"`
 	Email         string    `orm:"column(email);" form:"email" json:"email"`
 	Status        int       `orm:"column(status)" json:"status" form:"status"`
 	LastLoginTime time.Time `orm:"column(last_login_time)" json:"last_login_time"`

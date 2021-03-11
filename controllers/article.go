@@ -10,23 +10,25 @@ import (
 )
 
 // 首页控制器
-type ArticleController struct {
-	HomeController
+type Article struct {
+	Controller
 }
 
 // Index 文章列表
-func (a *ArticleController) Index() {
+func (a *Article) Index() {
 	a.Data["action"] = "article"
+	a.TplName = "article/index.html"
 }
 
 // View 文章详情
-func (a *ArticleController) Detail() {
+func (a *Article) Detail() {
 	var (
 		article, next, prev models.Article
 		o                   = orm.NewOrm()
 	)
 
 	a.Data["action"] = "article"
+	a.TplName = "article/detail.html"
 	id := a.Ctx.Input.Param("0")
 	if id == "" {
 		return
@@ -60,7 +62,7 @@ func (a *ArticleController) Detail() {
 }
 
 // List 文章列表
-func (a *ArticleController) List() {
+func (a *Article) List() {
 	var (
 		err         error
 		start       int
@@ -110,7 +112,7 @@ func (a *ArticleController) List() {
 }
 
 // Image 请求获取图片文章信息
-func (i *ArticleController) Image() {
+func (a *Article) Image() {
 	// 初始化返回
 	var (
 		start, length int
@@ -119,15 +121,15 @@ func (i *ArticleController) Image() {
 	)
 
 	// 接收参数
-	start, err = i.GetInt("iStart")
+	start, err = a.GetInt("iStart")
 	if err != nil {
-		i.Error(CodeMissingParams, "参数为空", nil)
+		a.Error(CodeMissingParams, "参数为空", nil)
 		return
 	}
 
-	length, err = i.GetInt("iLength")
+	length, err = a.GetInt("iLength")
 	if err != nil {
-		i.Error(CodeMissingParams, "参数为空", nil)
+		a.Error(CodeMissingParams, "参数为空", nil)
 		return
 	}
 
@@ -135,7 +137,7 @@ func (i *ArticleController) Image() {
 	// 查询数据总条数
 	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).FilterRaw("img", "!= ''").Count()
 	if err != nil {
-		i.Error(CodeBusinessError, "查询数据为空", nil)
+		a.Error(CodeBusinessError, "查询数据为空", nil)
 		return
 	}
 
@@ -147,7 +149,7 @@ func (i *ArticleController) Image() {
 		OrderBy("-id").
 		Limit(length, start).
 		All(&articleList); err != nil {
-		i.Error(CodeBusinessError, "查询数据出错", nil)
+		a.Error(CodeBusinessError, "查询数据出错", nil)
 		return
 	}
 
@@ -157,5 +159,5 @@ func (i *ArticleController) Image() {
 		"aData":         articleList,
 	}
 
-	i.Success(m, "")
+	a.Success(m, "")
 }

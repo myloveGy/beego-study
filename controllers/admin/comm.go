@@ -27,7 +27,7 @@ type DataTable struct {
 
 // 后台控制器
 type CommController struct {
-	controllers.BaseController
+	controllers.Base
 	SearchMap func() map[string]string
 }
 

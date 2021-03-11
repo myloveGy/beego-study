@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// 定义分类模型
 type Category struct {
 	Id        int64     `orm:"column(id);auto;pk" json:"id" form:"id"`
 	Pid       int64     `orm:"column(pid)" json:"pid" form:"pid"`
@@ -17,7 +16,6 @@ type Category struct {
 	UpdatedAt time.Time `orm:"column(updated_at);auto_now;type(datetime)" json:"updated_at"`
 }
 
-// 返回表名字
 func (*Category) TableName() string {
 	return "category"
 }
