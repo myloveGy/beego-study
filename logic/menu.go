@@ -21,7 +21,7 @@ type Menu struct {
 func GetCacheMenu() []*Menu {
 	// 第一步：缓存中获取
 	menu, err := cache.Get("menu")
-	if err != nil {
+	if err == nil {
 		if v, ok := menu.([]*Menu); ok {
 			return v
 		}

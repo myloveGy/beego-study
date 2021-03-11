@@ -22,65 +22,165 @@
 </div>
 <script type="text/javascript">
     var oParents = $.parseJSON({{.categoryList}});
-    function parentStatus(td, data, rowArr, row, col) {if (oParents[data]) $(td).html(oParents[data])}
+
+    function parentStatus(td, data, rowArr, row, col) {
+        if (oParents[data]) $(td).html(oParents[data])
+    }
+
     // 公共的方法用来处理编辑的信息
-    function EditError() {$.gritter.add({title: '编辑出现错误!',text: '服务器没有响应',class_name: 'gritter-error gritter-center',time: 800,});}
-    var oStatus = {"0":"停用", "1":"启用"},
-        myTable  = new MeTable({"sTitle":"文章分类信息"},{
-            "aoColumns":[
+    function EditError() {
+        $.gritter.add({title: '编辑出现错误!', text: '服务器没有响应', class_name: 'gritter-error gritter-center', time: 800,});
+    }
+
+    var oStatus = {"0": "停用", "1": "启用"},
+        myTable = new MeTable({"sTitle": "文章分类信息"}, {
+            "aoColumns": [
                 oCheckBox,
-                {"data":"id", "sName":"id", "class":"details-control", "title":"栏目ID",  "edit":{"type":"hidden"}, "search":{"type":"text"}, "createdCell":function(td, data, rowArr, row, col){
-                    $(td).html(data + '<b class="arrow fa fa-angle-down pull-right"></b>');
-                }},
-                {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents, "editTable":{validate:function(x){
-                    var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
-                }, "type":"select"},  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
-                {"data":"cate_name", "sName":"cate_name","title":"分类名称", "editTable":{validate:function(x){
-                    var l = x.length; if (x > 50 || x < 2) return "长度必须为2到50字符";
-                }, "type":"text", "name":"CateName"}, "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
-                {"data":"status", "sName":"status","editTable":{validate:function(x){
-                    var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
-                }},   "title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-                {"data":"recommend", "sName":"recommend","title":"推荐", "editTable":{validate:function(x){
-                    var v = parseInt(x);if (isNaN(v) || v < 0) return "必须为数字";
-                }}, "value" : {"0":"不推荐", "1":"推荐"}, "edit":{"type":"radio", options:{"id":"my-daterange"}}, "createdCell":recommendToString},
-                 {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
+                {
+                    "data": "id",
+                    "sName": "id",
+                    "class": "details-control",
+                    "title": "栏目ID",
+                    "edit": {"type": "hidden"},
+                    "search": {"type": "text"},
+                    "createdCell": function (td, data, rowArr, row, col) {
+                        $(td).html(data + '<b class="arrow fa fa-angle-down pull-right"></b>');
+                    }
+                },
+                {
+                    "data": "pid", "sName": "pid", "title": "上级分类", "value": oParents, "editTable": {
+                        validate: function (x) {
+                            var v = parseInt(x);
+                            if (isNaN(v) || v < 0) return "必须为数字";
+                        }, "type": "select"
+                    }, "edit": {"type": "select", "options": {"number": 1}}, "createdCell": parentStatus
+                },
+                {
+                    "data": "cate_name", "sName": "cate_name", "title": "分类名称", "editTable": {
+                        validate: function (x) {
+                            var l = x.length;
+                            if (x > 50 || x < 2) return "长度必须为2到50字符";
+                        }, "type": "text", "name": "CateName"
+                    }, "edit": {"options": {"required": 1, "rangelength": "[2, 50]"}}
+                },
+                {
+                    "data": "status",
+                    "sName": "status",
+                    "editTable": {
+                        validate: function (x) {
+                            var v = parseInt(x);
+                            if (isNaN(v) || v < 0) return "必须为数字";
+                        }
+                    },
+                    "title": "状态",
+                    "value": oStatus,
+                    "edit": {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
+                    "search": {"type": "select"},
+                    "createdCell": statusToString
+                },
+                {
+                    "data": "recommend",
+                    "sName": "recommend",
+                    "title": "推荐",
+                    "editTable": {
+                        validate: function (x) {
+                            var v = parseInt(x);
+                            if (isNaN(v) || v < 0) return "必须为数字";
+                        }
+                    },
+                    "value": {"0": "不推荐", "1": "推荐"},
+                    "edit": {"type": "radio", options: {"id": "my-daterange"}},
+                    "createdCell": recommendToString
+                },
+                {
+                    "data": "sort",
+                    "sName": "sort",
+                    "title": "排序",
+                    "value": 100,
+                    "edit": {"options": {"required": 1, "number": 1}}
+                },
                 // 公共属性字段信息
-                {"data":"create_time", "sName":"create_time","title":"创建时间", "edit":{"type" :"date"}, "createdCell":dateTimeString},
-                {"data":"create_id", "sName":"create_id", "title":"创建用户", "edit":{"type" :"datetime"}},
-                {"data":"update_time", "sName":"update_time", "title":"修改时间", "edit":{"type" :"file", options:{"id":"myfile", type:"ace_input"}}, "createdCell":dateTimeString},
-                {"data":"update_id", "sName":"update_id", "title":"修改用户", "edit":{"type" :"time"},},
+                {
+                    "data": "created_at",
+                    "sName": "created_at",
+                    "title": "创建时间",
+                    "edit": {"type": "date"},
+                },
+                {
+                    "data": "updated_at",
+                    "sName": "updated_at",
+                    "title": "修改时间",
+                    "edit": {"type": "file", options: {"id": "myfile", type: "ace_input"}},
+                },
                 oOperate,
             ],
         }, {
-            "sClickSelect" : "td.details-control",
+            "sClickSelect": "td.details-control",
             "oTableOptions": {
-                "aoColumns":[
-                    {"data":"id", "sName":"id", "title":"栏目ID",  "edit":{"type":"hidden"}},
-                    {"data":"pid", "sName":"pid", "title":"上级分类", "value":oParents,  "edit":{"type":"select", "options":{"number":1}}, "createdCell":parentStatus},
-                    {"data":"cate_name", "sName":"cate_name","title":"分类名称", "edit":{"options":{"required":1, "rangelength":"[2, 50]"}}},
-                    {"data":"status", "sName":"status","title":"状态", "value" : oStatus, "edit":{"type":"radio", "default":1, "options":{"required":1, "number":1}},"search":{"type":"select"}, "createdCell":statusToString},
-                    {"data":"recommend", "sName":"recommend","title":"推荐", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
-                    {"data":"sort", "sName":"sort","title":"排序", "value" : 100, "edit":{"options":{"required":1, "number":1}}},
+                "aoColumns": [
+                    {"data": "id", "sName": "id", "title": "栏目ID", "edit": {"type": "hidden"}},
+                    {
+                        "data": "pid",
+                        "sName": "pid",
+                        "title": "上级分类",
+                        "value": oParents,
+                        "edit": {"type": "select", "options": {"number": 1}},
+                        "createdCell": parentStatus
+                    },
+                    {
+                        "data": "cate_name",
+                        "sName": "cate_name",
+                        "title": "分类名称",
+                        "edit": {"options": {"required": 1, "rangelength": "[2, 50]"}}
+                    },
+                    {
+                        "data": "status",
+                        "sName": "status",
+                        "title": "状态",
+                        "value": oStatus,
+                        "edit": {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
+                        "search": {"type": "select"},
+                        "createdCell": statusToString
+                    },
+                    {
+                        "data": "recommend",
+                        "sName": "recommend",
+                        "title": "推荐",
+                        "value": 100,
+                        "edit": {"options": {"required": 1, "number": 1}}
+                    },
+                    {
+                        "data": "sort",
+                        "sName": "sort",
+                        "title": "排序",
+                        "value": 100,
+                        "edit": {"options": {"required": 1, "number": 1}}
+                    },
                     // 公共属性字段信息
-                    {"data":"create_time", "sName":"create_time","title":"创建时间", "createdCell":dateTimeString},
-                    {"data":"create_id", "sName":"create_id", "title":"创建用户", },
-                    {"data":"update_time", "sName":"update_time", "title":"修改时间", "createdCell":dateTimeString},
-                    {"data":"update_id", "sName":"update_id", "title":"修改用户", },
+                    {
+                        "data": "created_at",
+                        "sName": "created_at",
+                        "title": "创建时间",
+                    },
+                    {
+                        "data": "updated_at",
+                        "sName": "updated_at",
+                        "title": "修改时间",
+                    },
                     oOperateDetails,
                 ]
             }
         });
 
     // 显示之前的处理
-    myTable.beforeShow = function(data) {
+    myTable.beforeShow = function (data) {
         // 新增
         if (this.actionType === 'insert') {
             $("#ace_myfile").ace_file_input("reset_input");
         }
 
         // 修改复值
-        if (this.actionType === 'update' && ! empty(data.update_time)) {
+        if (this.actionType === 'update' && !empty(data.update_time)) {
             $("#ace_myfile").ace_file_input("show_file_list", ['my.gif'])
         }
 
@@ -88,21 +188,25 @@
     };
 
     // 页面加载完成
-    $(function() {
+    $(function () {
         // dataTable 初始化
         myTable.init();
 
         // 文件上传
-        aceFileInput('#ace_myfile', '/admin/admin/upload', false, {"before_remove":function(){
-            if ($("#myfile").val()){ $.post('/admin/admin/upload', {"update_time":$("#myfile").val()})}
-            $("#myfile").val('');
-            return true;
-        }});
+        aceFileInput('#ace_myfile', '/admin/admin/upload', false, {
+            "before_remove": function () {
+                if ($("#myfile").val()) {
+                    $.post('/admin/admin/upload', {"update_time": $("#myfile").val()})
+                }
+                $("#myfile").val('');
+                return true;
+            }
+        });
 
         // 时间显示
         $('.date-picker').datepicker({
-            autoclose:true,
-            format:"yyyy-mm-dd",
+            autoclose: true,
+            format: "yyyy-mm-dd",
             todayHighlight: true,
             language: 'zh-CN'
         });
@@ -116,21 +220,21 @@
 
         // 时间小时选择
         $('.datetime-picker').datetimepicker({
-            format:'YYYY-MM-DD hh:mm:ss A',
-            language:"zh-CN",
+            format: 'YYYY-MM-DD hh:mm:ss A',
+            language: "zh-CN",
         });
 
         // 时间段选择
         $('#my-daterange').daterangepicker({
-            'applyClass' : 'btn-sm btn-success',
-            'cancelClass' : 'btn-sm btn-default',
+            'applyClass': 'btn-sm btn-success',
+            'cancelClass': 'btn-sm btn-default',
             locale: {
                 applyLabel: '确定',
                 cancelLabel: '取消',
             },
-            format:'YYYY-DD-MM hh:mm A',
-        }, function(start, end) {
-             $('#my-daterange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+            format: 'YYYY-DD-MM hh:mm A',
+        }, function (start, end) {
+            $('#my-daterange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
         });
     });
 </script>

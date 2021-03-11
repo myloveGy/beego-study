@@ -15,8 +15,17 @@ import (
 func init() {
 	// 加载MySQL配置文件
 	mysql, _ := beego.AppConfig.GetSection("mysql")
-	db := fmt.Sprintf("%v:%v@/%v", mysql["dbuser"], mysql["dbpass"], mysql["dbname"])
-	orm.RegisterDataBase("default", "mysql", db)
+	dsn := fmt.Sprintf(
+		"%v:%v@tcp(%v:%v)/%v?charset=utf8",
+		mysql["dbuser"],
+		mysql["dbpass"],
+		mysql["dbhost"],
+		mysql["dbport"],
+		mysql["dbname"],
+	)
+
+	orm.RegisterDriver("mysql", orm.DRMySQL)
+	orm.RegisterDataBase("default", "mysql", dsn)
 	orm.Debug = true
 }
 
