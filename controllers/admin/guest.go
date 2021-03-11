@@ -6,23 +6,23 @@ import (
 )
 
 // 后台首页控制器
-type SiteController struct {
+type Guest struct {
 	controllers.Base
 }
 
 // 显示登录页面
-func (s *SiteController) Index() {
+func (s *Guest) Index() {
+
 	// 用户已经登录
 	if s.IsLogin("admin") {
-		s.Redirect("/admin/site", 302)
+		s.Redirect("/admin/admin/site", 302)
 	}
 
-	s.TplName = "layout/login.html"
+	s.TplName = "admin/login.html"
 }
 
 // 执行登录
-func (s *SiteController) Login() {
-
+func (s *Guest) Login() {
 	// 获取参数
 	username, password := s.GetString("username"), s.GetString("password")
 	if username == "" && password == "" {
@@ -45,7 +45,7 @@ func (s *SiteController) Login() {
 }
 
 // 用户退出
-func (s *SiteController) Logout() {
+func (s *Guest) Logout() {
 	s.DelSession("admin")
 	s.Success(nil, "退出成功")
 }

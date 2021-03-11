@@ -88,7 +88,7 @@
         </button>
 
         <div class="navbar-header pull-left">
-            <a href="/admin/site" class="navbar-brand">
+            <a href="/admin/admin/site" class="navbar-brand">
                 <small>GO WEB 后台管理</small>
             </a>
         </div>
@@ -100,7 +100,8 @@
                     <a data-toggle="dropdown" href="#" class="dropdown-toggle">
                         <img class="nav-user-photo" src="/static/assets/avatars/avatar.jpg" alt="Jason's Photo" />
                             <span class="user-info">
-                                <small>欢迎登录</small>{{$.admin.Username}}
+                                <small>欢迎登录</small>
+                                {{$.admin.Username}}
                             </span>
                         <i class="ace-icon fa fa-caret-down"></i>
                     </a>
@@ -120,7 +121,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="/admin/logout">
+                            <a href="/admin/guest/logout">
                                 <i class="ace-icon fa fa-power-off"></i>
                                 退出
                             </a>
@@ -175,16 +176,16 @@
         <ul class="nav nav-list">
             {{range .navigation}}
             <li>
-                <a {{if .IsChild}}href="javascript:;" class="dropdown-toggle" {{else}}href="{{.Url}}"{{end}}>
+                <a {{if .Children }}href="javascript:;" class="dropdown-toggle" {{else}}href="{{.Url}}"{{end}}>
                     <i class="menu-icon {{.Icons}}"></i>
                     <span class="menu-text"> {{.MenuName}} </span>
-                    {{if .IsChild}}<b class="arrow fa fa-angle-down"></b>{{end}}
+                    {{if .Children}}<b class="arrow fa fa-angle-down"></b>{{end}}
                 </a>
-                {{if .IsChild}}
+                {{if .Children}}
                 <b class="arrow"></b>
                 <!--第二级别-->
                 <ul class="submenu">
-                    {{range $index, $value := .Child}}
+                    {{range $index, $value := .Children}}
                     <li>
                         <a  href="{{$value.Url}}"  >
                             <i class="menu-icon {{$value.Icons}}"></i>
@@ -220,7 +221,7 @@
             <ul class="breadcrumb">
                 <li>
                     <i class="ace-icon fa fa-home home-icon"></i>
-                    <a href="/admin/site">首页</a>
+                    <a href="/admin/admin/site">首页</a>
                 </li>
                 <li class="active"></li>
             </ul>

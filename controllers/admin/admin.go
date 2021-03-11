@@ -4,17 +4,17 @@ import (
 	"time"
 )
 
-type Controller struct {
-	CommController
+type Admin struct {
+	Comm
 }
 
-func (a *Controller) Site() {
+func (a *Admin) Site() {
 	a.Data["image"] = []int{1, 2, 3, 4, 5, 6, 1, 2}
-	a.TplName = "admin/site.html"
+	a.TplName = "admin/admin/site.html"
 }
 
 // 图片上传
-func (a *Controller) Upload() {
+func (a *Admin) Upload() {
 	filename := "avatar/" + time.Unix(time.Now().Unix(), 0).Format("20060102")
 	a.BaseUpload(
 		"ace_update_time",

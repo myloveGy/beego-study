@@ -24,13 +24,13 @@ func init() {
 	)
 
 	// 后台显示
-	beego.Router("/admin", &admin.SiteController{}, "*:Index")
+	beego.Router("/admin", &admin.Guest{}, "*:Index")
 
 	// 使用命名空间
 	adminNamespace := beego.NewNamespace("/admin",
-		beego.NSAutoRouter(&admin.SiteController{}),
-		beego.NSAutoRouter(&admin.Controller{}),
-		beego.NSAutoRouter(&admin.MenuController{}),
+		beego.NSAutoRouter(&admin.Guest{}),
+		beego.NSAutoRouter(&admin.Admin{}),
+		beego.NSAutoRouter(&admin.Menu{}),
 		beego.NSAutoRouter(&admin.CategoryController{}),
 	)
 

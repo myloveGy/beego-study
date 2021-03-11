@@ -7,20 +7,21 @@ import (
 	"project/models"
 )
 
-type MenuController struct {
-	CommController
+type Menu struct {
+	Comm
 }
 
 // 首页显示
-func (m *MenuController) Index() {
+func (m *Menu) Index() {
 	// 查询主要导航
 	query := models.QueryOther{
-		Table: "my_menu",
+		Table: "menu",
 		Where: map[string]interface{}{
 			"status": 1,
 			"pid":    0,
 		},
 	}
+
 	var arr []*models.Menu
 	if _, err := models.All(&arr, query); err == nil {
 		data := make(map[string]string)
@@ -32,11 +33,11 @@ func (m *MenuController) Index() {
 		m.Data["menus"] = string(str)
 	}
 
-	m.TplName = "admin/menu.html"
+	m.TplName = "admin/menu/index.html"
 }
 
 // 查询数据
-func (m *MenuController) Search() {
+func (m *Menu) Search() {
 	var arr []*models.Menu
 
 	// 查询信息
@@ -46,7 +47,7 @@ func (m *MenuController) Search() {
 		"status":  "status",
 		"url":     "url__icontains",
 		"orderBy": "id",
-		"Table":   "my_menu",
+		"Table":   "menu",
 	}
 
 	// 返回信息
@@ -54,6 +55,6 @@ func (m *MenuController) Search() {
 }
 
 // 修改数据
-func (m *MenuController) Update() {
-	m.BaseUpdate(&models.Menu{}, "my_menu")
+func (m *Menu) Update() {
+	m.BaseUpdate(&models.Menu{}, "menu")
 }

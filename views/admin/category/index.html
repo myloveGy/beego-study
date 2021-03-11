@@ -16,14 +16,12 @@
         刷新
     </button>
 </p>
-<div class="col-xs-12">
-    <table id="showTable" class="table table-striped table-bordered table-hover"></table>
-</div>
+<table id="showTable" class="table table-striped table-bordered table-hover"></table>
 <div class="col-xs-12 hidden">
     <table id="detailTable" class="table table-striped table-bordered table-hover"></table>
 </div>
 <script type="text/javascript">
-    var oParents = $.parseJSON({{.categorys}});
+    var oParents = $.parseJSON({{.categoryList}});
     function parentStatus(td, data, rowArr, row, col) {if (oParents[data]) $(td).html(oParents[data])}
     // 公共的方法用来处理编辑的信息
     function EditError() {$.gritter.add({title: '编辑出现错误!',text: '服务器没有响应',class_name: 'gritter-error gritter-center',time: 800,});}
@@ -75,11 +73,17 @@
         });
 
     // 显示之前的处理
-    myTable.beforeShow = function(data, isDetail) {
+    myTable.beforeShow = function(data) {
         // 新增
-        if (c.actionType == 'insert') $("#ace_myfile").ace_file_input("reset_input");
+        if (this.actionType === 'insert') {
+            $("#ace_myfile").ace_file_input("reset_input");
+        }
+
         // 修改复值
-        if (c.actionType == 'update' && ! empty(data.update_time)) $("#ace_myfile").ace_file_input("show_file_list", ['my.gif'])
+        if (this.actionType === 'update' && ! empty(data.update_time)) {
+            $("#ace_myfile").ace_file_input("show_file_list", ['my.gif'])
+        }
+
         return true;
     };
 
@@ -125,7 +129,7 @@
                 cancelLabel: '取消',
             },
             format:'YYYY-DD-MM hh:mm A',
-        }, function(start, end, label) {
+        }, function(start, end) {
              $('#my-daterange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
         });
     });

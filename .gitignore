@@ -1,7 +1,7 @@
 /*.exe~
 /*.exe
 /.idea
-/cache
+/static/cache
 /app
 /go
 /static/uploads/*

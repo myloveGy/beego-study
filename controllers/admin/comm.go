@@ -6,14 +6,12 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/astaxie/beego/cache"
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 
 	"project/controllers"
 	"project/help"
+	"project/logic"
 	"project/models"
 )
 
@@ -26,99 +24,48 @@ type DataTable struct {
 }
 
 // 后台控制器
-type CommController struct {
+type Comm struct {
 	controllers.Base
 	SearchMap func() map[string]string
 }
 
 type StuMenu struct {
-	MenuName string                 `json:"MenuName"`
-	Icons    string                 `json:"Icons"`
-	Url      string                 `json:"Url"`
-	Child    map[string]models.Menu `json:"Child"`
-	IsChild  bool                   `json:"IsChild"`
+	MenuName string                 `json:"menu_name"`
+	Icons    string                 `json:"icons"`
+	Url      string                 `json:"url"`
+	Child    map[string]models.Menu `json:"child"`
+	IsChild  bool                   `json:"is_child"`
 }
 
 type MeMenus map[string]StuMenu
 
 // 前置操作
-func (c *CommController) Prepare() {
+func (c *Comm) Prepare() {
 
-	bTrue := true
-	menus := make(MeMenus)
-	oCache, err := cache.NewCache("file", `{"CachePath":"./cache","FileSuffix":".cache","DirectoryLevel":2,"EmbedExpiry":120}`)
-
-	// 判断缓存对象存在并且有缓存数据信息
-	if err == nil {
-		if m := oCache.Get("menus"); m != nil && oCache.IsExist("menus") {
-			switch m.(type) {
-			case MeMenus:
-				menus = m.(MeMenus)
-				bTrue = false
-			default:
-				oCache.Delete("menus")
-			}
+	// 如果是ajax 请求获取POST提交、忽略
+	if c.IsAjax() || c.Ctx.Request.Method == "POST" {
+		if !c.IsLogin("admin") {
+			c.Error(controllers.CodeNotLogin, "还没有登录", nil)
+			return
 		}
+
+		return
 	}
 
-	// 没有缓存数据信息 - 查询导航栏信息
-	if bTrue {
-		var menu []*models.Menu
-		models.All(&menu, models.QueryOther{Table: "my_menu", Where: map[string]interface{}{"status": 1}, Order: "-sort"})
-		for _, value := range menu {
-			tmpKey := strconv.FormatInt(value.Id, 10)
-			if value.Pid != 0 {
-				tmpKey = strconv.FormatInt(value.Pid, 10)
-			}
-			// 判断数据是首页导航数据
-			if value.Pid == 0 {
-
-				if _, v := menus[tmpKey]; !v {
-					ma := make(map[string]models.Menu)
-					menus[tmpKey] = StuMenu{
-						MenuName: value.MenuName,
-						Icons:    value.Icons,
-						Url:      value.Url,
-						IsChild:  false,
-						Child:    ma,
-					}
-				} else {
-					m := menus[tmpKey]
-					m.MenuName, m.Icons, m.Url = value.MenuName, value.Icons, value.Url
-					menus[tmpKey] = m
-				}
-			} else {
-				tid := strconv.FormatInt(value.Id, 10)
-				if _, vv := menus[tmpKey]; vv {
-					mm := menus[tmpKey]
-					mm.Child[tid], mm.IsChild = *value, true
-					menus[tmpKey] = mm
-				} else {
-					ma := make(map[string]models.Menu)
-					ma[tid] = *value
-					menus[tmpKey] = StuMenu{IsChild: true, Child: ma}
-				}
-			}
-		}
-
-		// 判断缓存对象存在存入缓存
-		if err == nil {
-			if e := oCache.Put("menus", menus, 43200*time.Second); e != nil {
-				logs.Alert("存入缓存出现错误 Error:" + e.Error())
-			} else {
-				logs.Alert("存入缓存数据成功 Success")
-			}
-		}
+	// 没有登录
+	if !c.IsLogin("admin") {
+		c.Redirect("/admin", 302)
+		return
 	}
 
 	// 使用的布局
 	c.Data["admin"] = c.User
-	c.Data["navigation"] = menus
-	c.Layout = "layout/admin.tpl"
+	c.Data["navigation"] = logic.GetCacheMenu()
+	c.Layout = "admin/layout/main.html"
 }
 
 // 查询方法
-func (c *CommController) Query(search map[string]string) models.Query {
+func (c *Comm) Query(search map[string]string) models.Query {
 	query := new(models.Query)
 
 	// 处理默认查询信息
@@ -162,7 +109,7 @@ func (c *CommController) Query(search map[string]string) models.Query {
 }
 
 // 公共的查询数据的方法
-func (c *CommController) BaseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
+func (c *Comm) BaseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
 	// 定义返回数据
 	var (
 		data DataTable
@@ -186,7 +133,7 @@ func (c *CommController) BaseSearch(arr interface{}, search map[string]string, w
 }
 
 // 公共的编辑的方法
-func (c *CommController) BaseUpdate(object interface{}, table string) {
+func (c *Comm) BaseUpdate(object interface{}, table string) {
 	// 获取请求信息
 	actionType := c.GetString("actionType")
 	if actionType == "" {
@@ -262,7 +209,7 @@ func (c *CommController) BaseUpdate(object interface{}, table string) {
 }
 
 // BaseUpload 图片上传处理
-func (c *CommController) BaseUpload(filename, pathname string, allowType []string, size int64, oldFile string) {
+func (c *Comm) BaseUpload(filename, pathname string, allowType []string, size int64, oldFile string) {
 	oldPath := c.GetString(oldFile)
 	if oldPath != "" {
 		// 删除之前的文件
