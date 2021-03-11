@@ -29,7 +29,7 @@ func GetCacheMenu() []*Menu {
 
 	// 没有缓存数据信息 - 查询导航栏信息
 	menuList := make([]*models.Menu, 0)
-	orm.NewOrm().QueryTable(&models.Menu{}).Filter("status", 1).All(&menuList)
+	orm.NewOrm().QueryTable(&models.Menu{}).Filter("status", 1).OrderBy("sort", "id").All(&menuList)
 	data := FindParentMenu(0, menuList)
 	if len(data) > 0 {
 		cache.Put("menu", data, 43200*time.Second)

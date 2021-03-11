@@ -166,13 +166,13 @@ function createForm(k)
 {
     var form = '';
     // 处理其他参数
-    if (k.edit.options == undefined) k.edit.options = {}; // 容错处理
+    if (!k.edit.options) k.edit.options = {}; // 容错处理
     if (!k.edit.type) k.edit.type = "text";
-    k.edit.options["name"]  = k.sName;
+    k.edit.options["name"]  = k.sName || k.data;
     k.edit.options["class"] = "form-control";
-    if (k.edit.type == undefined) k.edit.type = "text"
+    if (!k.edit.type) k.edit.type = "text"
 
-    if ( k.edit.type == "hidden" )
+    if (k.edit.type === "hidden" )
         form += createInput(k.edit.options, 'hidden');
     else
     {
@@ -180,15 +180,15 @@ function createForm(k)
         form += '<div class="form-group">' + Label(k.title, {"class":"col-sm-3 control-label"}) + '<div class="col-sm-9">';
 
         // 单选选按钮添加样式
-        if (k.edit.type == "radio") k.edit.options['class'] = 'ace valid';
+        if (k.edit.type === "radio") k.edit.options['class'] = 'ace valid';
         // 多选按钮处理
-        if (k.edit.type == "checkbox") {
+        if (k.edit.type === "checkbox") {
             k.edit.options['class'] = 'ace m-checkbox';
             k.edit.options['name']  = k.sName + '[]';
         }
 
         // 默认输入框处理
-        if (k.edit.type == "text") if (!empty(k.value)) k.edit.options["value"] = k.value
+        if (k.edit.type === "text") if (!empty(k.value)) k.edit.options["value"] = k.value
 
         // 使用函数
         form += window['create' + ucfirst(k.edit.type)](k.edit.options, k.value, k.edit.default) + '</div></div>';
@@ -205,9 +205,9 @@ function createViewTr(title, data) {
 // 生成查表单信息
 function createSearchForm(k, v) {
     k.search.options = $.extend({"name":k.sName, "vid":v, "class":"me-search"}, k.search.options);
-    if (k.search.type == "select") {k.value["All"] = "全部";}
+    if (k.search.type === "select") {k.value["All"] = "全部";}
     var html = window['create' + ucfirst(k.search.type)](k.search.options, k.value, "All");
-    if (k.search.type == "select") delete k.value["All"]
+    if (k.search.type === "select") delete k.value["All"]
     return Label(k.title + " : " + html) + ' ';
 }
 

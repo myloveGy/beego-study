@@ -39,6 +39,15 @@ type StuMenu struct {
 
 type MeMenus map[string]StuMenu
 
+type Controller interface {
+
+	// 获取model
+	GetModel() interface{}
+
+	// 获取搜索条件
+	GetSearch() map[string]string
+}
+
 // 前置操作
 func (c *Comm) Prepare() {
 

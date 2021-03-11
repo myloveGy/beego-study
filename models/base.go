@@ -14,6 +14,10 @@ func init() {
 	orm.RegisterModel(new(Menu), new(Category), new(Image), new(Article), new(Admin))
 }
 
+type Model interface {
+	PK() string
+}
+
 // 查询对象信息
 type Query struct {
 	Table   string

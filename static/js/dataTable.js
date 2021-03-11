@@ -278,18 +278,21 @@ var MeTable = (function ($) {
             if (k.edit != undefined) form += createForm(k);									// 编辑表单信息
             if (k.search != undefined) self.options.sSearchHtml += createSearchForm(k, v);  // 搜索信息
 
+            var name = k.sName ? k.sName : k.data
+
             // 判断行内编辑
             if (k.editTable != undefined) {
+
                 // 默认修改参数
-                self.options.oEditTable[k.sName] = {
-                    name: k.sName,
-                    type: k.edit.type == "radio" ? "select" : k.edit.type,
+                self.options.oEditTable[name] = {
+                    name: name,
+                    type: k.edit.type === "radio" ? "select" : k.edit.type,
                     source: k.value,
                     send: "always",
                     url: self.options.sEditUrl,
                     title: k.title,
                     success: function (response) {
-                        if (response.status == 0) return response.msg;
+                        if (response.code === 10000) return response.msg;
                     },
                     error: function () {
                         $.gritter.add({
@@ -302,8 +305,8 @@ var MeTable = (function ($) {
                 };
 
                 // 继承修改配置参数
-                self.options.oEditTable[k.sName] = $.extend(self.options.oEditTable[k.sName], k.editTable);
-                k["class"] = "my-edit edit-" + k.sName;
+                self.options.oEditTable[name] = $.extend(self.options.oEditTable[name], k.editTable);
+                k["class"] = "my-edit edit-" + name;
             }
         });
 
@@ -341,7 +344,7 @@ var MeTable = (function ($) {
             // 处理生成表单
             this.oDetails.oTableOptions.aoColumns.forEach(function (k) {
                 views += createViewTr(k.title, 'detail-' + k.data);// 查看详情信息
-                if (k.edit != undefined) form += createForm(k);		// 编辑表单信息
+                if (k.edit !== undefined) form += createForm(k);		// 编辑表单信息
             });
 
             // 添加详情输入框

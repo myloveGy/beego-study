@@ -36,6 +36,14 @@ func Get(key string) (interface{}, error) {
 	return m, nil
 }
 
+func Delete(key string) error {
+	if BaseCache == nil {
+		return errors.New("Cache is Nil")
+	}
+
+	return BaseCache.Delete(key)
+}
+
 func init() {
 	BaseCache, _ = cache.NewCache(CacheName, CacheConfig)
 }

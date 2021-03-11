@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"project/cache"
 	"project/controllers"
 	"project/models"
 )
@@ -46,6 +47,7 @@ func (s *Guest) Login() {
 
 // 用户退出
 func (s *Guest) Logout() {
+	cache.Delete("menu")
 	s.DelSession("admin")
-	s.Success(nil, "退出成功")
+	s.Redirect("/admin", 302)
 }
