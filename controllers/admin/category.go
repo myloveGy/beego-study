@@ -84,7 +84,7 @@ func (c *Category) View() {
 		total int64
 	)
 
-	query := models.QueryOther{Table: "my_category", Where: map[string]interface{}{"pid": id, "status": 1}}
+	query := models.QueryOther{Table: "category", Where: map[string]interface{}{"pid": id, "status": 1}}
 	logs.Alert(query)
 	total, err = models.All(&arr, query)
 	if err != nil {
@@ -112,7 +112,7 @@ func (c *Category) Inline() {
 	}
 
 	var cate models.Category
-	if err := models.One(&cate, models.QueryOther{Table: "my_category", Where: map[string]interface{}{"id": id}}); err != nil {
+	if err := models.One(&cate, models.QueryOther{Table: "category", Where: map[string]interface{}{"id": id}}); err != nil {
 		c.Error(controllers.CodeInvalidParams, "修改数据为空", nil)
 		return
 	}
