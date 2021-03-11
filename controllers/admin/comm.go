@@ -171,24 +171,7 @@ func (c *Comm) BaseUpdate(object interface{}, table string) {
 	}
 
 	if actionType == "deleteAll" {
-		ids := c.GetString("ids")
-		if ids == "" {
-			c.Error(controllers.CodeBusinessError, "删除数据为空", nil)
-			return
-		}
-
-		aIds := strings.Split(ids, ",")
-		if len(aIds) == 0 {
-			c.Error(controllers.CodeBusinessError, "删除数据为空", nil)
-			return
-		}
-
-		if _, err := models.DeleteAll(object, aIds, table); err != nil {
-			c.Error(controllers.CodeSystemError, "删除数据失败", nil)
-			return
-		}
-
-		c.Success(aIds, "批量删除成功")
+		c.baseDeleteAll(object, table)
 		return
 	}
 
@@ -215,6 +198,50 @@ func (c *Comm) BaseUpdate(object interface{}, table string) {
 	}
 
 	c.Success(object, "操作成功")
+}
+
+func (c *Comm) baseDelete(data interface{}, table string) {
+
+	// 修改数据需要先查询数据
+	id, err := c.GetInt64("id")
+	if err != nil {
+		c.Error(controllers.CodeInvalidParams, "主键数据不存在", nil)
+		return
+	}
+
+	if err := models.One(data, models.QueryOther{Table: table, Where: map[string]interface{}{"id": id}}); err != nil {
+		c.Error(controllers.CodeBusinessError, "删除数据不存在", nil)
+		return
+	}
+
+	if _, err := models.Delete(data); err != nil {
+		c.Error(controllers.CodeBusinessError, "抱歉！删除数据出现错误", nil)
+		return
+	}
+
+	c.Success(data, "操作成功")
+}
+
+// BaseDeleteAll 批量删除
+func (c *Comm) baseDeleteAll(data interface{}, table string) {
+	ids := c.GetString("ids")
+	if ids == "" {
+		c.Error(controllers.CodeBusinessError, "删除数据为空", nil)
+		return
+	}
+
+	aIds := strings.Split(ids, ",")
+	if len(aIds) == 0 {
+		c.Error(controllers.CodeBusinessError, "删除数据为空", nil)
+		return
+	}
+
+	if _, err := models.DeleteAll(data, aIds, table); err != nil {
+		c.Error(controllers.CodeSystemError, "删除数据失败", nil)
+		return
+	}
+
+	c.Success(aIds, "批量删除成功")
 }
 
 // BaseUpload 图片上传处理

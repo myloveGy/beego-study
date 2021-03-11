@@ -14,12 +14,12 @@ import (
 	"project/models"
 )
 
-type CategoryController struct {
+type Category struct {
 	Comm
 }
 
 // 首页显示
-func (c *CategoryController) Index() {
+func (c *Category) Index() {
 	// 查询分类的顶级分类
 	query := models.QueryOther{
 		Table: "category",
@@ -43,7 +43,7 @@ func (c *CategoryController) Index() {
 }
 
 // 查询数据
-func (c *CategoryController) Search() {
+func (c *Category) Search() {
 	var arr []*models.Category
 
 	// 查询信息
@@ -60,12 +60,12 @@ func (c *CategoryController) Search() {
 }
 
 // 修改数据
-func (c *CategoryController) Update() {
+func (c *Category) Update() {
 	c.BaseUpdate(&models.Category{}, "category")
 }
 
 // 详情信息
-func (c *CategoryController) View() {
+func (c *Category) View() {
 	// 获取ID
 	id, err := c.GetInt64("id")
 	if err != nil {
@@ -96,7 +96,7 @@ func (c *CategoryController) View() {
 }
 
 // Inline 行内编辑执行
-func (c *CategoryController) Inline() {
+func (c *Category) Inline() {
 
 	// 获取ID
 	name, value := c.GetString("name"), c.GetString("value")

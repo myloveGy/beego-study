@@ -31,7 +31,7 @@ func init() {
 		beego.NSAutoRouter(&admin.Guest{}),
 		beego.NSAutoRouter(&admin.Admin{}),
 		beego.NSAutoRouter(&admin.Menu{}),
-		beego.NSAutoRouter(&admin.CategoryController{}),
+		beego.NSAutoRouter(&admin.Category{}),
 	)
 
 	beego.AddNamespace(adminNamespace, userNamespace)
