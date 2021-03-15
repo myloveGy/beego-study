@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/astaxie/beego/orm"
 )
 
 // 定义分类模型
@@ -21,4 +23,13 @@ type Image struct {
 // 返回表名字
 func (*Image) TableName() string {
 	return "image"
+}
+
+func (*Image) PK() string {
+	return "image_id"
+}
+
+// 初始化注册
+func init() {
+	orm.RegisterModel(new(Image))
 }

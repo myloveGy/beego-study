@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/astaxie/beego/orm"
 )
 
 type Category struct {
@@ -18,4 +20,9 @@ type Category struct {
 
 func (*Category) TableName() string {
 	return "category"
+}
+
+// 初始化注册
+func init() {
+	orm.RegisterModel(new(Category))
 }

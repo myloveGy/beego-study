@@ -10,8 +10,8 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 
-	"project/controllers"
 	"project/models"
+	"project/response"
 )
 
 type Category struct {
@@ -20,19 +20,16 @@ type Category struct {
 
 // 首页显示
 func (c *Category) Index() {
-	// 查询分类的顶级分类
-	query := models.QueryOther{
-		Table: "category",
-		Where: map[string]interface{}{
-			"status": 1,
-			"pid":    0,
-		},
-	}
-	var arr []*models.Category
-	if _, err := models.All(&arr, query); err == nil {
+
+	arrList := make([]*models.Category, 0)
+	if _, err := orm.NewOrm().
+		QueryTable(&models.Category{}).
+		Filter("status", 1).
+		Filter("pid", 0).
+		All(&arrList); err != nil {
 		data := make(map[string]string)
 		data["0"] = "顶级分类"
-		for _, v := range arr {
+		for _, v := range arrList {
 			data[strconv.FormatInt(v.Id, 10)] = v.CateName
 		}
 		str, _ := json.Marshal(&data)
@@ -64,65 +61,36 @@ func (c *Category) Update() {
 	c.BaseUpdate(&models.Category{}, "category")
 }
 
-// 详情信息
-func (c *Category) View() {
-	// 获取ID
-	id, err := c.GetInt64("id")
-	if err != nil {
-		c.Error(controllers.CodeMissingParams, "请求数据为空", nil)
-		return
-	}
-
-	num, err1 := c.GetInt("sEcho", 0)
-	if err1 != nil {
-		c.Error(controllers.CodeMissingParams, "请求数据为空", nil)
-		return
-	}
-
-	var (
-		arr   []*models.Category
-		total int64
-	)
-
-	query := models.QueryOther{Table: "category", Where: map[string]interface{}{"pid": id, "status": 1}}
-	logs.Alert(query)
-	total, err = models.All(&arr, query)
-	if err != nil {
-		c.Error(controllers.CodeBusinessError, "查询出现问题", nil)
-		return
-	}
-
-	c.Success(&DataTable{Total: total, Count: total, Echo: num, Data: arr}, "")
-}
-
 // Inline 行内编辑执行
 func (c *Category) Inline() {
 
 	// 获取ID
 	name, value := c.GetString("name"), c.GetString("value")
 	if name == "" || value == "" {
-		c.Error(controllers.CodeMissingParams, "请求数据为空", nil)
+		response.MissingParams(&c.Base.Controller, "请求数据为空")
 		return
 	}
 
 	id, err := c.GetInt64("pk")
-	if err != nil {
-		c.Error(controllers.CodeMissingParams, "主键信息为空", nil)
+	if err != nil || id <= 0 {
+		response.MissingParams(&c.Base.Controller, "主键信息为空")
 		return
 	}
 
-	var cate models.Category
-	if err := models.One(&cate, models.QueryOther{Table: "category", Where: map[string]interface{}{"id": id}}); err != nil {
-		c.Error(controllers.CodeInvalidParams, "修改数据为空", nil)
+	category := &models.Category{Id: id}
+	orm.NewOrm().Read(category)
+	if err := orm.NewOrm().Read(category); err != nil {
+		response.InvalidParams(&c.Base.Controller, "修改数据为空")
 		return
 	}
 
-	v := reflect.ValueOf(&cate)
+	v := reflect.ValueOf(category)
+
 	// 首字母大写
 	name = strings.ToUpper(name[0:1]) + name[1:]
 	tempName := v.Elem().FieldByName(name)
 	if !tempName.IsValid() {
-		c.Error(controllers.CodeInvalidParams, "修改字段不存在", nil)
+		response.InvalidParams(&c.Base.Controller, "修改字段不存在")
 		return
 	}
 
@@ -142,17 +110,17 @@ func (c *Category) Inline() {
 	}
 
 	if err != nil {
-		c.Error(controllers.CodeBusinessError, "服务器处理出现错误: "+err.Error(), nil)
+		response.BusinessError(&c.Base.Controller, "服务器处理出现错误: "+err.Error(), nil)
 		return
 	}
 
 	if tempName.CanSet() {
 		tempName.Set(reflect.ValueOf(tv))
-		if _, err = orm.NewOrm().Update(&cate, name); err != nil {
-			c.Error(controllers.CodeBusinessError, "修改失败", nil)
+		if _, err = orm.NewOrm().Update(category, name); err != nil {
+			response.BusinessError(&c.Base.Controller, "修改失败")
 			return
 		}
 	}
 
-	c.Success(&cate, "修改成功")
+	response.Success(&c.Base.Controller, category, "修改成功")
 }

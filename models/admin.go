@@ -6,7 +6,7 @@ import (
 
 	"github.com/astaxie/beego/orm"
 
-	"project/help"
+	"project/utils"
 )
 
 type Admin struct {
@@ -25,6 +25,10 @@ func (*Admin) TableName() string {
 	return "admin"
 }
 
+func (*Admin) PK() string {
+	return "user_id"
+}
+
 func (a *Admin) Login(username, password, ip string) error {
 	o := orm.NewOrm()
 
@@ -34,7 +38,7 @@ func (a *Admin) Login(username, password, ip string) error {
 	}
 
 	// 验证密码
-	if !help.ValidatePassword(password, a.Password) {
+	if !utils.ValidatePassword(password, a.Password) {
 		return errors.New("用户名或者密码错误")
 	}
 
@@ -51,4 +55,9 @@ func (a *Admin) Login(username, password, ip string) error {
 	}
 
 	return nil
+}
+
+// 初始化注册
+func init() {
+	orm.RegisterModel(new(Admin))
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego/orm"
 
 	"project/models"
+	"project/response"
 )
 
 // 首页控制器
@@ -74,13 +75,13 @@ func (a *Article) List() {
 	// 接收参数
 	start, err = a.GetInt("iStart")
 	if err != nil {
-		a.Error(CodeMissingParams, "参数为空", nil)
+		response.MissingParams(&a.Base.Controller)
 		return
 	}
 
 	length, err = a.GetInt("iLength")
 	if err != nil {
-		a.Error(CodeMissingParams, "参数为空", nil)
+		response.MissingParams(&a.Base.Controller)
 		return
 	}
 
@@ -95,12 +96,12 @@ func (a *Article) List() {
 	// 查询数据总条数
 	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).Count()
 	if err != nil {
-		a.Error(CodeBusinessError, "查询错误", nil)
+		response.BusinessError(&a.Base.Controller, "查询错误")
 		return
 	}
 
 	if _, err := o.QueryTable(&models.Article{}).Filter("status", 1).Limit(length, start).All(&articleList); err != nil {
-		a.Error(CodeBusinessError, "查询错误", nil)
+		response.BusinessError(&a.Base.Controller, "查询错误")
 		return
 	}
 
@@ -108,7 +109,7 @@ func (a *Article) List() {
 	m["iTotalRecords"] = len(articleList)
 	m["aData"] = articleList
 
-	a.Success(m, "success")
+	response.Success(&a.Base.Controller, m)
 }
 
 // Image 请求获取图片文章信息
@@ -123,13 +124,13 @@ func (a *Article) Image() {
 	// 接收参数
 	start, err = a.GetInt("iStart")
 	if err != nil {
-		a.Error(CodeMissingParams, "参数为空", nil)
+		response.MissingParams(&a.Base.Controller)
 		return
 	}
 
 	length, err = a.GetInt("iLength")
 	if err != nil {
-		a.Error(CodeMissingParams, "参数为空", nil)
+		response.MissingParams(&a.Base.Controller)
 		return
 	}
 
@@ -137,7 +138,7 @@ func (a *Article) Image() {
 	// 查询数据总条数
 	total, err = o.QueryTable(&models.Article{}).Filter("status", 1).FilterRaw("img", "!= ''").Count()
 	if err != nil {
-		a.Error(CodeBusinessError, "查询数据为空", nil)
+		response.BusinessError(&a.Base.Controller, "查询数据为空")
 		return
 	}
 
@@ -149,7 +150,7 @@ func (a *Article) Image() {
 		OrderBy("-id").
 		Limit(length, start).
 		All(&articleList); err != nil {
-		a.Error(CodeBusinessError, "查询数据出错", nil)
+		response.BusinessError(&a.Base.Controller, "查询数据出错")
 		return
 	}
 
@@ -159,5 +160,5 @@ func (a *Article) Image() {
 		"aData":         articleList,
 	}
 
-	a.Success(m, "")
+	response.Success(&a.Base.Controller, m)
 }

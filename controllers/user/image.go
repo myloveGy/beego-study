@@ -10,8 +10,9 @@ import (
 	"github.com/astaxie/beego/orm"
 
 	"project/controllers"
-	"project/help"
 	"project/models"
+	"project/response"
+	"project/utils"
 )
 
 type Image struct {
@@ -22,20 +23,20 @@ type Image struct {
 func (c *Image) Create() {
 	// 未登录
 	if !c.IsLogin("user") {
-		c.Error(controllers.CodeNotLogin, "抱歉，您还没有登录呢!", nil)
+		response.NotLogin(&c.Controller.Controller, "抱歉，您还没有登录呢!")
 		return
 	}
 
 	// 接收参数
 	title, desc, sType, url := c.GetString("title"), c.GetString("desc"), c.GetString("type"), c.GetString("url")
 	if title == "" || url == "" {
-		c.Error(controllers.CodeMissingParams, "图片标题和地址为空", nil)
+		response.MissingParams(&c.Controller.Controller, "图片标题和地址为空")
 		return
 	}
 
 	i, err := strconv.Atoi(sType)
 	if err != nil {
-		c.Error(controllers.CodeInvalidParams, "类型错误", nil)
+		response.InvalidParams(&c.Controller.Controller, "类型错误")
 		return
 	}
 
@@ -49,40 +50,41 @@ func (c *Image) Create() {
 	}
 
 	if _, err := orm.NewOrm().Insert(image); err != nil {
-		c.Error(controllers.CodeSystemError, "添加失败", nil)
+		response.SystemError(&c.Controller.Controller, "添加失败")
 		return
 	}
 
-	c.Success(image, "添加成功")
+	response.Success(&c.Controller.Controller, image, "添加成功")
 }
 
 // Upload 图片上传
 func (c *Image) Upload() {
-	oldFile := c.GetString("fileurl")
 
 	// 未登录
 	if !c.IsLogin("user") {
-		c.Error(controllers.CodeNotLogin, "抱歉，您还没有登录呢!", nil)
+		response.NotLogin(&c.Controller.Controller, "抱歉，您还没有登录呢!")
 		return
 	}
+
+	oldFile := c.GetString("fileurl")
 
 	// 上传文件
 	f, h, err := c.GetFile("image")
 	if err != nil {
-		c.Error(controllers.CodeBusinessError, err.Error(), nil)
+		response.BusinessError(&c.Controller.Controller, err)
 		return
 	}
 
 	defer f.Close()
 	file := path.Ext(h.Filename)
-	if !help.InArray([]string{".jpg", ".jpeg", ".png", ".gif"}, file) {
-		c.Error(controllers.CodeInvalidParams, "上传文件格式不对, 只允许上传: .jpg, .jpeg, .png, .gif文件", nil)
+	if !utils.InArray([]string{".jpg", ".jpeg", ".png", ".gif"}, file) {
+		response.InvalidParams(&c.Controller.Controller, "上传文件格式不对, 只允许上传: .jpg, .jpeg, .png, .gif文件")
 		return
 	}
 
 	// 上传文件大小
-	if 1024*1024*2 < f.(help.Sizer).Size() {
-		c.Error(controllers.CodeInvalidParams, "上传文件不能超过2M", nil)
+	if 1024*1024*2 < f.(utils.Sizer).Size() {
+		response.InvalidParams(&c.Controller.Controller, "上传文件不能超过2M")
 		return
 	}
 
@@ -91,9 +93,9 @@ func (c *Image) Upload() {
 	dirName := "./static/uploads/" + datePath
 
 	// 目录不存在创建
-	if !help.IsDirExists(dirName) {
+	if !utils.IsDirExists(dirName) {
 		if err := os.MkdirAll(dirName, 0777); err != nil {
-			c.Error(controllers.CodeSystemError, "创建目录失败 :( "+dirName, nil)
+			response.SystemError(&c.Controller.Controller, "创建目录失败 :( "+dirName)
 			return
 		}
 	}
@@ -101,16 +103,16 @@ func (c *Image) Upload() {
 	// 文件最终保存的地址
 	fileName := dirName + "/" + strconv.Itoa(rand.Int()) + file
 	if err := c.SaveToFile("image", fileName); err != nil {
-		c.Error(controllers.CodeSystemError, err.Error(), nil)
+		response.SystemError(&c.Controller.Controller, err)
 		return
 	}
 
 	// 上传成功删除之前的图片
-	if oldFile != "" && help.IsFileExists("./"+oldFile) {
+	if oldFile != "" && utils.IsFileExists("./"+oldFile) {
 		os.Remove("./" + oldFile)
 	}
 
 	data := map[string]string{"image": h.Filename, "path": fileName[1:]}
-	c.Success(data, "图片上传成功")
+	response.Success(&c.Controller.Controller, data, "图片上传成功")
 	return
 }

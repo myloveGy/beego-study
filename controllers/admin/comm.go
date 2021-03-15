@@ -10,42 +10,15 @@ import (
 	"github.com/astaxie/beego/orm"
 
 	"project/controllers"
-	"project/help"
 	"project/logic"
-	"project/models"
+	"project/repositories"
+	"project/response"
+	"project/utils"
 )
-
-// 表格返回数据
-type DataTable struct {
-	Echo  int         `json:"sEcho"`
-	Count int64       `json:"iTotalRecords"`
-	Total int64       `json:"iTotalDisplayRecords"`
-	Data  interface{} `json:"aaData"`
-}
 
 // 后台控制器
 type Comm struct {
 	controllers.Base
-	SearchMap func() map[string]string
-}
-
-type StuMenu struct {
-	MenuName string                 `json:"menu_name"`
-	Icons    string                 `json:"icons"`
-	Url      string                 `json:"url"`
-	Child    map[string]models.Menu `json:"child"`
-	IsChild  bool                   `json:"is_child"`
-}
-
-type MeMenus map[string]StuMenu
-
-type Controller interface {
-
-	// 获取model
-	GetModel() interface{}
-
-	// 获取搜索条件
-	GetSearch() map[string]string
 }
 
 // 前置操作
@@ -54,7 +27,7 @@ func (c *Comm) Prepare() {
 	// 如果是ajax 请求获取POST提交、忽略
 	if c.IsAjax() || c.Ctx.Request.Method == "POST" {
 		if !c.IsLogin("admin") {
-			c.Error(controllers.CodeNotLogin, "还没有登录", nil)
+			response.NotLogin(&c.Base.Controller, "还没有登录")
 			return
 		}
 
@@ -74,8 +47,8 @@ func (c *Comm) Prepare() {
 }
 
 // 查询方法
-func (c *Comm) Query(search map[string]string) models.Query {
-	query := new(models.Query)
+func (c *Comm) Query(search map[string]string) repositories.Query {
+	query := new(repositories.Query)
 
 	// 处理默认查询信息
 	query.Table = search["Table"]
@@ -121,7 +94,7 @@ func (c *Comm) Query(search map[string]string) models.Query {
 func (c *Comm) BaseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
 	// 定义返回数据
 	var (
-		data DataTable
+		data response.DataTable
 		err  error
 	)
 
@@ -132,13 +105,14 @@ func (c *Comm) BaseSearch(arr interface{}, search map[string]string, where map[s
 	}
 
 	// 查询数据
-	data.Total, data.Count, err = models.FindAll(arr, query)
+	data.RecordsTotal, _, err = repositories.FindAll(arr, query)
 	if err != nil {
-		c.Error(controllers.CodeBusinessError, "服务器繁忙，请稍后再试", nil)
+		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
+		return
 	}
 
 	data.Data = arr
-	c.Success(data, "")
+	response.Success(&c.Base.Controller, &data)
 }
 
 // 公共的编辑的方法
@@ -146,12 +120,12 @@ func (c *Comm) BaseUpdate(object interface{}, table string) {
 	// 获取请求信息
 	actionType := c.GetString("actionType")
 	if actionType == "" {
-		c.Error(controllers.CodeMissingParams, "请求数据为空", nil)
+		response.MissingParams(&c.Base.Controller)
 		return
 	}
 
-	if !help.InArray([]string{"insert", "update", "delete", "deleteAll"}, actionType) {
-		c.Error(controllers.CodeInvalidParams, "请求类型错误", nil)
+	if !utils.InArray([]string{"insert", "update", "delete", "deleteAll"}, actionType) {
+		response.MissingParams(&c.Base.Controller, "请求类型错误")
 		return
 	}
 
@@ -160,12 +134,12 @@ func (c *Comm) BaseUpdate(object interface{}, table string) {
 		// 修改数据需要先查询数据
 		id, err := c.GetInt64("id")
 		if err != nil {
-			c.Error(controllers.CodeInvalidParams, "主键数据不存在", nil)
+			response.BusinessError(&c.Base.Controller, "主键数据不存在")
 			return
 		}
 
-		if err := models.One(object, models.QueryOther{Table: table, Where: map[string]interface{}{"id": id}}); err != nil {
-			c.Error(controllers.CodeBusinessError, "修改数据不存在", nil)
+		if err := repositories.One(object, repositories.QueryOther{Table: table, Where: map[string]interface{}{"id": id}}); err != nil {
+			response.BusinessError(&c.Base.Controller, "修改数据不存在")
 			return
 		}
 	}
@@ -176,7 +150,7 @@ func (c *Comm) BaseUpdate(object interface{}, table string) {
 	}
 
 	if err := c.ParseForm(object); err != nil {
-		c.Error(controllers.CodeInvalidParams, "请求数据为空", nil)
+		response.InvalidParams(&c.Base.Controller, "请求数据为空")
 		return
 	}
 
@@ -188,60 +162,65 @@ func (c *Comm) BaseUpdate(object interface{}, table string) {
 	case "update": // 修改数据
 		_, err = orm.NewOrm().Update(object)
 	case "delete": // 删除数据
-		_, err = models.Delete(object)
+		_, err = repositories.Delete(object)
 	}
 
 	// 判断返回数据
 	if err != nil {
-		c.Error(controllers.CodeBusinessError, "抱歉！执行该操作出现错误", nil)
+		response.BusinessError(&c.Base.Controller, "抱歉！执行该操作出现错误")
 		return
 	}
 
-	c.Success(object, "操作成功")
+	response.Success(&c.Base.Controller, object, "操作成功")
 }
 
 func (c *Comm) baseDelete(data interface{}, table string) {
+	// 获取主键
+	strId := "id"
+	if v, ok := data.(repositories.Model); ok {
+		strId = v.PK()
+	}
 
 	// 修改数据需要先查询数据
-	id, err := c.GetInt64("id")
+	id, err := c.GetInt64(strId)
 	if err != nil {
-		c.Error(controllers.CodeInvalidParams, "主键数据不存在", nil)
+		response.MissingParams(&c.Base.Controller, "主键数据不存在")
 		return
 	}
 
-	if err := models.One(data, models.QueryOther{Table: table, Where: map[string]interface{}{"id": id}}); err != nil {
-		c.Error(controllers.CodeBusinessError, "删除数据不存在", nil)
+	if err := repositories.One(data, repositories.QueryOther{Table: table, Where: map[string]interface{}{strId: id}}); err != nil {
+		response.BusinessError(&c.Base.Controller, "删除数据不存在")
 		return
 	}
 
-	if _, err := models.Delete(data); err != nil {
-		c.Error(controllers.CodeBusinessError, "抱歉！删除数据出现错误", nil)
+	if _, err := repositories.Delete(data); err != nil {
+		response.BusinessError(&c.Base.Controller, "抱歉！删除数据出现错误")
 		return
 	}
 
-	c.Success(data, "操作成功")
+	response.Success(&c.Base.Controller, data, "操作成功")
 }
 
 // BaseDeleteAll 批量删除
 func (c *Comm) baseDeleteAll(data interface{}, table string) {
 	ids := c.GetString("ids")
 	if ids == "" {
-		c.Error(controllers.CodeBusinessError, "删除数据为空", nil)
+		response.MissingParams(&c.Base.Controller, "删除数据为空")
 		return
 	}
 
 	aIds := strings.Split(ids, ",")
 	if len(aIds) == 0 {
-		c.Error(controllers.CodeBusinessError, "删除数据为空", nil)
+		response.BusinessError(&c.Base.Controller, "删除数据为空")
 		return
 	}
 
-	if _, err := models.DeleteAll(data, aIds, table); err != nil {
-		c.Error(controllers.CodeSystemError, "删除数据失败", nil)
+	if _, err := repositories.DeleteAll(data, aIds, table); err != nil {
+		response.SystemError(&c.Base.Controller, "删除数据失败")
 		return
 	}
 
-	c.Success(aIds, "批量删除成功")
+	response.Success(&c.Base.Controller, aIds, "批量删除成功")
 }
 
 // BaseUpload 图片上传处理
@@ -254,28 +233,28 @@ func (c *Comm) BaseUpload(filename, pathname string, allowType []string, size in
 
 	f, h, err := c.GetFile(filename)
 	if err != nil {
-		c.Error(controllers.CodeMissingParams, "没有文件上传", nil)
+		response.MissingParams(&c.Base.Controller, "没有文件上传")
 		return
 	}
 
 	defer f.Close()
 	file := path.Ext(h.Filename)
-	if !help.InArray(allowType, file) {
-		c.Error(controllers.CodeInvalidParams, "上传文件格式不对", nil)
+	if !utils.InArray(allowType, file) {
+		response.InvalidParams(&c.Base.Controller, "上传文件格式不对")
 		return
 	}
 
-	if size < f.(help.Sizer).Size() {
-		c.Error(controllers.CodeInvalidParams, "上传文件不能超过过大", nil)
+	if size < f.(utils.Sizer).Size() {
+		response.InvalidParams(&c.Base.Controller, "上传文件不能超过过大")
 		return
 	}
 
 	// 处理上传目录
 	dirName := "./static/uploads/" + pathname
 	// 目录不存在创建
-	if !help.IsDirExists(dirName) {
+	if !utils.IsDirExists(dirName) {
 		if err = os.MkdirAll(dirName, 0777); err != nil {
-			c.Error(controllers.CodeBusinessError, "创建目录失败 :( "+dirName, nil)
+			response.BusinessError(&c.Base.Controller, "创建目录失败 :( "+dirName)
 			return
 		}
 	}
@@ -283,10 +262,10 @@ func (c *Comm) BaseUpload(filename, pathname string, allowType []string, size in
 	// 文件最终保存的地址
 	fileName := dirName + "/" + strconv.Itoa(rand.Int()) + file
 	if err = c.SaveToFile(filename, fileName); err != nil {
-		c.Error(controllers.CodeBusinessError, "上传失败", nil)
+		response.BusinessError(&c.Base.Controller, "上传失败")
 		return
 	}
 
 	data := map[string]string{"fileName": h.Filename, "fileUrl": fileName[1:]}
-	c.Success(data, "文件上传成功")
+	response.Success(&c.Base.Controller, data, "文件上传成功")
 }

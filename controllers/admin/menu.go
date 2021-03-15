@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"project/models"
+	"project/repositories"
 )
 
 type Menu struct {
@@ -14,7 +15,7 @@ type Menu struct {
 // 首页显示
 func (m *Menu) Index() {
 	// 查询主要导航
-	query := models.QueryOther{
+	query := repositories.QueryOther{
 		Table: "menu",
 		Where: map[string]interface{}{
 			"status": 1,
@@ -23,7 +24,7 @@ func (m *Menu) Index() {
 	}
 
 	var arr []*models.Menu
-	if _, err := models.All(&arr, query); err == nil {
+	if _, err := repositories.All(&arr, query); err == nil {
 		data := make(map[string]string)
 		data["0"] = "顶级分类"
 		for _, v := range arr {

@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/astaxie/beego/orm"
 )
 
 // 定义导航栏模型
@@ -20,4 +22,13 @@ type Menu struct {
 // 返回表名字
 func (*Menu) TableName() string {
 	return "menu"
+}
+
+func (*Menu) PK() string {
+	return "id"
+}
+
+// 初始化注册
+func init() {
+	orm.RegisterModel(new(Menu))
 }

@@ -22,8 +22,12 @@ type Article struct {
 	UpdatedAt  time.Time `orm:"column(updated_at);auto_now;type(datetime)" json:"updated_at"`
 }
 
-func (u *Article) TableName() string {
+func (*Article) TableName() string {
 	return "article"
+}
+
+func (*Article) PK() string {
+	return "id"
 }
 
 /**
@@ -40,4 +44,9 @@ func GetArticle(where map[string]interface{}, limit int, order string) (articles
 	}
 	_, err = qs.OrderBy(order).Limit(limit).All(&articles)
 	return
+}
+
+// 初始化注册
+func init() {
+	orm.RegisterModel(new(Article))
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"project/models"
+	"project/response"
 )
 
 type Guest struct {
@@ -13,32 +14,33 @@ func (g *Guest) Login() {
 	// 获取参数
 	username, password := g.GetString("username"), g.GetString("password")
 	if username == "" && password == "" {
-		g.Error(CodeMissingParams, "参数为空", nil)
+		response.MissingParams(&g.Controller)
 		return
 	}
 
 	// 用户登录
 	admin := &models.Admin{}
 	if err := admin.Login(username, password, g.Ctx.Request.RemoteAddr); err != nil {
-		g.Error(CodeBusinessError, err.Error(), nil)
+		response.MissingParams(&g.Controller, err)
 		return
 	}
 
-	g.User = User{UserId: admin.UserId, Username: admin.Username, Status: admin.Status, Email: admin.Email}
+	g.User = response.User{UserId: admin.UserId, Username: admin.Username, Status: admin.Status, Email: admin.Email}
 
 	// 设置session
 	g.SetSession("user", g.User)
-	g.Success(&g.User, "登录成功")
+	response.Success(&g.Controller, &g.User, "登录成功")
+	return
 }
 
 // Logout 退出
 func (g *Guest) Logout() {
 	// 初始化返回
 	g.DelSession("user")
-	g.Success(nil, "您已经退出登录")
+	g.Redirect("/", 302)
 }
 
 // Detail 详情
 func (g *Guest) Detail() {
-	g.Success(g.GetSession("user"), "")
+	response.Success(&g.Controller, g.GetSession("user"), "")
 }

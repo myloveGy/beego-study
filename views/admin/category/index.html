@@ -1,174 +1,93 @@
-<p>
-    <button class="btn btn-white btn-success btn-bold me-table-insert">
-        <i class="ace-icon fa fa-plus bigger-120 blue"></i>
-        添加
-    </button>
-    <button class="btn btn-white btn-warning btn-bold me-table-delete">
-        <i class="ace-icon fa fa-trash-o bigger-120 orange"></i>
-        删除
-    </button>
-    <button class="btn btn-white btn-info btn-bold me-hide">
-        <i class="ace-icon fa  fa-external-link bigger-120 orange"></i>
-        隐藏
-    </button>
-    <button class="btn btn-white btn-primary btn-bold orange2 me-table-reload">
-        <i class="ace-icon fa fa-refresh bigger-120 orange"></i>
-        刷新
-    </button>
-</p>
-<table id="showTable" class="table table-striped table-bordered table-hover"></table>
-<div class="col-xs-12 hidden">
-    <table id="detailTable" class="table table-striped table-bordered table-hover"></table>
-</div>
+<p  id="me-table-buttons"></p>
+<table  id="show-table" class="table table-striped table-bordered table-hover"></table>
 <script type="text/javascript">
     var oParents = $.parseJSON({{.categoryList}});
 
-    function parentStatus(td, data, rowArr, row, col) {
-        if (oParents[data]) $(td).html(oParents[data])
-    }
-
-    // 公共的方法用来处理编辑的信息
-    function EditError() {
-        $.gritter.add({title: '编辑出现错误!', text: '服务器没有响应', class_name: 'gritter-error gritter-center', time: 800,});
+    function parentStatus(td, data) {
+        if (oParents[data]) {
+            $(td).html(oParents[data])
+        }
     }
 
     var oStatus = {"0": "停用", "1": "启用"},
-        myTable = new MeTable({"sTitle": "文章分类信息"}, {
-            "aoColumns": [
-                oCheckBox,
-                {
-                    "data": "id",
-                    "sName": "id",
-                    "class": "details-control",
-                    "title": "栏目ID",
-                    "edit": {"type": "hidden"},
-                    "search": {"type": "text"},
-                    "createdCell": function (td, data, rowArr, row, col) {
-                        $(td).html(data + '<b class="arrow fa fa-angle-down pull-right"></b>');
-                    }
-                },
-                {
-                    "data": "pid", "sName": "pid", "title": "上级分类", "value": oParents, "editTable": {
-                        validate: function (x) {
-                            var v = parseInt(x);
-                            if (isNaN(v) || v < 0) return "必须为数字";
-                        }, "type": "select"
-                    }, "edit": {"type": "select", "options": {"number": 1}}, "createdCell": parentStatus
-                },
-                {
-                    "data": "cate_name", "sName": "cate_name", "title": "分类名称", "editTable": {
-                        validate: function (x) {
-                            var l = x.length;
-                            if (x > 50 || x < 2) return "长度必须为2到50字符";
-                        }, "type": "text", "name": "CateName"
-                    }, "edit": {"options": {"required": 1, "rangelength": "[2, 50]"}}
-                },
-                {
-                    "data": "status",
-                    "sName": "status",
-                    "editTable": {
-                        validate: function (x) {
-                            var v = parseInt(x);
-                            if (isNaN(v) || v < 0) return "必须为数字";
+        myTable = new meTables({
+            title: "文章分类信息",
+            table: {
+                "columns": [
+                    {
+                        data: "id",
+                        title: "栏目ID",
+                        edit: {"type": "hidden"},
+                        search: {"type": "text"},
+                    },
+                    {
+                        data: "pid",
+                        title: "上级分类",
+                        value: oParents,
+                        editTable: {
+                            validate: function (x) {
+                                var v = parseInt(x);
+                                if (isNaN(v) || v < 0) return "必须为数字";
+                            }, "type": "select"
+                        },
+                        edit: {"type": "select", "options": {"number": 1}},
+                        createdCell: parentStatus
+                    },
+                    {
+                        data: "cate_name",
+                        title: "分类名称",
+                        editTable: {
+                            validate: function (x) {
+                                var l = x.length;
+                                if (l > 50 || l < 2) return "长度必须为2到50字符";
+                            }, "type": "text", "name": "CateName"
+                        },
+                        edit: {"options": {"required": 1, "rangelength": "[2, 50]"}}
+                    },
+                    {
+                        data: "status",
+                        editTable: {
+                            validate: function (x) {
+                                var v = parseInt(x);
+                                if (isNaN(v) || v < 0) return "必须为数字";
+                            }
+                        },
+                        title: "状态",
+                        value: oStatus,
+                        edit: {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
+                        search: {"type": "select"},
+                        createdCell: function (td, data) {
+                            td.html(oStatus[data] || "未知")
                         }
                     },
-                    "title": "状态",
-                    "value": oStatus,
-                    "edit": {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
-                    "search": {"type": "select"},
-                    "createdCell": statusToString
-                },
-                {
-                    "data": "recommend",
-                    "sName": "recommend",
-                    "title": "推荐",
-                    "editTable": {
-                        validate: function (x) {
-                            var v = parseInt(x);
-                            if (isNaN(v) || v < 0) return "必须为数字";
-                        }
-                    },
-                    "value": {"0": "不推荐", "1": "推荐"},
-                    "edit": {"type": "radio", options: {"id": "my-daterange"}},
-                    "createdCell": recommendToString
-                },
-                {
-                    "data": "sort",
-                    "sName": "sort",
-                    "title": "排序",
-                    "value": 100,
-                    "edit": {"options": {"required": 1, "number": 1}}
-                },
-                // 公共属性字段信息
-                {
-                    "data": "created_at",
-                    "sName": "created_at",
-                    "title": "创建时间",
-                    "edit": {"type": "date"},
-                },
-                {
-                    "data": "updated_at",
-                    "sName": "updated_at",
-                    "title": "修改时间",
-                    "edit": {"type": "file", options: {"id": "myfile", type: "ace_input"}},
-                },
-                oOperate,
-            ],
-        }, {
-            "sClickSelect": "td.details-control",
-            "oTableOptions": {
-                "aoColumns": [
-                    {"data": "id", "sName": "id", "title": "栏目ID", "edit": {"type": "hidden"}},
                     {
-                        "data": "pid",
-                        "sName": "pid",
-                        "title": "上级分类",
-                        "value": oParents,
-                        "edit": {"type": "select", "options": {"number": 1}},
-                        "createdCell": parentStatus
+                        data: "recommend",
+                        title: "推荐",
+                        editTable: {
+                            validate: function (x) {
+                                var v = parseInt(x);
+                                if (isNaN(v) || v < 0) return "必须为数字";
+                            }
+                        },
+                        value: {"0": "不推荐", "1": "推荐"},
+                        edit: {"type": "radio", options: {"id": "my-daterange"}},
                     },
                     {
-                        "data": "cate_name",
-                        "sName": "cate_name",
-                        "title": "分类名称",
-                        "edit": {"options": {"required": 1, "rangelength": "[2, 50]"}}
-                    },
-                    {
-                        "data": "status",
-                        "sName": "status",
-                        "title": "状态",
-                        "value": oStatus,
-                        "edit": {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
-                        "search": {"type": "select"},
-                        "createdCell": statusToString
-                    },
-                    {
-                        "data": "recommend",
-                        "sName": "recommend",
-                        "title": "推荐",
-                        "value": 100,
-                        "edit": {"options": {"required": 1, "number": 1}}
-                    },
-                    {
-                        "data": "sort",
-                        "sName": "sort",
-                        "title": "排序",
-                        "value": 100,
-                        "edit": {"options": {"required": 1, "number": 1}}
+                        data: "sort",
+                        title: "排序",
+                        value: 100,
+                        edit: {"options": {"required": 1, "number": 1}}
                     },
                     // 公共属性字段信息
                     {
-                        "data": "created_at",
-                        "sName": "created_at",
-                        "title": "创建时间",
+                        data: "created_at",
+                        title: "创建时间",
                     },
                     {
-                        "data": "updated_at",
-                        "sName": "updated_at",
-                        "title": "修改时间",
-                    },
-                    oOperateDetails,
-                ]
+                        data: "updated_at",
+                        title: "修改时间",
+                    }
+                ],
             }
         });
 

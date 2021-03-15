@@ -1,80 +1,57 @@
-<p>
-    <button class="btn btn-white btn-success btn-bold me-table-insert">
-        <i class="ace-icon fa fa-plus bigger-120 blue"></i>
-        添加
-    </button>
-    <button class="btn btn-white btn-warning btn-bold me-table-delete">
-        <i class="ace-icon fa fa-trash-o bigger-120 orange"></i>
-        删除
-    </button>
-    <button class="btn btn-white btn-info btn-bold me-hide">
-        <i class="ace-icon fa  fa-external-link bigger-120 orange"></i>
-        隐藏
-    </button>
-    <button class="btn btn-white btn-primary btn-bold orange2 me-table-reload">
-        <i class="ace-icon fa fa-refresh bigger-120 orange"></i>
-        刷新
-    </button>
-</p>
-<!--表格数据-->
-<table class="table table-striped table-bordered table-hover" id="showTable">
-</table>
+<p  id="me-table-buttons"></p>
+<table  id="show-table" class="table table-striped table-bordered table-hover"></table>
 <script type="text/javascript">
     var aStatus = {0: "停用", 1: "启用"},
-        myTable = new MeTable({
-            "sTitle": "用户列表信息",
-            "iViewType": 2
-        }, {
-            "aoColumns": [
-                oCheckBox,
-                {
-                    "data": "user_id",
-                    "sName": "user_id",
-                    "title": "用户ID",
-                    "edit": {"type": "hidden"},
-                    "search": {"type": "text"},
-                },
-                {
-                    "data": "username",
-                    "title": "用户名称",
-                    "edit": {"options": {"required": 1, "rangelength": "[2, 50]"}},
-                    "search": {"type": "text"},
-                    bSortable: false,
-                },
-                {
-                    "data": "email",
-                    "title": "用户邮箱",
-                    "edit": {"options": {"required": 1, "rangelength": "[2, 50]", "email": true}},
-                    "search": {"type": "text"},
-                    bSortable: false,
-                },
-                {
-                    "data": "last_login_time",
-                    "title": "最后登录时间",
-                },
-                {
-                    "data": "last_login_ip",
-                    "title": "最后登录IP",
-                    bSortable: false,
-                },
-                {
-                    "data": "status",
-                    "sName": "status",
-                    "title": "状态",
-                    "value": aStatus,
-                    "edit": {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
-                    "search": {"type": "select"},
-                    "createdCell": statusToString,
-                    bSortable: false,
-                },
-                // 公共属性字段信息
-                {"data": "created_at", "sName": "created_at", "title": "创建时间"},
-                {"data": "updated_at", "sName": "updated_at", "title": "修改时间"},
-                oOperate,
-            ],
+        myTable = new meTables({
+            title: "用户列表信息",
+            table: {
+                columns: [
+                    {
+                        "data": "user_id",
+                        "sName": "user_id",
+                        "title": "用户ID",
+                        "edit": {"type": "hidden"},
+                        "search": {"type": "text"},
+                    },
+                    {
+                        "data": "username",
+                        "title": "用户名称",
+                        "edit": {"options": {"required": 1, "rangelength": "[2, 50]"}},
+                        "search": {"type": "text"},
+                        sortable: false,
+                    },
+                    {
+                        data: "email",
+                        title: "用户邮箱",
+                        edit: {"options": {"required": 1, "rangelength": "[2, 50]", "email": true}},
+                        search: {"type": "text"},
+                        sortable: false,
+                    },
+                    {
+                        data: "last_login_time",
+                        title: "最后登录时间",
+                    },
+                    {
+                        data: "last_login_ip",
+                        title: "最后登录IP",
+                        sortable: false,
+                    },
+                    {
+                        data: "status",
+                        title: "状态",
+                        value: aStatus,
+                        edit: {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
+                        search: {"type": "select"},
+                        sortable: false,
+                    },
+                    // 公共属性字段信息
+                    {data: "created_at", title: "创建时间"},
+                    {data: "updated_at", title: "修改时间"},
+                ],
+            }
         });
 
-    function parentStatus(td, data, rowArr, row, col) {
+    function parentStatus(td, data) {
         $(td).html(oParents[data]);
     }
 

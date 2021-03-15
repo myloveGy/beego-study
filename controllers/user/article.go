@@ -5,6 +5,7 @@ import (
 
 	"project/controllers"
 	"project/models"
+	"project/response"
 )
 
 type Article struct {
@@ -15,13 +16,13 @@ type Article struct {
 func (a *Article) Create() {
 	// 未登录
 	if !a.IsLogin("user") {
-		a.Error(controllers.CodeNotLogin, "抱歉，您还没有登录呢!", nil)
+		response.NotLogin(&a.Controller.Controller, "抱歉，您还没有登录呢!")
 		return
 	}
 
 	var article models.Article
 	if err := a.ParseForm(&article); err != nil {
-		a.Error(controllers.CodeMissingParams, "提交数据为空: "+err.Error(), nil)
+		response.MissingParams(&a.Controller.Controller, "提交数据为空: "+err.Error())
 		return
 	}
 
@@ -29,9 +30,9 @@ func (a *Article) Create() {
 	article.UserId = a.User.UserId
 	article.Status = 1
 	if _, err := orm.NewOrm().Insert(&article); err != nil {
-		a.Error(controllers.CodeSystemError, "添加文章失败", nil)
+		response.SystemError(&a.Controller.Controller, "添加文章失败")
 		return
 	}
 
-	a.Success(article, "添加成功")
+	response.Success(&a.Controller.Controller, &article, "添加成功")
 }

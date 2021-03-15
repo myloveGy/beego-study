@@ -4,6 +4,7 @@ import (
 	"project/cache"
 	"project/controllers"
 	"project/models"
+	"project/response"
 )
 
 // 后台首页控制器
@@ -27,22 +28,22 @@ func (s *Guest) Login() {
 	// 获取参数
 	username, password := s.GetString("username"), s.GetString("password")
 	if username == "" && password == "" {
-		s.Error(controllers.CodeMissingParams, "参数为空", nil)
+		response.MissingParams(&s.Base.Controller, "参数为空")
 		return
 	}
 
 	// 用户登录
 	admin := &models.Admin{}
 	if err := admin.Login(username, password, s.Ctx.Request.RemoteAddr); err != nil {
-		s.Error(controllers.CodeBusinessError, err.Error(), nil)
+		response.BusinessError(&s.Base.Controller, err)
 		return
 	}
 
-	s.User = controllers.User{UserId: admin.UserId, Username: admin.Username, Status: admin.Status, Email: admin.Email}
+	s.User = response.User{UserId: admin.UserId, Username: admin.Username, Status: admin.Status, Email: admin.Email}
 
 	// 设置session
 	s.SetSession("admin", s.User)
-	s.Success(&s.User, "登录成功")
+	response.Success(&s.Base.Controller, &s.User, "登录成功")
 }
 
 // 用户退出

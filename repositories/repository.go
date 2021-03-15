@@ -1,4 +1,4 @@
-package models
+package repositories
 
 import (
 	"errors"
@@ -8,11 +8,6 @@ import (
 
 	"github.com/astaxie/beego/orm"
 )
-
-// 初始化注册
-func init() {
-	orm.RegisterModel(new(Menu), new(Category), new(Image), new(Article), new(Admin))
-}
 
 type Model interface {
 	PK() string
