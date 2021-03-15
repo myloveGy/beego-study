@@ -59,4 +59,5 @@ func (c *Controller) Prepare() {
 	c.Data["commList"] = commList
 	c.Data["imgList"] = imgList
 	c.Data["user"] = c.User.Username
+	c.Data["me"], _ = beego.AppConfig.GetSection("me")
 }
