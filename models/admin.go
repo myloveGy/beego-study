@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/astaxie/beego/orm"
 	"github.com/jinxing-go/mysql"
 
+	"project/connection"
 	"project/utils"
 )
 
@@ -49,10 +49,10 @@ func (a *Admin) BeforeSave() error {
 }
 
 func (a *Admin) Login(username, password, ip string) error {
-	o := orm.NewOrm()
+	a.Username = username
 
 	// 查询用户
-	if err := o.QueryTable(a).Filter("username", username).One(a); err != nil {
+	if err := connection.DB.Find(a); err != nil {
 		return errors.New("用户名或者密码错误")
 	}
 
@@ -67,9 +67,11 @@ func (a *Admin) Login(username, password, ip string) error {
 	}
 
 	// 修改登录IP
-	a.LastLoginTime = mysql.Now()
-	a.LastLoginIp = ip
-	if _, err := o.Update(a, "last_login_ip", "last_login_time"); err != nil {
+	if _, err := connection.DB.Update(&Admin{
+		UserId:        a.UserId,
+		LastLoginIp:   ip,
+		LastLoginTime: mysql.Now(),
+	}); err != nil {
 		return errors.New("修改登录信息失败")
 	}
 

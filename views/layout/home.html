@@ -109,21 +109,21 @@
                     <div class="tab-pane fade in active" id="home">
                         <ul>
                         {{range $.sees}}
-                            <li><a href="/article/view/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
+                            <li><a href="/article/detail/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
                         {{end}} 
                         </ul>
                     </div>
                     <div  class="tab-pane fade" id="myhome">
                         <ul>
                         {{range $.hots}}
-                            <li><a href="/article/view/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
+                            <li><a href="/article/detail/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
                         {{end}} 
                         </ul>
                     </div>
                     <div class="tab-pane fade" id="recommend">
                         <ul>
                         {{range $.commList}}
-                            <li><a href="/article/view/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
+                            <li><a href="/article/detail/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
                         {{end}} 
                         </ul>
                     </div>
@@ -136,13 +136,13 @@
                 <ul>
                     {{range $.imgList}}
                     <li>
-                        <a href="/article/view/{{.Id}}">
+                        <a href="/article/detail/{{.Id}}">
                             <img width="75px" height="70px" src="{{.Img}}" />
                             <b>{{.Title}}</b>
                         </a>
                         <p>
                             <span class="glyphicon glyphicon-star m-a">
-                                <a href="/article/view/{{.Id}}">编程</a>
+                                <a href="/article/detail/{{.Id}}">编程</a>
                             </span>
                             <span class="dtime time p-left-20">
                                 {{.CreatedAt}}

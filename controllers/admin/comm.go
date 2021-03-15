@@ -27,21 +27,21 @@ type Comm struct {
 // 前置操作
 func (c *Comm) Prepare() {
 
-	// // 如果是ajax 请求获取POST提交、忽略
-	// if c.IsAjax() || c.Ctx.Request.Method == "POST" {
-	// 	if !c.IsLogin("admin") {
-	// 		response.NotLogin(&c.Base.Controller, "还没有登录")
-	// 		return
-	// 	}
-	//
-	// 	return
-	// }
-	//
-	// // 没有登录
-	// if !c.IsLogin("admin") {
-	// 	c.Redirect("/admin", 302)
-	// 	return
-	// }
+	// 如果是ajax 请求获取POST提交、忽略
+	if c.IsAjax() || c.Ctx.Request.Method == "POST" {
+		if !c.IsLogin("admin") {
+			response.NotLogin(&c.Base.Controller, "还没有登录")
+			return
+		}
+
+		return
+	}
+
+	// 没有登录
+	if !c.IsLogin("admin") {
+		c.Redirect("/admin", 302)
+		return
+	}
 
 	// 使用的布局
 	c.Data["admin"] = c.User
@@ -78,8 +78,8 @@ func (c *Comm) baseSearch(data interface{}, search map[string]string) {
 
 	// 接收参数
 	draw, _ := c.GetInt64("draw", 1)
-	limit, _ := c.GetInt64("limit", 10)
-	offset, _ := c.GetInt64("offset", 0)
+	limit, _ := c.GetInt("limit", 10)
+	offset, _ := c.GetInt("offset", 0)
 	page := offset / limit
 
 	// 处理排序
@@ -110,7 +110,7 @@ func (c *Comm) baseSearch(data interface{}, search map[string]string) {
 	}
 
 	// 查询数据总条数
-	total, err := query.OrderBy(order[0], order[1]).Paginate(int(page), int(limit))
+	total, err := query.OrderBy(order[0], order[1]).Paginate(page+1, limit)
 	if err != nil {
 		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
 		return

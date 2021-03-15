@@ -1,8 +1,7 @@
 package user
 
 import (
-	"github.com/astaxie/beego/orm"
-
+	"project/connection"
 	"project/controllers"
 	"project/models"
 	"project/response"
@@ -29,7 +28,7 @@ func (a *Article) Create() {
 	// 附加信息
 	article.UserId = a.User.UserId
 	article.Status = 1
-	if _, err := orm.NewOrm().Insert(&article); err != nil {
+	if err := connection.DB.Create(&article); err != nil {
 		response.SystemError(&a.Controller.Controller, "添加文章失败")
 		return
 	}

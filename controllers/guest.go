@@ -25,7 +25,12 @@ func (g *Guest) Login() {
 		return
 	}
 
-	g.User = response.User{UserId: admin.UserId, Username: admin.Username, Status: admin.Status, Email: admin.Email}
+	g.User = response.User{
+		UserId:   admin.UserId,
+		Username: admin.Username,
+		Status:   admin.Status,
+		Email:    admin.Email,
+	}
 
 	// 设置session
 	g.SetSession("user", g.User)

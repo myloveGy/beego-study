@@ -36,30 +36,23 @@ func (c *Controller) Prepare() {
 		return
 	}
 
-	// 使用的布局
-	c.Layout = "layout/home.html"
-	status := map[string]interface{}{"status": 1}
+	var (
+		sees     = make([]*models.Article, 0)
+		hots     = make([]*models.Article, 0)
+		commList = make([]*models.Article, 0)
+		imgList  = make([]*models.Article, 0)
+	)
 
 	// 点击量
-	sees, _ := models.GetArticle(status, 6, "see_num", "desc")
-
+	connection.DB.FindAll(&sees, "`status` = ? ORDER BY `see_num` desc LIMIT 6", 1)
 	// 热门
-	hots, _ := models.GetArticle(status, 6, "created_at", "desc")
-	status["recommend"] = 1
-
+	connection.DB.FindAll(&hots, "`status` = ? ORDER BY `created_at` desc LIMIT 6", 1)
 	// 推荐
-	commList, _ := models.GetArticle(status, 6, "created_at", "desc")
-
+	connection.DB.FindAll(&commList, "`status` = ? AND `recommend` = ?  ORDER BY `created_at` desc LIMIT 6", 1, 1)
 	// 图文推荐
-	var imgList []*models.Article
-	connection.DB.Builder(&imgList).
-		Where("status", 1).
-		Where("img", "!=", "").
-		OrderBy("created_at", "asc").
-		Limit(5).
-		All()
+	connection.DB.FindAll(&imgList, "`status` = ? AND `img` != ? ORDER BY `created_at` asc LIMIT 5", 1, "")
 
-	// 用户是否已经登录
+	c.Layout = "layout/home.html"
 	c.Data["isLogin"] = c.IsLogin("user")
 	c.Data["sees"] = sees
 	c.Data["hots"] = hots

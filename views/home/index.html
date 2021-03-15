@@ -51,13 +51,13 @@
                 html += '<div class="blogs">\
             <figure><img src="' + data[i].img + '"></figure>\
             <ul>\
-                <h3><a href="/article/view/' + data[i].id + '">' + data[i].title + '</a></h3>\
+                <h3><a href="/article/detail/' + data[i].id + '">' + data[i].title + '</a></h3>\
                 <p>引导语：' + data[i].content.substr(0, 300) + '</p>\
                 <p class="autor">\
-                    <span class="lm f_l"><a href="/article/view/' + data[i].id + '">个人博客</a></span>\
+                    <span class="lm f_l"><a href="/article/detail/' + data[i].id + '">个人博客</a></span>\
                     <span class="dtime time f_l">' + data[i].created_at + '</span>\
-                    <span class="viewnum f_r">浏览(<a href="/article/view/' + data[i].id + '">' + data[i].see_num + '</a>)</span>\
-                    <span class="pingl f_r">评论(<a href="/article/view/' + data[i].id + '">' + data[i].comment_num + '</a>)</span>\
+                    <span class="viewnum f_r">浏览(<a href="/article/detail/' + data[i].id + '">' + data[i].see_num + '</a>)</span>\
+                    <span class="pingl f_r">评论(<a href="/article/detail/' + data[i].id + '">' + data[i].comment_num + '</a>)</span>\
                 </p>\
             </ul>\
         </div>';

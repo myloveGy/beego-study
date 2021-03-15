@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/astaxie/beego/orm"
-
+	"project/connection"
 	"project/models"
 )
 
@@ -16,8 +15,8 @@ type Menu struct {
 // 首页显示
 func (m *Menu) Index() {
 	// 查询主要导航
-	var arr []*models.Menu
-	if _, err := orm.NewOrm().QueryTable(&models.Menu{}).All(&arr); err == nil {
+	arr := make([]*models.Menu, 0)
+	if err := connection.DB.FindAll(&arr, "status = ?", 1); err == nil {
 		data := make(map[string]string)
 		data["0"] = "顶级分类"
 		for _, v := range arr {

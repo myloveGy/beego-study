@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
 
+	"project/connection"
 	"project/models"
 	"project/response"
 )
@@ -22,11 +22,11 @@ type Category struct {
 func (c *Category) Index() {
 
 	arrList := make([]*models.Category, 0)
-	if _, err := orm.NewOrm().
-		QueryTable(&models.Category{}).
-		Filter("status", 1).
-		Filter("pid", 0).
-		All(&arrList); err != nil {
+	if err := connection.DB.
+		Builder(&arrList).
+		Where("status", 1).
+		Where("pid", 0).
+		All(); err == nil {
 		data := make(map[string]string)
 		data["0"] = "顶级分类"
 		for _, v := range arrList {
@@ -84,13 +84,13 @@ func (c *Category) Inline() {
 	}
 
 	category := &models.Category{Id: id}
-	orm.NewOrm().Read(category)
-	if err := orm.NewOrm().Read(category); err != nil {
+	if err := connection.DB.Find(category); err != nil {
 		response.InvalidParams(&c.Base.Controller, "修改数据为空")
 		return
 	}
 
-	v := reflect.ValueOf(category)
+	updateCategory := &models.Category{Id: id}
+	v := reflect.ValueOf(updateCategory)
 
 	// 首字母大写
 	name = strings.ToUpper(name[0:1]) + name[1:]
@@ -122,7 +122,7 @@ func (c *Category) Inline() {
 
 	if tempName.CanSet() {
 		tempName.Set(reflect.ValueOf(tv))
-		if _, err = orm.NewOrm().Update(category, name); err != nil {
+		if _, err = connection.DB.Update(updateCategory, name); err != nil {
 			response.BusinessError(&c.Base.Controller, "修改失败")
 			return
 		}

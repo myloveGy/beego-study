@@ -8,7 +8,6 @@ require (
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/jinxing-go/mysql v1.0.5
 	github.com/lib/pq v1.10.0 // indirect
-	github.com/prometheus/common v0.10.0
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83

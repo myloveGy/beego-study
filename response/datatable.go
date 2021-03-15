@@ -7,3 +7,9 @@ type DataTable struct {
 	RecordsTotal    int64       `json:"recordsTotal"`
 	Data            interface{} `json:"data"`
 }
+
+type PageData struct {
+	Total        int64       `json:"iTotal"`
+	TotalRecords int         `json:"iTotalRecords"`
+	Data         interface{} `json:"aData"`
+}

@@ -149,15 +149,11 @@ $(function () {
         }
     });
 
-    // // 时间显示
-    // $('.time').each(function () {
-    //     $(this).html(timeFormat(parseInt($(this).html())))
-    // });
-
     // 回到顶部
     $('#gotop').click(function () {
         $('body,html').animate({scrollTop: 0}, 1000);
     });
+
     // 弹出model
     $('.publish-article').click(function () {
         $('#myModal').modal();
@@ -242,7 +238,7 @@ function FileUpload(url, selector, type, size) {
             layer.msg("图片上传成功")
             $(selector).parent().find("input[type=hidden]").val(data.result.data.path)
         } else {
-            layer.msg("图片上传失败")
+            layer.msg("图片上传失败:" + data.result.msg)
         }
     });
 }

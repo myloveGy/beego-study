@@ -7,8 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/astaxie/beego/orm"
-
+	"project/connection"
 	"project/controllers"
 	"project/models"
 	"project/response"
@@ -49,7 +48,7 @@ func (c *Image) Create() {
 		Status:      1,
 	}
 
-	if _, err := orm.NewOrm().Insert(image); err != nil {
+	if err := connection.DB.Create(image); err != nil {
 		response.SystemError(&c.Controller.Controller, "添加失败")
 		return
 	}

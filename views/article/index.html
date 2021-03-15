@@ -14,8 +14,8 @@
             var html = '';
             for (var i = 0; i < size; i++) {
                 html += '<li class="p-15 m-top-5 m-a" style="border-bottom:1px solid #f2dede;">\
-                    <a href="/article/view/' + data[i].id + '"><span class="text-primary">' + data[i].title.substr(0, 36) + '</span></a>\
-                    <span class="dtime p-left-20 time pull-right"> ' + timeFormat(data[i].create_time) + '</span>\
+                    <a href="/article/detail/' + data[i].id + '"><span class="text-primary">' + data[i].title.substr(0, 36) + '</span></a>\
+                    <span class="dtime p-left-20 time pull-right"> ' + data[i].created_at + '</span>\
                     <span class="glyphicon glyphicon-star pull-right m-right-10"> <a href="article/view/' + data[i].id + '">编程</a> </span>\
                 </li>';
             }

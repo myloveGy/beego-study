@@ -1,23 +1,21 @@
 package models
 
 import (
-	"time"
-
 	"github.com/jinxing-go/mysql"
 
 	"project/connection"
 )
 
 type Category struct {
-	Id        int64     `db:"id" json:"id" form:"id"`
-	Pid       int64     `db:"pid" json:"pid" form:"pid"`
-	Path      string    `db:"path" json:"path"`
-	CateName  string    `db:"cate_name" json:"cate_name" form:"cate_name"`
-	Sort      string    `db:"sort" json:"sort" form:"sort"`
-	Recommend int       `db:"recommend" json:"recommend" form:"recommend"`
-	Status    int       `db:"status" json:"status" form:"status"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	Id        int64      `db:"id" json:"id" form:"id"`
+	Pid       int64      `db:"pid" json:"pid" form:"pid"`
+	Path      string     `db:"path" json:"path"`
+	CateName  string     `db:"cate_name" json:"cate_name" form:"cate_name"`
+	Sort      string     `db:"sort" json:"sort" form:"sort"`
+	Recommend int        `db:"recommend" json:"recommend" form:"recommend"`
+	Status    int        `db:"status" json:"status" form:"status"`
+	CreatedAt mysql.Time `db:"created_at" json:"created_at"`
+	UpdatedAt mysql.Time `db:"updated_at" json:"updated_at"`
 }
 
 func (*Category) TableName() string {
