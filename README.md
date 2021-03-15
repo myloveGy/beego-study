@@ -11,7 +11,7 @@ git clone git@github.com:myloveGy/go.git
 go mod tidy
 ```
 
-3. 导入SQL文件到数据库
+3. 导入项目下`docs/project.sql`SQL文件到数据库
 
 默认账号: admin
 默认密码: admin888
