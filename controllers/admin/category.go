@@ -45,19 +45,16 @@ func (c *Category) Create() {
 
 // 查询数据
 func (c *Category) Search() {
-	var arr []*models.Category
+	arr := make([]*models.Category, 0)
 
 	// 查询信息
 	search := map[string]string{
-		"search":  "cate_name__icontains",
-		"id":      "id",
-		"status":  "status",
-		"orderBy": "id",
-		"Table":   "category",
+		"id":     "id",
+		"status": "status",
 	}
 
 	// 返回信息
-	c.baseSearch(&arr, search, map[string]interface{}{"pid": 0})
+	c.baseSearch(&arr, search)
 }
 
 // Update 修改数据

@@ -33,19 +33,18 @@ func (a *Admin) Upload() {
 
 // 查询数据
 func (a *Admin) Search() {
-	var arr []*models.Admin
+	arr := make([]*models.Admin, 0)
 
 	// 查询信息
 	search := map[string]string{
-		"search":  "username__icontains",
-		"user_id": "user_id",
-		"status":  "status",
-		"orderBy": "user_id",
-		"Table":   "admin",
+		"username": "username__icontains",
+		"email":    "email__icontains",
+		"user_id":  "user_id",
+		"status":   "status",
 	}
 
 	// 返回信息
-	a.baseSearch(&arr, search, nil)
+	a.baseSearch(&arr, search)
 }
 
 // 修改数据

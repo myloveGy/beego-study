@@ -22,6 +22,10 @@ func (*Category) TableName() string {
 	return "category"
 }
 
+func (*Category) PK() string {
+	return "id"
+}
+
 // 初始化注册
 func init() {
 	orm.RegisterModel(new(Category))

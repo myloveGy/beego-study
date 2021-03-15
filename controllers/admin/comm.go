@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"path"
@@ -11,7 +12,7 @@ import (
 
 	"project/controllers"
 	"project/logic"
-	"project/repositories"
+	"project/models"
 	"project/response"
 	"project/utils"
 )
@@ -60,77 +61,65 @@ func (c *Category) baseCreate(data interface{}) {
 	response.Success(&c.Base.Controller, data)
 }
 
-// 查询方法
-func (c *Comm) Query(search map[string]string) repositories.Query {
-	query := new(repositories.Query)
-
-	// 处理默认查询信息
-	query.Table = search["Table"]
-	query.Order = search["orderBy"]
-	query.IStart, _ = c.GetInt64("iDisplayStart")
-	query.ILength, _ = c.GetInt64("iDisplayLength")
-	query.Where = make(map[string]interface{})
-
-	// 判断排序字段
-	if order := c.GetString("params[orderBy]"); order != "" {
-		query.Order = order
-		delete(c.Ctx.Request.PostForm, "params[orderBy]")
-	}
-
-	// 判断排序方式
-	sType := c.GetString("sSortDir_0")
-	if sType != "" {
-		query.Order = strings.TrimLeft(query.Order, "-")
-		if sType == "desc" {
-			query.Order = "-" + query.Order
-		}
-
-		delete(c.Ctx.Request.PostForm, "sSortDir_0")
-	}
-
-	// 判断查询信息
-	if request := c.Ctx.Request.PostForm; request != nil {
-		// 取出其他查询条件
-		for k, v := range request {
-			if strings.HasPrefix(k, "params[") {
-				key := strings.Trim(strings.Trim(strings.Trim(k, "params"), "]"), "[")
-				if tmp, ok := search[key]; ok {
-					query.Where[tmp] = v[0]
-				}
-			}
-		}
-	}
-
-	return *query
-}
-
 // 公共的查询数据的方法
-func (c *Comm) baseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
-	// 定义返回数据
-	var (
-		data response.DataTable
-		err  error
-	)
+func (c *Comm) baseSearch(data interface{}, search map[string]string) {
 
-	draw, _ := c.GetInt64("draw", 0)
-
-	// 处理查询数据信息
-	query := c.Query(search)
-	for k, v := range where {
-		query.Where[k] = v
-	}
-
-	// 查询数据
-	data.RecordsTotal, _, err = repositories.FindAll(arr, query)
+	// 获取model信息
+	modelObject, err := models.GetModel(data)
 	if err != nil {
 		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
 		return
 	}
 
-	data.Draw = draw
-	data.Data = arr
-	data.RecordsFiltered = data.RecordsTotal
-	response.Success(&c.Base.Controller, &data)
+	// 接收参数
+	draw, _ := c.GetInt64("draw", 1)
+	limit, _ := c.GetInt64("limit", 10)
+	offset, _ := c.GetInt64("offset", 0)
+
+	// 处理排序
+	orderBy := c.GetString("orderBy", fmt.Sprintf("%s desc", modelObject.PK()))
+	order := strings.Split(orderBy, " ")
+	if len(order) == 2 && order[1] == "acs" {
+		orderBy = fmt.Sprintf("-%s", order[0])
+	} else {
+		orderBy = fmt.Sprintf("%s", order[0])
+	}
+
+	// 查询数据
+	resp := &response.DataTable{Draw: draw}
+	table := modelObject.TableName()
+	query := orm.NewOrm().QueryTable(table)
+
+	// 添加查询条件
+	for k, v := range search {
+		if k == "default" {
+			where := strings.Split(v, ",")
+			for i := 0; i < len(where); i += 2 {
+				query = query.Filter(where[i], where[i+1])
+			}
+		} else {
+			value := c.Ctx.Input.Query(fmt.Sprintf("filters[%s]", k))
+			if value != "" && v != "" {
+				query = query.Filter(v, value)
+			}
+		}
+	}
+
+	// 查询数据总条数
+	if resp.RecordsTotal, err = query.Count(); err != nil {
+		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
+		return
+	}
+
+	// 查询数据信息
+	if _, err := query.Offset(offset).OrderBy(orderBy).Limit(limit).All(data); err != nil {
+		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
+		return
+	}
+
+	resp.Data = data
+	resp.RecordsFiltered = resp.RecordsTotal
+	response.Success(&c.Base.Controller, resp)
 }
 
 // 公共的编辑的方法
@@ -177,7 +166,7 @@ func (c *Comm) baseDelete(data interface{}) {
 func (c *Comm) findOrFail(data interface{}) error {
 	// 获取主键
 	strId := "id"
-	if v, ok := data.(repositories.Model); ok {
+	if v, ok := data.(models.Model); ok {
 		strId = v.PK()
 	}
 
