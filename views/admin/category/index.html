@@ -4,8 +4,8 @@
     var oParents = $.parseJSON({{.categoryList}});
 
     function parentStatus(td, data) {
-        if (oParents[data]) {
-            $(td).html(oParents[data])
+        if ($.getValue(oParents, data)) {
+            $(td).html(oParents[data] || "")
         }
     }
 
@@ -13,7 +13,7 @@
         myTable = new meTables({
             title: "文章分类信息",
             table: {
-                "columns": [
+                columns: [
                     {
                         data: "id",
                         title: "栏目ID",
@@ -57,7 +57,7 @@
                         edit: {"type": "radio", "default": 1, "options": {"required": 1, "number": 1}},
                         search: {"type": "select"},
                         createdCell: function (td, data) {
-                            td.html(oStatus[data] || "未知")
+                            $(td).html($.getValue(oStatus, data, "未知"))
                         }
                     },
                     {

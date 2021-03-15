@@ -52,10 +52,15 @@ func (m *Menu) Search() {
 	}
 
 	// 返回信息
-	m.BaseSearch(&arr, search, map[string]interface{}{})
+	m.baseSearch(&arr, search, map[string]interface{}{})
 }
 
 // 修改数据
 func (m *Menu) Update() {
-	m.BaseUpdate(&models.Menu{}, "menu")
+	m.baseUpdate(&models.Menu{})
+}
+
+// Delete 删除数据
+func (m *Menu) Delete() {
+	m.baseDelete(&models.Menu{})
 }

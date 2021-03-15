@@ -32,7 +32,7 @@ func (a *Admin) Upload() {
 }
 
 // 查询数据
-func (c *Admin) Search() {
+func (a *Admin) Search() {
 	var arr []*models.Admin
 
 	// 查询信息
@@ -45,10 +45,14 @@ func (c *Admin) Search() {
 	}
 
 	// 返回信息
-	c.BaseSearch(&arr, search, nil)
+	a.baseSearch(&arr, search, nil)
 }
 
 // 修改数据
-func (c *Admin) Update() {
-	c.BaseUpdate(&models.Admin{}, "admin")
+func (a *Admin) Update() {
+	a.baseUpdate(&models.Admin{})
+}
+
+func (a *Admin) Delete() {
+	a.baseDelete(&models.Admin{})
 }

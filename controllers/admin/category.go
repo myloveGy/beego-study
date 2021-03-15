@@ -39,6 +39,10 @@ func (c *Category) Index() {
 	c.TplName = "admin/category/index.html"
 }
 
+func (c *Category) Create() {
+	c.baseCreate(&models.Category{})
+}
+
 // 查询数据
 func (c *Category) Search() {
 	var arr []*models.Category
@@ -53,12 +57,17 @@ func (c *Category) Search() {
 	}
 
 	// 返回信息
-	c.BaseSearch(&arr, search, map[string]interface{}{"pid": 0})
+	c.baseSearch(&arr, search, map[string]interface{}{"pid": 0})
 }
 
-// 修改数据
+// Update 修改数据
 func (c *Category) Update() {
-	c.BaseUpdate(&models.Category{}, "category")
+	c.baseUpdate(&models.Category{})
+}
+
+// Delete 删除数据
+func (c *Category) Delete() {
+	c.baseDelete(&models.Category{})
 }
 
 // Inline 行内编辑执行

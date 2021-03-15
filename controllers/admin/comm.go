@@ -24,26 +24,40 @@ type Comm struct {
 // 前置操作
 func (c *Comm) Prepare() {
 
-	// 如果是ajax 请求获取POST提交、忽略
-	if c.IsAjax() || c.Ctx.Request.Method == "POST" {
-		if !c.IsLogin("admin") {
-			response.NotLogin(&c.Base.Controller, "还没有登录")
-			return
-		}
-
-		return
-	}
-
-	// 没有登录
-	if !c.IsLogin("admin") {
-		c.Redirect("/admin", 302)
-		return
-	}
+	// // 如果是ajax 请求获取POST提交、忽略
+	// if c.IsAjax() || c.Ctx.Request.Method == "POST" {
+	// 	if !c.IsLogin("admin") {
+	// 		response.NotLogin(&c.Base.Controller, "还没有登录")
+	// 		return
+	// 	}
+	//
+	// 	return
+	// }
+	//
+	// // 没有登录
+	// if !c.IsLogin("admin") {
+	// 	c.Redirect("/admin", 302)
+	// 	return
+	// }
 
 	// 使用的布局
 	c.Data["admin"] = c.User
 	c.Data["navigation"] = logic.GetCacheMenu()
 	c.Layout = "admin/layout/main.html"
+}
+
+func (c *Category) baseCreate(data interface{}) {
+	if err := c.ParseForm(data); err != nil {
+		response.InvalidParams(&c.Base.Controller, "请求数据为空")
+		return
+	}
+
+	if _, err := orm.NewOrm().Insert(data); err != nil {
+		response.BusinessError(&c.Base.Controller, err)
+		return
+	}
+
+	response.Success(&c.Base.Controller, data)
 }
 
 // 查询方法
@@ -91,12 +105,14 @@ func (c *Comm) Query(search map[string]string) repositories.Query {
 }
 
 // 公共的查询数据的方法
-func (c *Comm) BaseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
+func (c *Comm) baseSearch(arr interface{}, search map[string]string, where map[string]interface{}) {
 	// 定义返回数据
 	var (
 		data response.DataTable
 		err  error
 	)
+
+	draw, _ := c.GetInt64("draw", 0)
 
 	// 处理查询数据信息
 	query := c.Query(search)
@@ -111,70 +127,54 @@ func (c *Comm) BaseSearch(arr interface{}, search map[string]string, where map[s
 		return
 	}
 
+	data.Draw = draw
 	data.Data = arr
+	data.RecordsFiltered = data.RecordsTotal
 	response.Success(&c.Base.Controller, &data)
 }
 
 // 公共的编辑的方法
-func (c *Comm) BaseUpdate(object interface{}, table string) {
-	// 获取请求信息
-	actionType := c.GetString("actionType")
-	if actionType == "" {
-		response.MissingParams(&c.Base.Controller)
+func (c *Comm) baseUpdate(object interface{}) {
+
+	// 查询数据是否存在
+	if err := c.findOrFail(object); err != nil {
+		response.InvalidParams(&c.Base.Controller, "抱歉！修改数据不存在")
 		return
 	}
 
-	if !utils.InArray([]string{"insert", "update", "delete", "deleteAll"}, actionType) {
-		response.MissingParams(&c.Base.Controller, "请求类型错误")
-		return
-	}
-
-	// 修改数据
-	if actionType == "update" {
-		// 修改数据需要先查询数据
-		id, err := c.GetInt64("id")
-		if err != nil {
-			response.BusinessError(&c.Base.Controller, "主键数据不存在")
-			return
-		}
-
-		if err := repositories.One(object, repositories.QueryOther{Table: table, Where: map[string]interface{}{"id": id}}); err != nil {
-			response.BusinessError(&c.Base.Controller, "修改数据不存在")
-			return
-		}
-	}
-
-	if actionType == "deleteAll" {
-		c.baseDeleteAll(object, table)
-		return
-	}
-
+	// 解析数据信息
 	if err := c.ParseForm(object); err != nil {
 		response.InvalidParams(&c.Base.Controller, "请求数据为空")
 		return
 	}
 
-	var err error
-	// 根据类型做出相应的处理
-	switch actionType {
-	case "insert": // 新增数据
-		_, err = orm.NewOrm().Insert(object)
-	case "update": // 修改数据
-		_, err = orm.NewOrm().Update(object)
-	case "delete": // 删除数据
-		_, err = repositories.Delete(object)
-	}
-
-	// 判断返回数据
-	if err != nil {
-		response.BusinessError(&c.Base.Controller, "抱歉！执行该操作出现错误")
+	// 执行修改数据
+	if _, err := orm.NewOrm().Update(object); err != nil {
+		response.BusinessError(&c.Base.Controller, "抱歉！修改数据出现错误")
 		return
 	}
 
 	response.Success(&c.Base.Controller, object, "操作成功")
 }
 
-func (c *Comm) baseDelete(data interface{}, table string) {
+func (c *Comm) baseDelete(data interface{}) {
+
+	// 查询数据是否存在
+	if err := c.findOrFail(data); err != nil {
+		response.InvalidParams(&c.Base.Controller, "抱歉！删除数据不存在")
+		return
+	}
+
+	// 执行删除数据
+	if _, err := orm.NewOrm().Delete(data); err != nil {
+		response.BusinessError(&c.Base.Controller, "抱歉！删除数据出现错误")
+		return
+	}
+
+	response.Success(&c.Base.Controller, data, "操作成功")
+}
+
+func (c *Comm) findOrFail(data interface{}) error {
 	// 获取主键
 	strId := "id"
 	if v, ok := data.(repositories.Model); ok {
@@ -184,43 +184,10 @@ func (c *Comm) baseDelete(data interface{}, table string) {
 	// 修改数据需要先查询数据
 	id, err := c.GetInt64(strId)
 	if err != nil {
-		response.MissingParams(&c.Base.Controller, "主键数据不存在")
-		return
+		return err
 	}
 
-	if err := repositories.One(data, repositories.QueryOther{Table: table, Where: map[string]interface{}{strId: id}}); err != nil {
-		response.BusinessError(&c.Base.Controller, "删除数据不存在")
-		return
-	}
-
-	if _, err := repositories.Delete(data); err != nil {
-		response.BusinessError(&c.Base.Controller, "抱歉！删除数据出现错误")
-		return
-	}
-
-	response.Success(&c.Base.Controller, data, "操作成功")
-}
-
-// BaseDeleteAll 批量删除
-func (c *Comm) baseDeleteAll(data interface{}, table string) {
-	ids := c.GetString("ids")
-	if ids == "" {
-		response.MissingParams(&c.Base.Controller, "删除数据为空")
-		return
-	}
-
-	aIds := strings.Split(ids, ",")
-	if len(aIds) == 0 {
-		response.BusinessError(&c.Base.Controller, "删除数据为空")
-		return
-	}
-
-	if _, err := repositories.DeleteAll(data, aIds, table); err != nil {
-		response.SystemError(&c.Base.Controller, "删除数据失败")
-		return
-	}
-
-	response.Success(&c.Base.Controller, aIds, "批量删除成功")
+	return orm.NewOrm().QueryTable(data).Filter(strId, id).One(data)
 }
 
 // BaseUpload 图片上传处理
