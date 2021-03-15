@@ -6,6 +6,7 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/google/go-cmp v0.5.1 // indirect
+	github.com/jinxing-go/mysql v1.0.5
 	github.com/lib/pq v1.10.0 // indirect
 	github.com/prometheus/common v0.10.0
 	github.com/smartystreets/goconvey v1.6.4

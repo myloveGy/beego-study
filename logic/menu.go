@@ -3,9 +3,8 @@ package logic
 import (
 	"time"
 
-	"github.com/astaxie/beego/orm"
-
 	"project/cache"
+	"project/connection"
 	"project/models"
 )
 
@@ -29,7 +28,11 @@ func GetCacheMenu() []*Menu {
 
 	// 没有缓存数据信息 - 查询导航栏信息
 	menuList := make([]*models.Menu, 0)
-	orm.NewOrm().QueryTable(&models.Menu{}).Filter("status", 1).OrderBy("sort", "id").All(&menuList)
+	connection.DB.Builder(&menuList).
+		Where("status", 1).
+		OrderBy("sort", "asc").
+		OrderBy("id", "asc").
+		All()
 	data := FindParentMenu(0, menuList)
 	if len(data) > 0 {
 		cache.Put("menu", data, 43200*time.Second)

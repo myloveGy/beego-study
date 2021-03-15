@@ -12,6 +12,8 @@
     var oStatus = {"0": "停用", "1": "启用"},
         myTable = new meTables({
             title: "文章分类信息",
+            number: false,
+            checkbox: false,
             table: {
                 columns: [
                     {
@@ -19,6 +21,7 @@
                         title: "栏目ID",
                         edit: {"type": "hidden"},
                         search: {"type": "text"},
+                        defaultOrder: "desc",
                     },
                     {
                         data: "pid",

@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 
+	"project/connection"
 	"project/models"
 	"project/response"
 )
@@ -41,23 +41,23 @@ func (c *Controller) Prepare() {
 	status := map[string]interface{}{"status": 1}
 
 	// 点击量
-	sees, _ := models.GetArticle(status, 6, "-see_num")
+	sees, _ := models.GetArticle(status, 6, "see_num", "desc")
 
 	// 热门
-	hots, _ := models.GetArticle(status, 6, "-created_at")
+	hots, _ := models.GetArticle(status, 6, "created_at", "desc")
 	status["recommend"] = 1
 
 	// 推荐
-	commList, _ := models.GetArticle(status, 6, "-created_at")
+	commList, _ := models.GetArticle(status, 6, "created_at", "desc")
 
 	// 图文推荐
 	var imgList []*models.Article
-	orm.NewOrm().QueryTable(&models.Article{}).
-		Filter("status", 1).
-		Exclude("img", "").
-		OrderBy("created_at").
+	connection.DB.Builder(&imgList).
+		Where("status", 1).
+		Where("img", "!=", "").
+		OrderBy("created_at", "asc").
 		Limit(5).
-		All(&imgList)
+		All()
 
 	// 用户是否已经登录
 	c.Data["isLogin"] = c.IsLogin("user")

@@ -3,6 +3,8 @@ package admin
 import (
 	"time"
 
+	"github.com/jinxing-go/mysql"
+
 	"project/models"
 )
 
@@ -37,17 +39,23 @@ func (a *Admin) Search() {
 
 	// 查询信息
 	search := map[string]string{
-		"username": "username__icontains",
-		"email":    "email__icontains",
-		"user_id":  "user_id",
-		"status":   "status",
+		"username": "like",
+		"email":    "like",
+		"user_id":  "=",
+		"status":   "=",
 	}
 
 	// 返回信息
 	a.baseSearch(&arr, search)
 }
 
-// 修改数据
+func (a *Admin) Create() {
+	a.baseCreate(&models.Admin{
+		LastLoginIp:   a.Ctx.Request.RemoteAddr,
+		LastLoginTime: mysql.Now(),
+	})
+}
+
 func (a *Admin) Update() {
 	a.baseUpdate(&models.Admin{})
 }

@@ -36,14 +36,18 @@ func (m *Menu) Search() {
 
 	// 查询信息
 	search := map[string]string{
-		"menu_name": "menu_name__icontains",
-		"id":        "id",
-		"status":    "status",
-		"url":       "url__icontains",
+		"menu_name": "like",
+		"id":        "=",
+		"status":    "=",
+		"url":       "like",
 	}
 
 	// 返回信息
 	m.baseSearch(&arr, search)
+}
+
+func (m *Menu) Create() {
+	m.baseCreate(&models.Menu{})
 }
 
 // 修改数据

@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/astaxie/beego/orm"
+	"github.com/jinxing-go/mysql"
 )
 
 // 定义分类模型
@@ -29,7 +29,6 @@ func (*Image) PK() string {
 	return "image_id"
 }
 
-// 初始化注册
-func init() {
-	orm.RegisterModel(new(Image))
+func (*Image) TimestampsValue() interface{} {
+	return mysql.Now()
 }

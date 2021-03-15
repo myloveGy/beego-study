@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -8,8 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/astaxie/beego/orm"
+	"github.com/jinxing-go/mysql"
 
+	"project/connection"
 	"project/controllers"
 	"project/logic"
 	"project/models"
@@ -47,13 +49,23 @@ func (c *Comm) Prepare() {
 	c.Layout = "admin/layout/main.html"
 }
 
-func (c *Category) baseCreate(data interface{}) {
+func (c *Comm) baseCreate(data mysql.Model) {
+	// 解析出数据
 	if err := c.ParseForm(data); err != nil {
 		response.InvalidParams(&c.Base.Controller, "请求数据为空")
 		return
 	}
 
-	if _, err := orm.NewOrm().Insert(data); err != nil {
+	// 执行前置操作
+	if v, ok := data.(models.BeforeSave); ok {
+		if err := v.BeforeSave(); err != nil {
+			response.BusinessError(&c.Base.Controller, err)
+			return
+		}
+	}
+
+	// 新增数据
+	if err := connection.DB.Create(data); err != nil {
 		response.BusinessError(&c.Base.Controller, err)
 		return
 	}
@@ -64,69 +76,57 @@ func (c *Category) baseCreate(data interface{}) {
 // 公共的查询数据的方法
 func (c *Comm) baseSearch(data interface{}, search map[string]string) {
 
-	// 获取model信息
-	modelObject, err := models.GetModel(data)
-	if err != nil {
-		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
-		return
-	}
-
 	// 接收参数
 	draw, _ := c.GetInt64("draw", 1)
 	limit, _ := c.GetInt64("limit", 10)
 	offset, _ := c.GetInt64("offset", 0)
+	page := offset / limit
 
 	// 处理排序
-	orderBy := c.GetString("orderBy", fmt.Sprintf("%s desc", modelObject.PK()))
+	orderBy := c.GetString("orderBy")
 	order := strings.Split(orderBy, " ")
-	if len(order) == 2 && order[1] == "acs" {
-		orderBy = fmt.Sprintf("-%s", order[0])
-	} else {
-		orderBy = fmt.Sprintf("%s", order[0])
-	}
 
 	// 查询数据
 	resp := &response.DataTable{Draw: draw}
-	table := modelObject.TableName()
-	query := orm.NewOrm().QueryTable(table)
+	query := connection.DB.Builder(data)
 
 	// 添加查询条件
 	for k, v := range search {
 		if k == "default" {
 			where := strings.Split(v, ",")
 			for i := 0; i < len(where); i += 2 {
-				query = query.Filter(where[i], where[i+1])
+				query = query.Where(where[i], where[i+1])
 			}
 		} else {
 			value := c.Ctx.Input.Query(fmt.Sprintf("filters[%s]", k))
 			if value != "" && v != "" {
-				query = query.Filter(v, value)
+				if v == "like" {
+					value = "%" + value + "%"
+				}
+
+				query = query.Where(k, v, value)
 			}
 		}
 	}
 
 	// 查询数据总条数
-	if resp.RecordsTotal, err = query.Count(); err != nil {
-		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
-		return
-	}
-
-	// 查询数据信息
-	if _, err := query.Offset(offset).OrderBy(orderBy).Limit(limit).All(data); err != nil {
+	total, err := query.OrderBy(order[0], order[1]).Paginate(int(page), int(limit))
+	if err != nil {
 		response.BusinessError(&c.Base.Controller, "服务器繁忙，请稍后再试")
 		return
 	}
 
 	resp.Data = data
-	resp.RecordsFiltered = resp.RecordsTotal
+	resp.RecordsTotal = total
+	resp.RecordsFiltered = total
 	response.Success(&c.Base.Controller, resp)
 }
 
 // 公共的编辑的方法
-func (c *Comm) baseUpdate(object interface{}) {
+func (c *Comm) baseUpdate(object mysql.Model) {
 
 	// 查询数据是否存在
-	if err := c.findOrFail(object); err != nil {
+	if err := c.findOrFail(object, false); err != nil {
 		response.InvalidParams(&c.Base.Controller, "抱歉！修改数据不存在")
 		return
 	}
@@ -137,8 +137,16 @@ func (c *Comm) baseUpdate(object interface{}) {
 		return
 	}
 
+	// 执行前置操作
+	if v, ok := object.(models.BeforeSave); ok {
+		if err := v.BeforeSave(); err != nil {
+			response.BusinessError(&c.Base.Controller, err)
+			return
+		}
+	}
+
 	// 执行修改数据
-	if _, err := orm.NewOrm().Update(object); err != nil {
+	if _, err := connection.DB.Update(object); err != nil {
 		response.BusinessError(&c.Base.Controller, "抱歉！修改数据出现错误")
 		return
 	}
@@ -146,16 +154,16 @@ func (c *Comm) baseUpdate(object interface{}) {
 	response.Success(&c.Base.Controller, object, "操作成功")
 }
 
-func (c *Comm) baseDelete(data interface{}) {
+func (c *Comm) baseDelete(data mysql.Model) {
 
 	// 查询数据是否存在
-	if err := c.findOrFail(data); err != nil {
+	if err := c.findOrFail(data, true); err != nil {
 		response.InvalidParams(&c.Base.Controller, "抱歉！删除数据不存在")
 		return
 	}
 
 	// 执行删除数据
-	if _, err := orm.NewOrm().Delete(data); err != nil {
+	if _, err := connection.DB.Delete(data); err != nil {
 		response.BusinessError(&c.Base.Controller, "抱歉！删除数据出现错误")
 		return
 	}
@@ -163,12 +171,9 @@ func (c *Comm) baseDelete(data interface{}) {
 	response.Success(&c.Base.Controller, data, "操作成功")
 }
 
-func (c *Comm) findOrFail(data interface{}) error {
+func (c *Comm) findOrFail(data mysql.Model, isFind bool) error {
 	// 获取主键
-	strId := "id"
-	if v, ok := data.(models.Model); ok {
-		strId = v.PK()
-	}
+	strId := data.PK()
 
 	// 修改数据需要先查询数据
 	id, err := c.GetInt64(strId)
@@ -176,7 +181,24 @@ func (c *Comm) findOrFail(data interface{}) error {
 		return err
 	}
 
-	return orm.NewOrm().QueryTable(data).Filter(strId, id).One(data)
+	if isFind {
+		if err := connection.DB.Builder(data).Where(strId, id).One(); err != nil {
+			return errors.New("数据不存在")
+		}
+
+		return nil
+	}
+
+	var total int64
+	if err := connection.DB.Get(&total, fmt.Sprintf("SELECT COUNT(*) AS `total` FROM `%s` WHERE `%s` = ? ", data.TableName(), strId), id); err != nil {
+		return errors.New("数据不存在")
+	}
+
+	if total == 0 {
+		return errors.New("数据不存在")
+	}
+
+	return nil
 }
 
 // BaseUpload 图片上传处理

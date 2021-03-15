@@ -2,23 +2,24 @@ package models
 
 import (
 	"errors"
-	"time"
+	"fmt"
 
 	"github.com/astaxie/beego/orm"
+	"github.com/jinxing-go/mysql"
 
 	"project/utils"
 )
 
 type Admin struct {
-	UserId        int64     `orm:"column(user_id);auto;pk" json:"user_id" form:"user_id"`
-	Username      string    `orm:"column(username);" form:"username" json:"username"`
-	Password      string    `orm:"column(password);" form:"password" json:"password"`
-	Email         string    `orm:"column(email);" form:"email" json:"email"`
-	Status        int       `orm:"column(status)" json:"status" form:"status"`
-	LastLoginTime time.Time `orm:"column(last_login_time)" json:"last_login_time"`
-	LastLoginIp   string    `orm:"column(last_login_ip)" json:"last_login_ip"`
-	CreatedAt     time.Time `orm:"column(created_at);auto_now_add;type(datetime)" json:"created_at"`
-	UpdatedAt     time.Time `orm:"column(updated_at);auto_now;type(datetime)" json:"updated_at"`
+	UserId        int64      `db:"user_id" json:"user_id" form:"user_id"`
+	Username      string     `db:"username" form:"username" json:"username"`
+	Password      string     `db:"password" form:"password" json:"password"`
+	Email         string     `db:"email" form:"email" json:"email"`
+	Status        int        `db:"status" json:"status" form:"status"`
+	LastLoginTime mysql.Time `db:"last_login_time" json:"last_login_time"`
+	LastLoginIp   string     `db:"last_login_ip" json:"last_login_ip"`
+	CreatedAt     mysql.Time `db:"created_at" json:"created_at"`
+	UpdatedAt     mysql.Time `db:"updated_at" json:"updated_at"`
 }
 
 func (*Admin) TableName() string {
@@ -27,6 +28,24 @@ func (*Admin) TableName() string {
 
 func (*Admin) PK() string {
 	return "user_id"
+}
+
+func (*Admin) TimestampsValue() interface{} {
+	return mysql.Now()
+}
+
+func (a *Admin) BeforeSave() error {
+
+	if a.Password != "" {
+		fmt.Println(a.Password, "password")
+		if password, err := utils.GeneratePassword(a.Password); err != nil {
+			return err
+		} else {
+			a.Password = password
+		}
+	}
+
+	return nil
 }
 
 func (a *Admin) Login(username, password, ip string) error {
@@ -48,16 +67,11 @@ func (a *Admin) Login(username, password, ip string) error {
 	}
 
 	// 修改登录IP
-	a.LastLoginTime = time.Now()
+	a.LastLoginTime = mysql.Now()
 	a.LastLoginIp = ip
 	if _, err := o.Update(a, "last_login_ip", "last_login_time"); err != nil {
 		return errors.New("修改登录信息失败")
 	}
 
 	return nil
-}
-
-// 初始化注册
-func init() {
-	orm.RegisterModel(new(Admin))
 }

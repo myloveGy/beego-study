@@ -49,8 +49,8 @@ func (c *Category) Search() {
 
 	// 查询信息
 	search := map[string]string{
-		"id":     "id",
-		"status": "status",
+		"id":     "=",
+		"status": "=",
 	}
 
 	// 返回信息
