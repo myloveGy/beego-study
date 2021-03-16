@@ -23,3 +23,9 @@ go mod tidy
 ```shell
 go rum main.go
 ```
+
+## 后端地址
+
+```
+/admin
+```
