@@ -35,7 +35,7 @@ CREATE TABLE `admin`
     `updated_at`      datetime     NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `unq_username` (`username`) COMMENT '用户名称唯一'
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户信息';
 
 -- ----------------------------
 -- Records of admin
@@ -66,7 +66,7 @@ CREATE TABLE `article`
     `created_at`  datetime     NOT NULL COMMENT '创建时间',
     `updated_at`  datetime     NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章信息';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='文章信息';
 
 -- ----------------------------
 -- Records of article
@@ -99,7 +99,7 @@ CREATE TABLE `category`
     `created_at` datetime     NOT NULL COMMENT '创建时间',
     `updated_at` datetime     NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='分类信息';
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COMMENT='分类信息';
 
 -- ----------------------------
 -- Records of category
@@ -146,7 +146,7 @@ CREATE TABLE `image`
     `created_at`  datetime     NOT NULL COMMENT '创建时间',
     `updated_at`  datetime     NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`image_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='上传图片信息';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='上传图片信息';
 
 -- ----------------------------
 -- Records of image
@@ -188,7 +188,7 @@ CREATE TABLE `menu`
     `created_at` datetime     NOT NULL COMMENT '创建时间',
     `updated_at` datetime     NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单信息';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='菜单信息';
 
 -- ----------------------------
 -- Records of menu
